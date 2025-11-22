@@ -19,11 +19,11 @@ import androidx.core.view.WindowCompat
 /**
  * Leadership Conversation Coach - Main Theme
  *
- * Comprehensive Material 3 theme with support for:
- * - Light and dark modes
+ * Comprehensive Material 3 theme with sea green and lavender colors:
+ * - Light and dark modes with sea green and lavender accents
  * - Dynamic colors (Android 12+)
- * - Custom color schemes
- * - System UI appearance
+ * - Custom sea green and lavender color schemes
+ * - System UI appearance with themed status bar
  */
 
 // ============================================================
@@ -31,29 +31,29 @@ import androidx.core.view.WindowCompat
 // ============================================================
 
 private val LightColorScheme = lightColorScheme(
-    // Primary colors - Calm Sage Green
+    // Primary colors - Pleasant Sea Green
     primary = Primary,
     onPrimary = OnPrimary,
-    primaryContainer = Color(0xFFD4E4DA),     // Light sage
-    onPrimaryContainer = Color(0xFF3E5247),   // Dark sage
+    primaryContainer = Color(0xFFB2DFDB),     // Light sea green
+    onPrimaryContainer = Color(0xFF00695C),   // Dark sea green
 
-    // Secondary colors - Soft Lavender
+    // Secondary colors - Calming Lavender
     secondary = Secondary,
     onSecondary = OnSecondary,
-    secondaryContainer = Color(0xFFE0DEEF),   // Light lavender
-    onSecondaryContainer = Color(0xFF4A4662), // Dark lavender
+    secondaryContainer = Color(0xFFD1C4E9),   // Light lavender
+    onSecondaryContainer = Color(0xFF512DA8), // Dark lavender
 
-    // Tertiary colors (using soft blue)
+    // Tertiary colors (using sky blue)
     tertiary = Info,
     onTertiary = OnPrimary,
-    tertiaryContainer = Color(0xFFD9E7F1),
-    onTertiaryContainer = Color(0xFF3A4E5C),
+    tertiaryContainer = Color(0xFFBBDEFB),
+    onTertiaryContainer = Color(0xFF0D47A1),
 
-    // Error colors - Soft Coral
+    // Error colors - Coral
     error = Error,
     onError = Color(0xFFFFFFFF),
-    errorContainer = Color(0xFFF5E5E5),       // Light coral
-    onErrorContainer = Color(0xFF6B4545),     // Dark coral
+    errorContainer = Color(0xFFFFCDD2),       // Light coral
+    onErrorContainer = Color(0xFFC62828),     // Dark coral
 
     // Background - Warm Neutrals
     background = Background,
@@ -85,29 +85,29 @@ private val LightColorScheme = lightColorScheme(
 // ============================================================
 
 private val DarkColorScheme = darkColorScheme(
-    // Primary colors - Calm Sage Green
+    // Primary colors - Sea Green
     primary = DarkPrimary,
     onPrimary = DarkOnPrimary,
-    primaryContainer = Color(0xFF3E5247),     // Dark sage container
-    onPrimaryContainer = Color(0xFFD4E4DA),   // Light sage
+    primaryContainer = Color(0xFF00695C),     // Dark sea green container
+    onPrimaryContainer = Color(0xFFB2DFDB),   // Light sea green
 
-    // Secondary colors - Soft Lavender
+    // Secondary colors - Lavender
     secondary = Secondary,
-    onSecondary = Color(0xFF1A1A1A),
-    secondaryContainer = Color(0xFF4A4662),   // Dark lavender
-    onSecondaryContainer = Color(0xFFE0DEEF), // Light lavender
+    onSecondary = Color(0xFF1A202C),
+    secondaryContainer = Color(0xFF512DA8),   // Dark lavender
+    onSecondaryContainer = Color(0xFFD1C4E9), // Light lavender
 
-    // Tertiary colors - Soft Blue
+    // Tertiary colors - Sky Blue
     tertiary = Info,
-    onTertiary = Color(0xFF1A1A1A),
-    tertiaryContainer = Color(0xFF3A4E5C),
-    onTertiaryContainer = Color(0xFFD9E7F1),
+    onTertiary = Color(0xFF1A202C),
+    tertiaryContainer = Color(0xFF0D47A1),
+    onTertiaryContainer = Color(0xFFBBDEFB),
 
-    // Error colors - Soft Coral
+    // Error colors - Coral
     error = Error,
-    onError = Color(0xFF1A1A1A),
-    errorContainer = Color(0xFF6B4545),       // Dark coral
-    onErrorContainer = Color(0xFFF5E5E5),     // Light coral
+    onError = Color(0xFF1A202C),
+    errorContainer = Color(0xFFC62828),       // Dark coral
+    onErrorContainer = Color(0xFFFFCDD2),     // Light coral
 
     // Background - Calm Night
     background = DarkBackground,

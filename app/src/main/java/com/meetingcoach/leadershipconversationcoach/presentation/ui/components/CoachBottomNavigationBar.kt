@@ -69,13 +69,14 @@ enum class NavigationDestination(
 }
 
 /**
- * Modern Glossy Bottom Navigation Bar
- * 
+ * Modern Glossy Pill-Shaped Bottom Navigation Bar
+ *
  * Features:
- * - Pill-shaped selected indicator with gradient
- * - Glossy highlight effect
- * - Smooth animations
- * - Elevated design with shadow
+ * - Full pill-shaped container with sea green to lavender gradient
+ * - Glossy highlight overlay for premium glass effect
+ * - Individual pill items with enhanced depth
+ * - Smooth color transitions and animations
+ * - Floating elevated design with dramatic shadow
  */
 @Composable
 fun CoachBottomNavigationBar(
@@ -83,35 +84,72 @@ fun CoachBottomNavigationBar(
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 12.dp,
-                spotColor = GlossyShadow,
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-            ),
-        color = Surface,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Row(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                .height(72.dp)
+                .shadow(
+                    elevation = 16.dp,
+                    spotColor = GlossyShadow,
+                    shape = RoundedCornerShape(36.dp)
+                ),
+            color = Color.Transparent,
+            shape = RoundedCornerShape(36.dp)
         ) {
-            NavigationDestination.entries.forEach { destination ->
-                GlossyNavItem(
-                    selected = currentDestination == destination.route,
-                    onClick = { onNavigate(destination.route) },
-                    icon = if (currentDestination == destination.route) {
-                        destination.selectedIcon
-                    } else {
-                        destination.unselectedIcon
-                    },
-                    contentDescription = destination.contentDescription
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                GlossyNavBarStart,
+                                GlossyNavBarEnd
+                            )
+                        ),
+                        shape = RoundedCornerShape(36.dp)
+                    )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(32.dp)
+                        .align(Alignment.TopCenter)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    GlossyHighlight,
+                                    Color.Transparent
+                                )
+                            ),
+                            shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp)
+                        )
                 )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    NavigationDestination.entries.forEach { destination ->
+                        GlossyNavItem(
+                            selected = currentDestination == destination.route,
+                            onClick = { onNavigate(destination.route) },
+                            icon = if (currentDestination == destination.route) {
+                                destination.selectedIcon
+                            } else {
+                                destination.unselectedIcon
+                            },
+                            contentDescription = destination.contentDescription
+                        )
+                    }
+                }
             }
         }
     }
@@ -124,33 +162,33 @@ private fun GlossyNavItem(
     icon: ImageVector,
     contentDescription: String
 ) {
-    val backgroundColor by animateColorAsState(
-        targetValue = if (selected) Color.Transparent else Color.Transparent,
-        animationSpec = tween(300),
-        label = "backgroundColor"
-    )
-    
     val iconColor by animateColorAsState(
         targetValue = if (selected) Color.White else TextSecondary,
-        animationSpec = tween(300),
+        animationSpec = tween(350),
         label = "iconColor"
     )
-    
+
     val elevation by animateDpAsState(
-        targetValue = if (selected) 6.dp else 0.dp,
-        animationSpec = tween(300),
+        targetValue = if (selected) 8.dp else 0.dp,
+        animationSpec = tween(350),
         label = "elevation"
+    )
+
+    val pillSize by animateDpAsState(
+        targetValue = if (selected) 56.dp else 48.dp,
+        animationSpec = tween(350),
+        label = "pillSize"
     )
 
     Box(
         modifier = Modifier
-            .size(56.dp)
+            .size(pillSize)
             .shadow(
                 elevation = elevation,
-                shape = RoundedCornerShape(28.dp),
-                spotColor = GlossyShadow
+                shape = RoundedCornerShape(pillSize / 2),
+                spotColor = if (selected) GlossyShadow else Color.Transparent
             )
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(pillSize / 2))
             .background(
                 brush = if (selected) {
                     Brush.verticalGradient(
@@ -158,19 +196,19 @@ private fun GlossyNavItem(
                     )
                 } else {
                     Brush.verticalGradient(
-                        colors = listOf(backgroundColor, backgroundColor)
+                        colors = listOf(Color.Transparent, Color.Transparent)
                     )
                 }
             ),
         contentAlignment = Alignment.Center
     ) {
-        // Glossy highlight for selected state
         if (selected) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(16.dp)
+                    .fillMaxWidth(0.9f)
+                    .height(20.dp)
                     .align(Alignment.TopCenter)
+                    .padding(top = 4.dp)
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
@@ -178,20 +216,20 @@ private fun GlossyNavItem(
                                 Color.Transparent
                             )
                         ),
-                        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+                        shape = RoundedCornerShape(topStart = pillSize / 2, topEnd = pillSize / 2)
                     )
             )
         }
-        
+
         IconButton(
             onClick = onClick,
-            modifier = Modifier.size(56.dp)
+            modifier = Modifier.size(pillSize)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
                 tint = iconColor,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(if (selected) 26.dp else 24.dp)
             )
         }
     }
