@@ -14,27 +14,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlossyHighlight
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlossyPrimaryEnd
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlossyPrimaryStart
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlossyShadow
 
 /**
- * User Question Bubble Component
+ * User Question Bubble Component - Modern Sea Green Design
  *
  * Purpose: Display user's questions to the AI coach
  *
  * Visual Style:
- * - Background: Blue (#3B82F6)
+ * - Background: Sea green gradient with glossy effect
  * - Text color: White
- * - Corner radius: 16dp
- * - Max width: 260dp
- * - Padding: 12dp
- * - Elevation: 2dp
- * - Alignment: Right with 24dp margin
- * - No speaker label needed (it's obviously the user)
+ * - Corner radius: 20dp (top) and 4dp (bottom-right pointer)
+ * - Max width: 75% of screen
+ * - Padding: 16dp
+ * - Elevation: 4dp with shadow
+ * - Alignment: Right with margin
+ * - Glossy highlight overlay for premium feel
  *
- * Example: [User's question appears in blue bubble on right side]
+ * Example: [User's question appears in sea green bubble on right side]
  */
 @Composable
 fun UserBubble(
@@ -42,36 +47,61 @@ fun UserBubble(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
-        Card(
+        Box(
             modifier = Modifier
-                //.widthIn(max = 260.dp)
-                //.padding(end = 24.dp, start = 48.dp)
-                .padding(start = 5.dp, end = 24.dp)
-
+                .widthIn(max = 280.dp)
                 .shadow(
-                    elevation = 2.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    ambientColor = Color.Black.copy(alpha = 0.10f),
-                    spotColor = Color.Black.copy(alpha = 0.10f)
-                ),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF3B82F6) // Blue
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 0.dp // Using shadow instead
-            )
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(
+                        topStart = 20.dp,
+                        topEnd = 20.dp,
+                        bottomStart = 20.dp,
+                        bottomEnd = 4.dp
+                    ),
+                    spotColor = GlossyShadow
+                )
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            GlossyPrimaryStart,
+                            GlossyPrimaryEnd
+                        )
+                    ),
+                    shape = RoundedCornerShape(
+                        topStart = 20.dp,
+                        topEnd = 20.dp,
+                        bottomStart = 20.dp,
+                        bottomEnd = 4.dp
+                    )
+                )
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 3.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                GlossyHighlight,
+                                Color.Transparent
+                            )
+                        ),
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                    )
+            )
+
             Text(
                 text = content,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 color = Color.White,
-                lineHeight = 20.sp,
+                lineHeight = 22.sp,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
             )
         }
     }

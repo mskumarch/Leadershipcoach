@@ -74,7 +74,14 @@ fun TranscriptScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF4F7F5)) // Soft sage
+            .background(
+                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFE8F5F3),
+                        Color(0xFFF3E5F5)
+                    )
+                )
+            )
     ) {
         if (sessionState.isRecording && transcriptItems.isNotEmpty()) {
             Column(
@@ -82,17 +89,23 @@ fun TranscriptScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                // Header
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.White)
-                        .padding(24.dp),
+                        .background(
+                            brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color(0xFFE0F2F1),
+                                    Color(0xFFF3E5F5)
+                                )
+                            )
+                        )
+                        .padding(horizontal = 24.dp, vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = "📝 Live Transcript",
-                        fontSize = 24.sp,
+                        fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1F2937)
                     )
