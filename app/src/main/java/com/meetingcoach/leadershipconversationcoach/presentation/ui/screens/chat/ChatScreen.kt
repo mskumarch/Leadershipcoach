@@ -81,11 +81,17 @@ fun ChatScreen(
     var showQuickActions by remember { mutableStateOf(false) }
     var showSessionModeModal by remember { mutableStateOf(false) }
 
-    // FIXED: Use Box instead of Scaffold to avoid nesting issues
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF4F7F5))
+            .background(
+                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFF0F9FF),
+                        Color(0xFFF5F3FF)
+                    )
+                )
+            )
     ) {
         if (sessionState.isRecording) {
             // ============================================================
@@ -94,7 +100,6 @@ fun ChatScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Minimal Status Bar
                 MinimalStatusBar(
                     duration = sessionState.duration,
                     onStop = {
@@ -113,8 +118,8 @@ fun ChatScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState())
-                                .padding(vertical = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             sessionState.messages.forEach { message ->
                                 when (message.type) {
@@ -242,29 +247,24 @@ fun ChatScreen(
                     }
                 }
 
-                // FIXED: Text input field as part of content, not bottomBar
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .shadow(
-                            elevation = 8.dp,
-                            spotColor = Color.Black.copy(alpha = 0.1f),
-                            ambientColor = Color.Black.copy(alpha = 0.05f)
+                            elevation = 12.dp,
+                            spotColor = Color.Black.copy(alpha = 0.15f),
+                            ambientColor = Color.Black.copy(alpha = 0.08f)
                         ),
-                    color = Color.White
+                    color = Color.White.copy(alpha = 0.95f)
                 ) {
                     ChatInputField(
                         value = inputText,
                         onValueChange = { inputText = it },
                         onSend = {
                             if (inputText.isNotBlank()) {
-                                // Add user message to ViewModel
                                 viewModel.addUserMessage(inputText)
-
-                                // Get AI response
                                 val aiResponse = viewModel.getAIResponse(inputText)
                                 viewModel.addAIResponse(aiResponse)
-
                                 inputText = ""
                             }
                         }
