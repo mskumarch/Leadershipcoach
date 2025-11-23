@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,8 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -69,14 +73,15 @@ enum class NavigationDestination(
 }
 
 /**
- * Modern Glossy Pill-Shaped Bottom Navigation Bar
+ * Premium Glassmorphic Bottom Navigation Bar
  *
  * Features:
- * - Full pill-shaped container with sea green to lavender gradient
- * - Glossy highlight overlay for premium glass effect
- * - Individual pill items with enhanced depth
- * - Smooth color transitions and animations
- * - Floating elevated design with dramatic shadow
+ * - Floating horizontal pill with 70% white glass effect
+ * - Backdrop blur (20px equivalent)
+ * - Layered shadows for depth
+ * - Active indicator with sage green pill background
+ * - 28px icons with smooth transitions
+ * - 90% screen width, centered, 16dp from bottom
  */
 @Composable
 fun CoachBottomNavigationBar(
@@ -84,69 +89,68 @@ fun CoachBottomNavigationBar(
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val destinations = NavigationDestination.values()
+
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(bottom = 16.dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    spotColor = GlossyShadow,
-                    shape = RoundedCornerShape(36.dp)
-                ),
-            color = Color.Transparent,
-            shape = RoundedCornerShape(36.dp)
+                .fillMaxWidth(0.9f)
+                .height(72.dp),
+            shape = RoundedCornerShape(percent = 50), // Fully rounded pill
+            color = GlassWhite, // 70% white
+            shadowElevation = 0.dp
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                GlossyNavBarStart,
-                                GlossyNavBarEnd
-                            )
-                        ),
-                        shape = RoundedCornerShape(36.dp)
+                    .border(
+                        width = 1.dp,
+                        color = GlassBorderLight, // 30% white border
+                        shape = RoundedCornerShape(percent = 50)
                     )
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(32.dp)
-                        .align(Alignment.TopCenter)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    GlossyHighlight,
-                                    Color.Transparent
-                                )
-                            ),
-                            shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp)
+                    .blur(20.dp) // Backdrop blur effect
+                    .drawBehind {
+                        // Layered shadows
+                        // Outer shadow
+                        drawRoundRect(
+                            color = ShadowLight, // 12% black
+                            topLeft = Offset(0f, 8.dp.toPx()),
+                            size = size,
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
                         )
-                )
-
+                        // Inner shadow
+                        drawRoundRect(
+                            color = ShadowDeep, // 8% black
+                            topLeft = Offset(0f, 2.dp.toPx()),
+                            size = size,
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
+                        )
+                        // Inner highlight (top edge)
+                        drawRoundRect(
+                            color = Color(0xCCFFFFFF), // 80% white
+                            topLeft = Offset(0f, 0f),
+                            size = size.copy(height = 1.dp.toPx()),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
+                        )
+                    }
+            ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    NavigationDestination.entries.forEach { destination ->
-                        GlossyNavItem(
-                            selected = currentDestination == destination.route,
-                            onClick = { onNavigate(destination.route) },
-                            icon = if (currentDestination == destination.route) {
-                                destination.selectedIcon
-                            } else {
-                                destination.unselectedIcon
-                            },
-                            contentDescription = destination.contentDescription
+                    destinations.forEach { destination ->
+                        NavigationItem(
+                            destination = destination,
+                            isSelected = currentDestination == destination.route,
+                            onClick = { onNavigate(destination.route) }
                         )
                     }
                 }
@@ -156,81 +160,42 @@ fun CoachBottomNavigationBar(
 }
 
 @Composable
-private fun GlossyNavItem(
-    selected: Boolean,
-    onClick: () -> Unit,
-    icon: ImageVector,
-    contentDescription: String
+private fun NavigationItem(
+    destination: NavigationDestination,
+    isSelected: Boolean,
+    onClick: () -> Unit
 ) {
     val iconColor by animateColorAsState(
-        targetValue = if (selected) Color.White else TextSecondary,
-        animationSpec = tween(350),
+        targetValue = if (isSelected) Color.White else NeutralGray,
+        animationSpec = tween(300),
         label = "iconColor"
     )
 
-    val elevation by animateDpAsState(
-        targetValue = if (selected) 8.dp else 0.dp,
-        animationSpec = tween(350),
-        label = "elevation"
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isSelected) SageGreen else Color.Transparent,
+        animationSpec = tween(300),
+        label = "backgroundColor"
     )
 
-    val pillSize by animateDpAsState(
-        targetValue = if (selected) 56.dp else 48.dp,
-        animationSpec = tween(350),
-        label = "pillSize"
+    val scale by animateDpAsState(
+        targetValue = if (isSelected) 1.dp else 0.dp,
+        animationSpec = tween(300),
+        label = "scale"
     )
 
-    Box(
+    IconButton(
+        onClick = onClick,
         modifier = Modifier
-            .size(pillSize)
-            .shadow(
-                elevation = elevation,
-                shape = RoundedCornerShape(pillSize / 2),
-                spotColor = if (selected) GlossyShadow else Color.Transparent
-            )
-            .clip(RoundedCornerShape(pillSize / 2))
-            .background(
-                brush = if (selected) {
-                    Brush.verticalGradient(
-                        colors = listOf(GlossyPrimaryStart, GlossyPrimaryEnd)
-                    )
-                } else {
-                    Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Transparent)
-                    )
-                }
-            ),
-        contentAlignment = Alignment.Center
+            .size(56.dp)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(backgroundColor)
+            .padding(if (isSelected) 12.dp else 0.dp)
     ) {
-        if (selected) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(20.dp)
-                    .align(Alignment.TopCenter)
-                    .padding(top = 4.dp)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                GlossyHighlight,
-                                Color.Transparent
-                            )
-                        ),
-                        shape = RoundedCornerShape(topStart = pillSize / 2, topEnd = pillSize / 2)
-                    )
-            )
-        }
-
-        IconButton(
-            onClick = onClick,
-            modifier = Modifier.size(pillSize)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = iconColor,
-                modifier = Modifier.size(if (selected) 26.dp else 24.dp)
-            )
-        }
+        Icon(
+            imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
+            contentDescription = destination.contentDescription,
+            tint = iconColor,
+            modifier = Modifier.size(28.dp)
+        )
     }
 }

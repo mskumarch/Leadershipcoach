@@ -31,53 +31,53 @@ import androidx.core.view.WindowCompat
 // ============================================================
 
 private val LightColorScheme = lightColorScheme(
-    // Primary colors - Pleasant Sea Green
-    primary = Primary,
-    onPrimary = OnPrimary,
-    primaryContainer = Color(0xFFB2DFDB),     // Light sea green
-    onPrimaryContainer = Color(0xFF00695C),   // Dark sea green
+    // Primary colors - Sage Green (Primary Surface)
+    primary = SageGreen,
+    onPrimary = SoftCream,
+    primaryContainer = Color(0xFFB2C9B7),     // Light sage green
+    onPrimaryContainer = DeepCharcoal,
 
-    // Secondary colors - Calming Lavender
-    secondary = Secondary,
-    onSecondary = OnSecondary,
-    secondaryContainer = Color(0xFFD1C4E9),   // Light lavender
-    onSecondaryContainer = Color(0xFF512DA8), // Dark lavender
+    // Secondary colors - Warm Taupe
+    secondary = WarmTaupe,
+    onSecondary = DeepCharcoal,
+    secondaryContainer = Color(0xFFE0D4C4),   // Light taupe
+    onSecondaryContainer = DeepCharcoal,
 
-    // Tertiary colors (using sky blue)
-    tertiary = Info,
-    onTertiary = OnPrimary,
+    // Tertiary colors (Active Blue)
+    tertiary = ActiveBlue,
+    onTertiary = Color.White,
     tertiaryContainer = Color(0xFFBBDEFB),
     onTertiaryContainer = Color(0xFF0D47A1),
 
-    // Error colors - Coral
-    error = Error,
-    onError = Color(0xFFFFFFFF),
+    // Error colors - Muted Coral
+    error = MutedCoral,
+    onError = Color.White,
     errorContainer = Color(0xFFFFCDD2),       // Light coral
     onErrorContainer = Color(0xFFC62828),     // Dark coral
 
-    // Background - Warm Neutrals
-    background = Background,
-    onBackground = OnBackground,
+    // Background - Sage Green (60% coverage)
+    background = SageGreen,
+    onBackground = SoftCream,
 
-    // Surface
-    surface = Surface,
-    onSurface = OnSurface,
-    surfaceVariant = SurfaceVariant,
-    onSurfaceVariant = TextSecondary,
+    // Surface - Soft Cream
+    surface = SoftCream,
+    onSurface = DeepCharcoal,
+    surfaceVariant = WarmTaupe,
+    onSurfaceVariant = DeepCharcoal,
 
     // Other surface tones
-    inverseSurface = TextPrimary,
-    inverseOnSurface = Surface,
+    inverseSurface = DeepCharcoal,
+    inverseOnSurface = SoftCream,
 
     // Outline
-    outline = BorderMedium,
-    outlineVariant = BorderLight,
+    outline = NeutralGray,
+    outlineVariant = Color(0xFFD1D5DB),
 
     // Scrim (overlay)
-    scrim = Overlay,
+    scrim = Color(0x80000000),
 
     // Surface tints
-    surfaceTint = Primary
+    surfaceTint = SageGreen
 )
 
 // ============================================================
