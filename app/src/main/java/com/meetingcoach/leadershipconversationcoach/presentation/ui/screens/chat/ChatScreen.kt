@@ -89,7 +89,7 @@ fun ChatScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) // Sage Green
+            .background(SageGreen) // Sage Green explicitly
     ) {
         if (sessionState.isRecording) {
             // ============================================================

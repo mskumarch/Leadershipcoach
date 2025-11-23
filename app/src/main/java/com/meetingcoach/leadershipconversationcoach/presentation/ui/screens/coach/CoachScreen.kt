@@ -52,13 +52,18 @@ fun CoachScreen(
     ) {
         if (sessionState.isRecording) {
             // Modern recording interface with sage/taupe colors
-            ModernRecordingInterface(
-                isRecording = true,
-                sessionMode = sessionState.mode,
-                duration = sessionState.duration,
-                onStartRecording = { },
-                onStopRecording = { viewModel.stopSession() }
-            )
+            // Recording in Progress - Direct user to Transcript
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                FloatingEmptyState(
+                    icon = "🎙️",
+                    title = "Session in Progress",
+                    subtitle = "Go to Transcript tab to view live captions and controls"
+                )
+            }
         } else {
             // Welcome screen with premium design
             Column(
