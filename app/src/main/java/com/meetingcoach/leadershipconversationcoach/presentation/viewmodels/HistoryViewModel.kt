@@ -2,7 +2,7 @@ package com.meetingcoach.leadershipconversationcoach.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.meetingcoach.leadershipconversationcoach.data.repository.SessionEntity
+import com.meetingcoach.leadershipconversationcoach.data.local.SessionEntity
 import com.meetingcoach.leadershipconversationcoach.data.repository.SessionRepository
 import com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,23 +35,16 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-            sessionRepository.getAllSessions()
-                .onSuccess { sessions ->
-                    _uiState.value = _uiState.value.copy(
-                        sessions = sessions.sortedByDescending { it.created_at },
-                        isLoading = false
-                    )
-                }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = error.message ?: "Failed to load sessions"
-                    )
-                }
+            sessionRepository.getAllSessionsFlow().collect { sessions ->
+                _uiState.value = _uiState.value.copy(
+                    sessions = sessions.sortedByDescending { it.createdAt },
+                    isLoading = false
+                )
+            }
         }
     }
 
-    fun loadSessionDetails(sessionId: String) {
+    fun loadSessionDetails(sessionId: Long) {
         viewModelScope.launch {
             sessionRepository.getSessionWithDetails(sessionId)
                 .onSuccess { details ->
@@ -69,7 +62,7 @@ class HistoryViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(selectedSession = null)
     }
 
-    fun deleteSession(sessionId: String) {
+    fun deleteSession(sessionId: Long) {
         viewModelScope.launch {
             sessionRepository.deleteSession(sessionId)
                 .onSuccess {

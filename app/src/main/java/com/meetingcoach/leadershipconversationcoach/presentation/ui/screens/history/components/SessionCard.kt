@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.meetingcoach.leadershipconversationcoach.data.repository.SessionEntity
+import com.meetingcoach.leadershipconversationcoach.data.local.SessionEntity
 import com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode
 import java.time.Instant
 import java.time.ZoneId
@@ -125,7 +125,7 @@ fun SessionCard(
                             )
 
                             Text(
-                                text = formatDateTime(session.started_at),
+                                text = formatDateTime(session.startedAt),
                                 fontSize = 13.sp,
                                 color = Color(0xFF6B7280)
                             )
@@ -148,7 +148,7 @@ fun SessionCard(
                 ) {
                     SessionMetricChip(
                         icon = "⏱️",
-                        label = formatDuration(session.duration_seconds)
+                        label = formatDuration(session.durationSeconds)
                     )
 
                     SessionMetricChip(
@@ -190,15 +190,15 @@ private fun SessionMetricChip(
     }
 }
 
-private fun formatDateTime(isoString: String): String {
+private fun formatDateTime(timestamp: Long): String {
     return try {
-        val instant = Instant.parse(isoString)
+        val instant = Instant.ofEpochMilli(timestamp)
         val formatter = DateTimeFormatter
             .ofPattern("MMM dd, yyyy 'at' h:mm a")
             .withZone(ZoneId.systemDefault())
         formatter.format(instant)
     } catch (e: Exception) {
-        isoString
+        timestamp.toString()
     }
 }
 
