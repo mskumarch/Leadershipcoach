@@ -19,16 +19,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.ModernRecordingInterface
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PulsingConcentricCircles
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.SessionModeModal
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.SessionViewModel
 
 /**
- * Coach Screen
+ * Coach Screen - Modern UI
  *
- * Two states:
- * 1. NOT Recording: Shows SessionModeModal automatically
- * 2. Recording: Shows session controls (progress rings, stats, etc.)
+ * Beautiful, modern interface with:
+ * - Pulsing concentric circles for recording
+ * - Waveform visualization
+ * - Gradient backgrounds
+ * - Organic shapes
  */
 @Composable
 fun CoachScreen(
@@ -42,153 +46,97 @@ fun CoachScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
+            .background(MaterialTheme.colorScheme.background)
     ) {
         if (sessionState.isRecording) {
-            // Show session controls with modern design
-            Column(
+            // Modern recording interface
+            ModernRecordingInterface(
+                isRecording = true,
+                sessionMode = sessionState.mode,
+                duration = sessionState.duration,
+                onStartRecording = { },
+                onStopRecording = { viewModel.stopSession() }
+            )
+        } else {
+            // Welcome screen with modern design
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // Icon with gradient background
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(RoundedCornerShape(60.dp))
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    GlossyPrimaryStart,
-                                    GlossyPrimaryEnd
-                                )
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                AccentLavender.copy(alpha = 0.1f),
+                                AccentPeach.copy(alpha = 0.1f)
                             )
-                        ),
-                    contentAlignment = Alignment.Center
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(32.dp)
                 ) {
-                    Text(
-                        text = "🧠",
-                        fontSize = 60.sp
+                    // Animated pulsing circle
+                    PulsingConcentricCircles(
+                        isActive = true,
+                        centerColor = AccentLavender,
+                        ringColor = AccentLavender.copy(alpha = 0.3f),
+                        size = 180.dp
                     )
-                }
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                Text(
-                    text = "Session Active",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Mode card
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
+                    
+                    Spacer(modifier = Modifier.height(48.dp))
+                    
+                    Text(
+                        text = "AI Leadership Coach",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = "Select a session mode to begin\nyour coaching journey",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 24.sp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(48.dp))
+                    
+                    // Session mode cards
                     Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
-                        Text(
-                            text = "Mode",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        SessionModeCard(
+                            title = "1-on-1 Conversation",
+                            description = "Build trust and connection",
+                            gradient = GradientMintTeal,
+                            emoji = "💬",
+                            onClick = { showSessionModeModal = true }
                         )
                         
-                        Spacer(modifier = Modifier.height(4.dp))
+                        SessionModeCard(
+                            title = "Team Meeting",
+                            description = "Facilitate group discussions",
+                            gradient = GradientLavenderSky,
+                            emoji = "👥",
+                            onClick = { showSessionModeModal = true }
+                        )
                         
-                        Text(
-                            text = sessionState.mode?.getDisplayName() ?: "Unknown",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        SessionModeCard(
+                            title = "Difficult Conversation",
+                            description = "Navigate challenging topics",
+                            gradient = GradientCoralRose,
+                            emoji = "🎯",
+                            onClick = { showSessionModeModal = true }
                         )
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Duration card
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Duration",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-                        )
-                        
-                        Spacer(modifier = Modifier.height(4.dp))
-                        
-                        Text(
-                            text = sessionState.duration,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                }
-            }
-        } else {
-            // Show welcome screen with modern design
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(32.dp)
-            ) {
-                // Icon with gradient background
-                Box(
-                    modifier = Modifier
-                        .size(140.dp)
-                        .clip(RoundedCornerShape(70.dp))
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    GlossySecondaryStart,
-                                    GlossySecondaryEnd
-                                )
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "🧠",
-                        fontSize = 70.sp
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                Text(
-                    text = "AI Coach",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Text(
-                    text = "Select a session mode to begin\nyour coaching journey",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 24.sp
-                )
             }
         }
     }
@@ -202,5 +150,75 @@ fun CoachScreen(
             },
             onDismiss = { showSessionModeModal = false }
         )
+    }
+}
+
+@Composable
+private fun SessionModeCard(
+    title: String,
+    description: String,
+    gradient: List<androidx.compose.ui.graphics.Color>,
+    emoji: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        color = androidx.compose.ui.graphics.Color.Transparent,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = gradient.map { it.copy(alpha = 0.2f) }
+                    )
+                )
+                .padding(20.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Emoji circle
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = gradient
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = emoji,
+                        fontSize = 28.sp
+                    )
+                }
+                
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    Spacer(modifier = Modifier.height(4.dp))
+                    
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
     }
 }

@@ -125,6 +125,29 @@ val GlossyNavBarStart = Color(0xFFE0F2F1)      // Very light sea green - Nav bar
 val GlossyNavBarEnd = Color(0xFFF3E5F5)        // Very light lavender - Nav bar gradient end
 
 // ============================================================
+// MODERN UI ACCENT COLORS - Contemporary Design
+// ============================================================
+
+// Soft Pastels for Modern UI
+val AccentCoral = Color(0xFFFF9B71)            // Soft coral - Warm accent
+val AccentPeach = Color(0xFFFFB4A2)            // Peach - Gentle highlight
+val AccentLavender = Color(0xFFB39DDB)         // Soft lavender - Cool accent
+val AccentMint = Color(0xFF80CBC4)             // Mint green - Fresh accent
+val AccentRose = Color(0xFFFF7B9C)             // Rose - Romantic accent
+val AccentSky = Color(0xFF90CAF9)              // Sky blue - Calm accent
+
+// Gradient Combinations
+val GradientCoralRose = listOf(AccentCoral, AccentRose)
+val GradientLavenderSky = listOf(AccentLavender, AccentSky)
+val GradientMintTeal = listOf(AccentMint, Primary)
+val GradientPeachCoral = listOf(AccentPeach, AccentCoral)
+
+// Voice Recording Colors
+val RecordingPulse = Color(0xFF9575CD)         // Lavender pulse
+val RecordingWave = Color(0xFFB39DDB)          // Light lavender wave
+val RecordingActive = Color(0xFFFF9B71)        // Coral when active
+
+// ============================================================
 // DARK THEME COLORS - Serene Night Mode
 // ============================================================
 
