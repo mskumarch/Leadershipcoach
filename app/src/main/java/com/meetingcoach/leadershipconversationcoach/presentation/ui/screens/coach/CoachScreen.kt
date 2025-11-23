@@ -49,7 +49,8 @@ fun CoachScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        if (sessionState.isRecording && sessionState.mode != null) {
+        val currentMode = sessionState.mode
+        if (sessionState.isRecording && currentMode != null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -66,7 +67,7 @@ fun CoachScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 SessionModeBadge(
-                    mode = sessionState.mode,
+                    mode = currentMode,
                     duration = sessionState.duration,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -100,7 +101,7 @@ fun CoachScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 CoachingTipsCarousel(
-                    sessionMode = sessionState.mode,
+                    sessionMode = currentMode,
                     modifier = Modifier.fillMaxWidth()
                 )
 
