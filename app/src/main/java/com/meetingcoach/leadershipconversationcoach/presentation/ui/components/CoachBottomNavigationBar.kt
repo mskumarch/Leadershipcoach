@@ -118,14 +118,14 @@ fun CoachBottomNavigationBar(
                         // Layered shadows
                         // Outer shadow
                         drawRoundRect(
-                            color = ShadowLight, // 12% black
+                            color = ShadowStrong, // 12% black
                             topLeft = Offset(0f, 8.dp.toPx()),
                             size = size,
                             cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
                         )
                         // Inner shadow
                         drawRoundRect(
-                            color = ShadowDeep, // 8% black
+                            color = ShadowMedium, // 8% black
                             topLeft = Offset(0f, 2.dp.toPx()),
                             size = size,
                             cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
@@ -177,11 +177,7 @@ private fun NavigationItem(
         label = "backgroundColor"
     )
 
-    val scale by animateDpAsState(
-        targetValue = if (isSelected) 1.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "scale"
-    )
+
 
     IconButton(
         onClick = onClick,

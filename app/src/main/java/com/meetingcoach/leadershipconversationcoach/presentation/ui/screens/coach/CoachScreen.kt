@@ -43,7 +43,7 @@ fun CoachScreen(
     hasRecordAudioPermission: Boolean = true
 ) {
     val sessionState by viewModel.sessionState.collectAsState()
-    var showSessionModeModal by remember { mutableStateOf(!sessionState.isRecording) }
+    var showSessionModeModal by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier

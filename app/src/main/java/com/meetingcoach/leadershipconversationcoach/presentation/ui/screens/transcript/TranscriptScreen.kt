@@ -13,6 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Article
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -83,6 +89,7 @@ fun TranscriptScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .padding(bottom = 88.dp) // Space for stop button above nav
             ) {
                 Column(
                     modifier = Modifier
@@ -144,155 +151,126 @@ fun TranscriptScreen(
                     val speakerName = item.speaker?.getDisplayName() ?: "Unknown"
 
                     // ✅ Get speaker index for color (map Speaker enum to index)
+                    // ✅ Get speaker index for color (map Speaker enum to index)
                     val speakerIndex = when (item.speaker) {
                         Speaker.USER -> 0
                         Speaker.OTHER -> 1
                         Speaker.SYSTEM -> 2
-                        Speaker.UNKNOWN -> 3
-                        null -> 0
+                        else -> 0
                     }
 
-                    // ✅ Get emotion from metadata
+                    // Get emotion
                     val emotionName = item.metadata?.emotion?.getDisplayName() ?: "Neutral"
                     val emotionEmoji = getEmotionEmoji(emotionName)
 
                     TranscriptItem(
-                        timestamp = timestamp,
                         speakerName = speakerName,
+                        timestamp = timestamp,
+                        content = item.content,
                         speakerColor = getSpeakerColor(speakerIndex),
                         emotion = emotionName,
-                        emotionEmoji = emotionEmoji,
-                        content = item.content
+                        emotionEmoji = emotionEmoji
                     )
                 }
-
-                // Live indicator at bottom
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "✓ Updating in real-time",
-                        fontSize = 13.sp,
-                        color = Success,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
-        } else if (sessionState.isRecording && transcriptItems.isEmpty()) {
+            
+            // Floating Stop Button at bottom
+            FloatingActionButton(
+                onClick = { viewModel.stopSession() },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 88.dp), // Above nav bar (72dp + 16dp)
+                containerColor = MutedCoral,
+                contentColor = Color.White
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Stop,
+                        contentDescription = "Stop Recording"
+                    )
+                    Text(
+                        text = "Stop Recording",
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        } else if (!sessionState.isRecording) {
+            // Empty state - no recording
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Article,
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "No Active Recording",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Start a coaching session to see the live transcript",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
             // Recording but no transcript yet
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "📝",
-                    fontSize = 64.sp
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     text = "Listening...",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Transcript will appear here\nas people speak",
-                    fontSize = 14.sp,
+                    text = "Waiting for conversation to begin",
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                Color(0xFFEF4444),
-                                shape = androidx.compose.foundation.shape.CircleShape
-                            )
-                    )
-
-                    Text(
-                        text = "Recording ${sessionState.duration}",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-        } else {
-            // Empty state - no recording
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "📝",
-                    fontSize = 64.sp
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "No Active Session",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = "Start a recording to see\nthe live transcript here",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "💡 Tip: Go to Chat or Coach tab to start",
-                    fontSize = 13.sp,
-                    color = Info,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium
                 )
             }
         }
     }
 }
 
-/**
- * Format timestamp from milliseconds to MM:SS
- */
+
+// Format timestamp from milliseconds to MM:SS
 private fun formatTimestamp(timestamp: Long): String {
-    val date = Date(timestamp)
-    val formatter = SimpleDateFormat("mm:ss", Locale.getDefault())
-    return formatter.format(date)
+    val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
+    return dateFormat.format(Date(timestamp))
 }
