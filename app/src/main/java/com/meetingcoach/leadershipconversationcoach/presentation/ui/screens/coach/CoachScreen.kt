@@ -2,6 +2,7 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.coa
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,20 +20,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingEmptyState
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.ModernRecordingInterface
-import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PulsingConcentricCircles
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.SettingsCard
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.SessionModeModal
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.SessionViewModel
 
 /**
- * Coach Screen - Modern UI
+ * Coach Screen - Premium Sage/Taupe Design
  *
- * Beautiful, modern interface with:
- * - Pulsing concentric circles for recording
- * - Waveform visualization
- * - Gradient backgrounds
- * - Organic shapes
+ * Personal growth sanctuary aesthetic with:
+ * - Sage green background
+ * - Warm taupe session cards
+ * - Glassmorphic elements
+ * - Smooth animations
  */
 @Composable
 fun CoachScreen(
@@ -41,101 +43,70 @@ fun CoachScreen(
     hasRecordAudioPermission: Boolean = true
 ) {
     val sessionState by viewModel.sessionState.collectAsState()
-    var showSessionModeModal by remember { mutableStateOf(!sessionState.isRecording) }
+    var showSessionModeModal by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.background) // Sage green
     ) {
         if (sessionState.isRecording) {
-            // Modern recording interface
-            ModernRecordingInterface(
-                isRecording = true,
-                sessionMode = sessionState.mode,
-                duration = sessionState.duration,
-                onStartRecording = { },
-                onStopRecording = { viewModel.stopSession() }
-            )
+            // Modern recording interface with sage/taupe colors
+            // Recording in Progress - Direct user to Transcript
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                FloatingEmptyState(
+                    icon = "🎙️",
+                    title = "Session in Progress",
+                    subtitle = "Go to Transcript tab to view live captions and controls"
+                )
+            }
         } else {
-            // Welcome screen with modern design
-            Box(
+            // Welcome screen with premium design
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                AccentLavender.copy(alpha = 0.1f),
-                                AccentPeach.copy(alpha = 0.1f)
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
+                // Floating empty state with sage green
+                FloatingEmptyState(
+                    icon = "🧠",
+                    title = "AI Leadership Coach",
+                    subtitle = "Select a session mode to begin your coaching journey"
+                )
+                
+                Spacer(modifier = Modifier.height(48.dp))
+                
+                // Session mode cards with warm taupe
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(32.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxWidth(0.9f)
                 ) {
-                    // Animated pulsing circle
-                    PulsingConcentricCircles(
-                        isActive = true,
-                        centerColor = AccentLavender,
-                        ringColor = AccentLavender.copy(alpha = 0.3f),
-                        size = 180.dp
+                    SessionModeCard(
+                        title = "1-on-1 Conversation",
+                        description = "Build trust and deep connection",
+                        emoji = "💬",
+                        onClick = { showSessionModeModal = true }
                     )
                     
-                    Spacer(modifier = Modifier.height(48.dp))
-                    
-                    Text(
-                        text = "AI Leadership Coach",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center
+                    SessionModeCard(
+                        title = "Team Meeting",
+                        description = "Facilitate inclusive discussions",
+                        emoji = "👥",
+                        onClick = { showSessionModeModal = true }
                     )
                     
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = "Select a session mode to begin\nyour coaching journey",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 24.sp
+                    SessionModeCard(
+                        title = "Difficult Conversation",
+                        description = "Navigate challenging topics with care",
+                        emoji = "🎯",
+                        onClick = { showSessionModeModal = true }
                     )
-                    
-                    Spacer(modifier = Modifier.height(48.dp))
-                    
-                    // Session mode cards
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        SessionModeCard(
-                            title = "1-on-1 Conversation",
-                            description = "Build trust and connection",
-                            gradient = GradientMintTeal,
-                            emoji = "💬",
-                            onClick = { showSessionModeModal = true }
-                        )
-                        
-                        SessionModeCard(
-                            title = "Team Meeting",
-                            description = "Facilitate group discussions",
-                            gradient = GradientLavenderSky,
-                            emoji = "👥",
-                            onClick = { showSessionModeModal = true }
-                        )
-                        
-                        SessionModeCard(
-                            title = "Difficult Conversation",
-                            description = "Navigate challenging topics",
-                            gradient = GradientCoralRose,
-                            emoji = "🎯",
-                            onClick = { showSessionModeModal = true }
-                        )
-                    }
                 }
             }
         }
@@ -153,43 +124,42 @@ fun CoachScreen(
     }
 }
 
+/**
+ * Premium Session Mode Card - Warm Taupe Glass
+ */
 @Composable
 private fun SessionModeCard(
     title: String,
     description: String,
-    gradient: List<androidx.compose.ui.graphics.Color>,
     emoji: String,
     onClick: () -> Unit
 ) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = androidx.compose.ui.graphics.Color.Transparent,
+    SettingsCard(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = gradient.map { it.copy(alpha = 0.2f) }
-                    )
-                )
-                .padding(20.dp)
+        Surface(
+            onClick = onClick,
+            shape = RoundedCornerShape(16.dp),
+            color = androidx.compose.ui.graphics.Color.Transparent
         ) {
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Emoji circle
+                // Emoji in sage green circle
                 Box(
                     modifier = Modifier
                         .size(56.dp)
-                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .clip(CircleShape)
                         .background(
                             brush = Brush.radialGradient(
-                                colors = gradient
+                                colors = listOf(
+                                    SageGreen.copy(alpha = 0.3f),
+                                    SageGreen.copy(alpha = 0.1f)
+                                )
                             )
                         ),
                     contentAlignment = Alignment.Center
@@ -207,7 +177,7 @@ private fun SessionModeCard(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = DeepCharcoal
                     )
                     
                     Spacer(modifier = Modifier.height(4.dp))
@@ -215,7 +185,7 @@ private fun SessionModeCard(
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = NeutralGray
                     )
                 }
             }

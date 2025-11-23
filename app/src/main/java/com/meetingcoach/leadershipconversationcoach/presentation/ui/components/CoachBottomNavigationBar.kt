@@ -102,43 +102,49 @@ fun CoachBottomNavigationBar(
                 .fillMaxWidth(0.9f)
                 .height(72.dp),
             shape = RoundedCornerShape(percent = 50), // Fully rounded pill
-            color = GlassWhite, // 70% white
+            color = Color.Transparent, // Transparent surface, we draw background manually
             shadowElevation = 0.dp
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .border(
-                        width = 1.dp,
-                        color = GlassBorderLight, // 30% white border
-                        shape = RoundedCornerShape(percent = 50)
-                    )
-                    .blur(20.dp) // Backdrop blur effect
-                    .drawBehind {
-                        // Layered shadows
-                        // Outer shadow
-                        drawRoundRect(
-                            color = ShadowLight, // 12% black
-                            topLeft = Offset(0f, 8.dp.toPx()),
-                            size = size,
-                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
-                        )
-                        // Inner shadow
-                        drawRoundRect(
-                            color = ShadowDeep, // 8% black
-                            topLeft = Offset(0f, 2.dp.toPx()),
-                            size = size,
-                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
-                        )
-                        // Inner highlight (top edge)
-                        drawRoundRect(
-                            color = Color(0xCCFFFFFF), // 80% white
-                            topLeft = Offset(0f, 0f),
-                            size = size.copy(height = 1.dp.toPx()),
-                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
-                        )
-                    }
+                modifier = Modifier.fillMaxSize()
             ) {
+                // Background Layer (Glass & Shadows)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(GlassWhite, RoundedCornerShape(percent = 50))
+                        .border(
+                            width = 1.dp,
+                            color = GlassBorderLight, // 30% white border
+                            shape = RoundedCornerShape(percent = 50)
+                        )
+                        .drawBehind {
+                            // Layered shadows
+                            // Outer shadow
+                            drawRoundRect(
+                                color = ShadowStrong, // 12% black
+                                topLeft = Offset(0f, 8.dp.toPx()),
+                                size = size,
+                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
+                            )
+                            // Inner shadow
+                            drawRoundRect(
+                                color = ShadowMedium, // 8% black
+                                topLeft = Offset(0f, 2.dp.toPx()),
+                                size = size,
+                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
+                            )
+                            // Inner highlight (top edge)
+                            drawRoundRect(
+                                color = Color(0xCCFFFFFF), // 80% white
+                                topLeft = Offset(0f, 0f),
+                                size = size.copy(height = 1.dp.toPx()),
+                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
+                            )
+                        }
+                )
+
+                // Content Layer (Icons) - NOT BLURRED
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -166,7 +172,7 @@ private fun NavigationItem(
     onClick: () -> Unit
 ) {
     val iconColor by animateColorAsState(
-        targetValue = if (isSelected) Color.White else NeutralGray,
+        targetValue = if (isSelected) Color.White else DeepCharcoal,
         animationSpec = tween(300),
         label = "iconColor"
     )
@@ -177,11 +183,7 @@ private fun NavigationItem(
         label = "backgroundColor"
     )
 
-    val scale by animateDpAsState(
-        targetValue = if (isSelected) 1.dp else 0.dp,
-        animationSpec = tween(300),
-        label = "scale"
-    )
+
 
     IconButton(
         onClick = onClick,

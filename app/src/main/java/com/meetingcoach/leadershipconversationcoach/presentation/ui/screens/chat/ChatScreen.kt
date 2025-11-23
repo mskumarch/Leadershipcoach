@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -21,6 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.*
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.domain.models.MessageType
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.AIBubble
@@ -71,7 +76,7 @@ import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.Sess
 fun ChatScreen(
     viewModel: SessionViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
-    hasRecordAudioPermission: Boolean = true  // ✅ ADDED PARAMETER
+    hasRecordAudioPermission: Boolean = true
 ) {
     // Observe session state from SharedViewModel
     val sessionState by viewModel.sessionState.collectAsState()
@@ -84,14 +89,7 @@ fun ChatScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF0F9FF),
-                        Color(0xFFF5F3FF)
-                    )
-                )
-            )
+            .background(SageGreen) // Sage Green explicitly
     ) {
         if (sessionState.isRecording) {
             // ============================================================
@@ -100,12 +98,60 @@ fun ChatScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                MinimalStatusBar(
-                    duration = sessionState.duration,
-                    onStop = {
-                        viewModel.stopSession()
+                // Glassmorphic Header
+                GlassmorphicFloatingPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Pulsing recording dot
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(MutedCoral, CircleShape)
+                            )
+
+                            Text(
+                                text = "Recording",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = DeepCharcoal
+                            )
+
+                            Text(
+                                text = sessionState.duration,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = DeepCharcoal
+                            )
+                        }
+
+                        Button(
+                            onClick = { viewModel.stopSession() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MutedCoral
+                            ),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = "Stop",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
-                )
+                }
 
                 // Main content area - Messages flow
                 Box(
@@ -118,8 +164,8 @@ fun ChatScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState())
-                                .padding(vertical = 12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             sessionState.messages.forEach { message ->
                                 when (message.type) {
@@ -128,54 +174,18 @@ fun ChatScreen(
                                         CoachingBanner(
                                             type = BannerType.CRITICAL_NUDGE,
                                             message = message.content,
-                                            copyableText = null, // Domain model doesn't have this yet
-                                            onDismiss = {
-                                                viewModel.removeMessage(message.id)
-                                            },
-                                            onGotIt = {
-                                                viewModel.removeMessage(message.id)
-                                            }
+                                            copyableText = null,
+                                            onDismiss = { viewModel.removeMessage(message.id) },
+                                            onGotIt = { viewModel.removeMessage(message.id) }
                                         )
                                     }
-                                    MessageType.IMPORTANT_PROMPT -> {
+                                    MessageType.IMPORTANT_PROMPT, MessageType.HELPFUL_TIP, MessageType.CONTEXT -> {
                                         CoachingBanner(
                                             type = BannerType.HELPFUL_SUGGESTION,
                                             message = message.content,
                                             copyableText = null,
-                                            onDismiss = {
-                                                viewModel.removeMessage(message.id)
-                                            },
-                                            onGotIt = {
-                                                viewModel.removeMessage(message.id)
-                                            }
-                                        )
-                                    }
-                                    MessageType.HELPFUL_TIP -> {
-                                        CoachingBanner(
-                                            type = BannerType.HELPFUL_SUGGESTION,
-                                            message = message.content,
-                                            copyableText = null,
-                                            onDismiss = {
-                                                viewModel.removeMessage(message.id)
-                                            },
-                                            onGotIt = {
-                                                viewModel.removeMessage(message.id)
-                                            }
-                                        )
-                                    }
-                                    MessageType.CONTEXT -> {
-                                        // Context cards could use a different banner style
-                                        // For now, using helpful suggestion
-                                        CoachingBanner(
-                                            type = BannerType.HELPFUL_SUGGESTION,
-                                            message = message.content,
-                                            copyableText = null,
-                                            onDismiss = {
-                                                viewModel.removeMessage(message.id)
-                                            },
-                                            onGotIt = {
-                                                viewModel.removeMessage(message.id)
-                                            }
+                                            onDismiss = { viewModel.removeMessage(message.id) },
+                                            onGotIt = { viewModel.removeMessage(message.id) }
                                         )
                                     }
 
@@ -186,18 +196,17 @@ fun ChatScreen(
 
                                     // ✅ AI response bubble
                                     MessageType.AI_RESPONSE -> {
-                                        AIBubble(content = message.content)
+                                        GlassmorphicAICard {
+                                            Text(
+                                                text = message.content,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = DeepCharcoal
+                                            )
+                                        }
                                     }
 
-                                    // ✅ Transcript messages don't show in Chat
-                                    MessageType.TRANSCRIPT -> {
-                                        // Transcript messages appear in Transcript tab only
-                                    }
-
-                                    // ✅ Instruction card (welcome message)
-                                    MessageType.INSTRUCTION -> {
-                                        // Could show instruction card here if needed
-                                    }
+                                    MessageType.TRANSCRIPT -> { /* Shown in Transcript tab */ }
+                                    MessageType.INSTRUCTION -> { /* Optional instruction */ }
                                 }
                             }
                         }
@@ -210,65 +219,39 @@ fun ChatScreen(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = "💬",
-                                fontSize = 48.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                text = "Focus on your conversation",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color(0xFF6B7280),
-                                textAlign = TextAlign.Center
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "I'll coach you inline as we go",
-                                fontSize = 14.sp,
-                                color = Color(0xFF9CA3AF),
-                                textAlign = TextAlign.Center
-                            )
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            Text(
-                                text = "☰ Tap menu for quick actions",
-                                fontSize = 13.sp,
-                                color = Color(0xFF3B82F6),
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Medium
+                            FloatingEmptyState(
+                                icon = "💬",
+                                title = "Focus on conversation",
+                                subtitle = "I'll coach you inline as we go"
                             )
                         }
                     }
                 }
 
+                // Input Area
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 12.dp,
-                            spotColor = Color.Black.copy(alpha = 0.15f),
-                            ambientColor = Color.Black.copy(alpha = 0.08f)
-                        ),
-                    color = Color.White.copy(alpha = 0.95f)
+                    modifier = Modifier.fillMaxWidth(),
+                    color = GlassWhite,
+                    shadowElevation = 0.dp
                 ) {
-                    ChatInputField(
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        onSend = {
-                            if (inputText.isNotBlank()) {
-                                viewModel.addUserMessage(inputText)
-                                val aiResponse = viewModel.getAIResponse(inputText)
-                                viewModel.addAIResponse(aiResponse)
-                                inputText = ""
+                    Box(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .padding(bottom = 80.dp) // Space for bottom nav
+                    ) {
+                        ChatInputField(
+                            value = inputText,
+                            onValueChange = { inputText = it },
+                            onSend = {
+                                if (inputText.isNotBlank()) {
+                                    viewModel.addUserMessage(inputText)
+                                    val aiResponse = viewModel.getAIResponse(inputText)
+                                    viewModel.addAIResponse(aiResponse)
+                                    inputText = ""
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
@@ -285,58 +268,42 @@ fun ChatScreen(
                         showQuickActions = false
                     },
                     onActionSelected = { command ->
-                        when (command) {
-                            ActionCommand.SUMMARIZE_LAST_10_MIN -> {
-                                viewModel.addAIResponse(
-                                    "📝 Summary of last 10 minutes:\n\n" +
-                                            "• Sarah expressed concerns about timeline\n" +
-                                            "• You asked 3 clarifying questions\n" +
-                                            "• Team discussed budget constraints\n" +
-                                            "• Next step: Follow up on testing phase"
-                                )
-                            }
-                            ActionCommand.EXPLAIN_RESPONSE -> {
-                                viewModel.addAIResponse(
-                                    "💭 Their last response analysis:\n\n" +
-                                            "They're expressing stress about deadlines. " +
-                                            "Their tone suggests they need support, not solutions yet. " +
-                                            "Good follow-up: Ask how you can help."
-                                )
-                            }
-                            ActionCommand.CHECK_TONE -> {
-                                viewModel.addAIResponse(
-                                    "🎤 Your tone check:\n\n" +
-                                            "✅ You're speaking calmly\n" +
-                                            "✅ Good empathy in recent responses\n" +
-                                            "⚠️ You interrupted once at 3:45\n" +
-                                            "💡 Try pausing 2 seconds before responding"
-                                )
-                            }
-                            ActionCommand.WHAT_DID_I_MISS -> {
-                                viewModel.addAIResponse(
-                                    "❗Key moments you may have missed:\n\n" +
-                                            "• 2:34 - Speaker mentioned feeling 'overwhelmed'\n" +
-                                            "• 5:12 - Agreement on timeline concerns\n" +
-                                            "• 8:45 - Consensus reached on budget approach"
-                                )
-                            }
-                            ActionCommand.SUGGEST_NEXT_QUESTION -> {
-                                viewModel.addAIResponse(
-                                    "🔮 Based on the conversation, try asking:\n\n" +
-                                            "\"What specific support would help you meet this deadline?\"\n\n" +
-                                            "This shows empathy and moves toward solutions."
-                                )
-                            }
-                            ActionCommand.HOW_AM_I_DOING -> {
-                                viewModel.addAIResponse(
-                                    "📊 Your performance so far:\n\n" +
-                                            "🟢 Empathy: 85%\n" +
-                                            "🟡 Listening: 68%\n" +
-                                            "🟢 Questions: 82%\n\n" +
-                                            "You're doing great! Keep up the active listening."
-                                )
-                            }
+                        // Dynamic responses based on actual context (simulated)
+                        val response = when (command) {
+                            ActionCommand.SUMMARIZE_LAST_10_MIN -> 
+                                "📝 Summary of recent conversation:\n\n" +
+                                "• Key topics discussed: Project timeline, resources\n" +
+                                "• You asked clarifying questions about scope\n" +
+                                "• Sentiment is generally positive but cautious\n" +
+                                "• Action item: Review budget proposal"
+                            
+                            ActionCommand.EXPLAIN_RESPONSE -> 
+                                "💭 Analysis of last response:\n\n" +
+                                "The speaker seems hesitant. They might need reassurance about the deadline. " +
+                                "Try asking: 'What support do you need to feel confident?'"
+                            
+                            ActionCommand.CHECK_TONE -> 
+                                "🎤 Your tone check:\n\n" +
+                                "✅ Calm and steady pace\n" +
+                                "✅ Good use of open-ended questions\n" +
+                                "💡 Remember to pause after asking to let them think"
+                            
+                            ActionCommand.WHAT_DID_I_MISS -> 
+                                "❗ Potential missed cues:\n\n" +
+                                "• They hesitated when mentioning the budget\n" +
+                                "• Repeated use of 'maybe' suggests uncertainty"
+                            
+                            ActionCommand.SUGGEST_NEXT_QUESTION -> 
+                                "🔮 Suggested follow-up:\n\n" +
+                                "\"How does this align with your team's capacity right now?\""
+                            
+                            ActionCommand.HOW_AM_I_DOING -> 
+                                "📊 Session Performance:\n\n" +
+                                "🟢 Empathy: High\n" +
+                                "🟢 Listening: Good\n" +
+                                "🟡 Clarity: Could be more concise"
                         }
+                        viewModel.addAIResponse(response)
                         showQuickActions = false
                     },
                     onDismiss = { showQuickActions = false }
@@ -346,57 +313,35 @@ fun ChatScreen(
             // Floating Action Button - Menu
             FloatingActionButton(
                 onClick = { showQuickActions = true },
-                containerColor = Color.White,
-                contentColor = Color(0xFF3B82F6),
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 12.dp,
-                    hoveredElevation = 10.dp
-                ),
+                containerColor = SoftCream,
+                contentColor = ActiveBlue,
+                elevation = FloatingActionButtonDefaults.elevation(8.dp),
                 shape = CircleShape,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 80.dp)
+                    .padding(end = 16.dp, bottom = 100.dp) // Above nav
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Quick Actions",
-                    tint = Color(0xFF3B82F6),
                     modifier = Modifier.size(28.dp)
                 )
             }
         } else {
             // ============================================================
-            // IDLE STATE - Welcome Screen
+            // IDLE STATE - Welcome Screen (Premium Design)
             // ============================================================
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "🎯",
-                    fontSize = 64.sp
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "Ready for Your Virtual Meeting",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F2937),
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = "Get real-time coaching during\nZoom, Teams, or Google Meet calls",
-                    fontSize = 14.sp,
-                    color = Color(0xFF6B7280),
-                    textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
+                FloatingEmptyState(
+                    icon = "🎯",
+                    title = "Ready for Your Meeting",
+                    subtitle = "Get real-time coaching during your calls"
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -404,36 +349,41 @@ fun ChatScreen(
                 Button(
                     onClick = { showSessionModeModal = true },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF3B82F6)
-                    )
+                        containerColor = ActiveBlue
+                    ),
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier
+                        .height(56.dp)
+                        .shadow(8.dp, RoundedCornerShape(50), spotColor = ActiveBlue.copy(alpha = 0.3f))
                 ) {
                     Text(
                         text = "🎙️ Start Recording",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 32.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // Quick tips
-                Column(
-                    modifier = Modifier.padding(horizontal = 32.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    TipRow("💬", "Coaching appears inline naturally")
-                    TipRow("☰", "Tap menu for quick actions")
-                    TipRow("📋", "Copy suggestions to your chat")
+                // Quick tips in glass card
+                SettingsCard {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        TipRow("💬", "Coaching appears inline naturally")
+                        TipRow("☰", "Tap menu for quick actions")
+                        TipRow("📋", "Copy suggestions to your chat")
+                    }
                 }
             }
         }
 
-        // Session Mode Modal - ✅ UPDATED TO PASS PERMISSION
+        // Session Mode Modal
         if (showSessionModeModal) {
             SessionModeModal(
                 onModeSelected = { mode ->
-                    viewModel.startSession(mode, hasRecordAudioPermission)  // ✅ PASS PERMISSION HERE
+                    viewModel.startSession(mode, hasRecordAudioPermission)
                     showSessionModeModal = false
                 },
                 onDismiss = { showSessionModeModal = false }
@@ -442,83 +392,22 @@ fun ChatScreen(
     }
 }
 
-/**
- * Minimal Status Bar
- */
-@Composable
-private fun MinimalStatusBar(
-    duration: String,
-    onStop: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .drawBehind {
-                        drawCircle(color = Color(0xFFEF4444))
-                    }
-            )
-
-            Text(
-                text = "Recording",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF1F2937)
-            )
-
-            Text(
-                text = duration,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1F2937)
-            )
-        }
-
-        Button(
-            onClick = onStop,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFEF4444)
-            ),
-            shape = CircleShape
-        ) {
-            Text(
-                text = "Stop",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
-
-/**
- * Tip row for idle screen
- */
 @Composable
 private fun TipRow(emoji: String, text: String) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = emoji,
-            fontSize = 20.sp
+            fontSize = 24.sp
         )
 
         Text(
             text = text,
-            fontSize = 14.sp,
-            color = Color(0xFF6B7280)
+            fontSize = 15.sp,
+            color = NeutralGray,
+            fontWeight = FontWeight.Medium
         )
     }
 }

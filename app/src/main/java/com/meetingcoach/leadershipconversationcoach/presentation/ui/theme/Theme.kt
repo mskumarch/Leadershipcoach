@@ -43,17 +43,9 @@ private val LightColorScheme = lightColorScheme(
     secondaryContainer = Color(0xFFE0D4C4),   // Light taupe
     onSecondaryContainer = DeepCharcoal,
 
-    // Tertiary colors (Active Blue)
+    // Tertiary - Active Blue
     tertiary = ActiveBlue,
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFBBDEFB),
-    onTertiaryContainer = Color(0xFF0D47A1),
-
-    // Error colors - Muted Coral
-    error = MutedCoral,
-    onError = Color.White,
-    errorContainer = Color(0xFFFFCDD2),       // Light coral
-    onErrorContainer = Color(0xFFC62828),     // Dark coral
 
     // Background - Sage Green (60% coverage)
     background = SageGreen,

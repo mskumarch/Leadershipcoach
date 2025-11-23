@@ -92,7 +92,7 @@ fun UserMessageBubble(
             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 6.dp, bottomStart = 24.dp, bottomEnd = 24.dp))
             .background(
                 brush = Brush.linearGradient(
-                    colors = listOf(UserMessageGradientStart, UserMessageGradientEnd)
+                    colors = listOf(ActiveBlue, ActiveBlueLight)
                 )
             )
             .border(
@@ -149,7 +149,7 @@ fun GlassmorphicFloatingPanel(
                 .drawBehind {
                     // Layered shadow
                     drawRect(
-                        color = ShadowLight,
+                        color = ShadowStrong,
                         topLeft = Offset(0f, 4.dp.toPx()),
                         size = size
                     )
@@ -182,14 +182,14 @@ fun ToneCheckCard(
             modifier = Modifier
                 .border(
                     width = 1.dp,
-                    color = GlassBorderSage,
+                    color = GlassBorderLight,
                     shape = RoundedCornerShape(16.dp)
                 )
                 .blur(10.dp)
                 .drawBehind {
                     // Layered shadow
                     drawRect(
-                        color = ShadowDeep,
+                        color = ShadowSubtle,
                         topLeft = Offset(0f, 2.dp.toPx()),
                         size = size
                     )
@@ -255,9 +255,9 @@ private fun ToneCheckItemRow(item: ToneCheckItem) {
 @Composable
 private fun ToneCheckIcon(type: ToneCheckType) {
     val (color, icon) = when (type) {
-        ToneCheckType.SUCCESS -> ToneSuccess to "✓"
-        ToneCheckType.WARNING -> ToneWarning to "!"
-        ToneCheckType.TIP -> ToneTip to "💡"
+        ToneCheckType.SUCCESS -> Success to "✓"
+        ToneCheckType.WARNING -> Warning to "!"
+        ToneCheckType.TIP -> Info to "💡"
     }
     
     Box(
@@ -304,7 +304,7 @@ fun TranscriptCard(
             modifier = Modifier
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(CardGradientTop, CardGradientBottom)
+                        colors = listOf(Color(0xF2FFFFFF), Color(0xE6F7F8F6))
                     )
                 )
                 .border(
@@ -321,7 +321,7 @@ fun TranscriptCard(
                         size = size
                     )
                     drawRect(
-                        color = ShadowDeep,
+                        color = ShadowSubtle,
                         topLeft = Offset(0f, 1.dp.toPx()),
                         size = size
                     )
@@ -371,9 +371,9 @@ fun TranscriptCard(
 }
 
 enum class SentimentType(val color: Color) {
-    POSITIVE(SentimentPositive),
-    NEUTRAL(SentimentNeutral),
-    NEGATIVE(SentimentNegative)
+    POSITIVE(Success),
+    NEUTRAL(Warning),
+    NEGATIVE(MutedCoral)
 }
 
 @Composable

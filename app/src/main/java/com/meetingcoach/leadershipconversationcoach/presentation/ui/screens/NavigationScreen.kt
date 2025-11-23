@@ -1,5 +1,8 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,7 +35,7 @@ fun NavigationScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = androidx.compose.ui.graphics.Color.Transparent, // Transparent to prevent black rectangle
         bottomBar = {
             CoachBottomNavigationBar(
                 currentDestination = when (selectedTab) {
@@ -56,27 +59,34 @@ fun NavigationScreen(
             )
         }
     ) { paddingValues ->
-        when (selectedTab) {
-            0 -> ChatScreen(
-                viewModel = viewModel,
-                modifier = Modifier.padding(paddingValues),
-                hasRecordAudioPermission = hasRecordAudioPermission
-            )
-            1 -> TranscriptScreen(
-                viewModel = viewModel,
-                modifier = Modifier.padding(paddingValues)
-            )
-            2 -> CoachScreen(
-                viewModel = viewModel,
-                modifier = Modifier.padding(paddingValues),
-                hasRecordAudioPermission = hasRecordAudioPermission
-            )
-            3 -> HistoryScreen(
-                modifier = Modifier.padding(paddingValues)
-            )
-            4 -> SettingsScreen(
-                modifier = Modifier.padding(paddingValues)
-            )
+        // Full screen box with sage green background
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background) // Sage green
+        ) {
+            when (selectedTab) {
+                0 -> ChatScreen(
+                    viewModel = viewModel,
+                    modifier = Modifier.padding(paddingValues),
+                    hasRecordAudioPermission = hasRecordAudioPermission
+                )
+                1 -> TranscriptScreen(
+                    viewModel = viewModel,
+                    modifier = Modifier.padding(paddingValues)
+                )
+                2 -> CoachScreen(
+                    viewModel = viewModel,
+                    modifier = Modifier.padding(paddingValues),
+                    hasRecordAudioPermission = hasRecordAudioPermission
+                )
+                3 -> HistoryScreen(
+                    modifier = Modifier.padding(paddingValues)
+                )
+                4 -> SettingsScreen(
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
         }
     }
 }
