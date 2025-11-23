@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +31,7 @@ import com.meetingcoach.leadershipconversationcoach.domain.models.Speaker
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.transcript.components.TranscriptItem
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.transcript.components.getEmotionEmoji
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.transcript.components.getSpeakerColor
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.SessionViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -74,14 +76,7 @@ fun TranscriptScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFE8F5F3),
-                        Color(0xFFF3E5F5)
-                    )
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         if (sessionState.isRecording && transcriptItems.isNotEmpty()) {
             Column(
@@ -92,14 +87,7 @@ fun TranscriptScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
-                                colors = listOf(
-                                    Color(0xFFE0F2F1),
-                                    Color(0xFFF3E5F5)
-                                )
-                            )
-                        )
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 24.dp, vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -107,7 +95,7 @@ fun TranscriptScreen(
                         text = "📝 Live Transcript",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1F2937)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Row(
@@ -132,7 +120,7 @@ fun TranscriptScreen(
                             Text(
                                 text = "Recording",
                                 fontSize = 14.sp,
-                                color = Color(0xFF6B7280),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -140,7 +128,7 @@ fun TranscriptScreen(
                         Text(
                             text = sessionState.duration,
                             fontSize = 14.sp,
-                            color = Color(0xFF1F2937),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -188,7 +176,7 @@ fun TranscriptScreen(
                     Text(
                         text = "✓ Updating in real-time",
                         fontSize = 13.sp,
-                        color = Color(0xFF10B981),
+                        color = Success,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -215,7 +203,7 @@ fun TranscriptScreen(
                     text = "Listening...",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F2937),
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
 
@@ -224,7 +212,7 @@ fun TranscriptScreen(
                 Text(
                     text = "Transcript will appear here\nas people speak",
                     fontSize = 14.sp,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     lineHeight = 20.sp
                 )
@@ -247,7 +235,7 @@ fun TranscriptScreen(
                     Text(
                         text = "Recording ${sessionState.duration}",
                         fontSize = 14.sp,
-                        color = Color(0xFF6B7280),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -272,7 +260,7 @@ fun TranscriptScreen(
                     text = "No Active Session",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F2937),
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
 
@@ -281,7 +269,7 @@ fun TranscriptScreen(
                 Text(
                     text = "Start a recording to see\nthe live transcript here",
                     fontSize = 14.sp,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     lineHeight = 20.sp
                 )
@@ -291,7 +279,7 @@ fun TranscriptScreen(
                 Text(
                     text = "💡 Tip: Go to Chat or Coach tab to start",
                     fontSize = 13.sp,
-                    color = Color(0xFF3B82F6),
+                    color = Info,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Medium
                 )

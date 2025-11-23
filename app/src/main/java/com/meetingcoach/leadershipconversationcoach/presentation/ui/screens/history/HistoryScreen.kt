@@ -1,5 +1,6 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history
 
+<<<<<<< HEAD
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,31 +9,58 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+=======
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.*
+>>>>>>> 43e5bbd (feat: Redesign app icon, enhance UI across multiple screens, and add new documentation.)
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+=======
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+>>>>>>> 43e5bbd (feat: Redesign app icon, enhance UI across multiple screens, and add new documentation.)
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+<<<<<<< HEAD
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.SessionCard
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.HistoryViewModel
+=======
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
+>>>>>>> 43e5bbd (feat: Redesign app icon, enhance UI across multiple screens, and add new documentation.)
 
+/**
+ * History Screen - Coming Soon
+ * 
+ * Modern, themed placeholder screen for conversation history
+ */
 @Composable
 fun HistoryScreen(
+<<<<<<< HEAD
     modifier: Modifier = Modifier,
     viewModel: HistoryViewModel = hiltViewModel()
+=======
+    modifier: Modifier = Modifier
+>>>>>>> 43e5bbd (feat: Redesign app icon, enhance UI across multiple screens, and add new documentation.)
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Box(
         modifier = modifier
             .fillMaxSize()
+<<<<<<< HEAD
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -173,5 +201,77 @@ private fun HistoryEmptyState(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             lineHeight = 20.sp
         )
+=======
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(32.dp)
+        ) {
+            // Icon with gradient background
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(60.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                GlossyPrimaryStart,
+                                GlossyPrimaryEnd
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.History,
+                    contentDescription = "History",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Title
+            Text(
+                text = "Conversation History",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Description
+            Text(
+                text = "Your conversation history will appear here.\nThis feature is coming soon!",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                lineHeight = 24.sp
+            )
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Coming soon badge
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    text = "🚀 Coming Soon",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+>>>>>>> 43e5bbd (feat: Redesign app icon, enhance UI across multiple screens, and add new documentation.)
     }
 }

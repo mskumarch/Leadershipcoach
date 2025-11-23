@@ -29,7 +29,7 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -38,14 +38,14 @@ fun SettingsScreen(
             text = "Settings",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
-            color = TextPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
         Text(
             text = "Customize your coaching experience",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
@@ -64,11 +64,11 @@ fun SettingsScreen(
                 .shadow(
                     elevation = 4.dp,
                     shape = RoundedCornerShape(20.dp),
-                    spotColor = ShadowColor
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                 ),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Surface
+                containerColor = MaterialTheme.colorScheme.surface
             )
         ) {
             Column(
@@ -87,14 +87,14 @@ fun SettingsScreen(
                         text = "Analysis Frequency",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 
                 Text(
                     text = "How often the AI analyzes your conversation for coaching insights.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
@@ -131,7 +131,7 @@ private fun SectionHeader(
             text = title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = Primary
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -158,7 +158,7 @@ private fun AnalysisIntervalDropdown(
             .shadow(
                 elevation = 2.dp,
                 shape = RoundedCornerShape(16.dp),
-                spotColor = ShadowColor
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             )
     ) {
         OutlinedButton(
@@ -168,8 +168,8 @@ private fun AnalysisIntervalDropdown(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = SurfaceVariant,
-                contentColor = TextPrimary
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurface
             ),
             border = null
         ) {
@@ -186,7 +186,7 @@ private fun AnalysisIntervalDropdown(
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Expand",
-                    tint = Primary
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -197,7 +197,7 @@ private fun AnalysisIntervalDropdown(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .background(
-                    color = Surface,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(16.dp)
                 )
         ) {
@@ -213,9 +213,9 @@ private fun AnalysisIntervalDropdown(
                                 FontWeight.Normal
                             },
                             color = if (value == selectedInterval) {
-                                Primary
+                                MaterialTheme.colorScheme.primary
                             } else {
-                                TextPrimary
+                                MaterialTheme.colorScheme.onSurface
                             }
                         )
                     },
@@ -226,7 +226,7 @@ private fun AnalysisIntervalDropdown(
                     modifier = Modifier
                         .background(
                             if (value == selectedInterval) {
-                                Primary.copy(alpha = 0.1f)
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                             } else {
                                 androidx.compose.ui.graphics.Color.Transparent
                             }
@@ -245,11 +245,11 @@ private fun InfoCard() {
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(20.dp),
-                spotColor = ShadowColor
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
             ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Surface
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Box(
@@ -258,8 +258,8 @@ private fun InfoCard() {
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            Primary.copy(alpha = 0.1f),
-                            Secondary.copy(alpha = 0.1f)
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
                         )
                     )
                 )
@@ -279,14 +279,14 @@ private fun InfoCard() {
                         text = "Pro Tip",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Primary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 
                 Text(
                     text = "Faster analysis provides more frequent insights but may interrupt your flow. Choose a frequency that matches your conversation style.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = MaterialTheme.typography.bodyMedium.lineHeight.times(1.4f)
                 )
             }
