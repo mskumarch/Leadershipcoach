@@ -1,7 +1,5 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -11,7 +9,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.CoachBottomNavigationBar
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.ChatScreen
@@ -35,11 +32,7 @@ fun NavigationScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
-<<<<<<< HEAD
-        containerColor = Color.Transparent,
-=======
         containerColor = MaterialTheme.colorScheme.background,
->>>>>>> 43e5bbd (feat: Redesign app icon, enhance UI across multiple screens, and add new documentation.)
         bottomBar = {
             CoachBottomNavigationBar(
                 currentDestination = when (selectedTab) {
