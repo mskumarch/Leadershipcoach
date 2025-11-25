@@ -33,9 +33,10 @@ object CoachingPrompts {
      */
     fun getSessionSystemPrompt(mode: SessionMode): String {
         return when (mode) {
-            SessionMode.ONE_ON_ONE -> getOneOnOneSystemPrompt()
-            SessionMode.TEAM_MEETING -> getTeamMeetingSystemPrompt()
-            SessionMode.DIFFICULT_CONVERSATION -> getDifficultConversationSystemPrompt()
+            SessionMode.ONE_ON_ONE -> "Provide 3 tips for better 1:1 connection."
+            SessionMode.TEAM_MEETING -> "Provide 3 tips for better team facilitation."
+            SessionMode.DIFFICULT_CONVERSATION -> "Provide 3 tips for conflict resolution."
+            SessionMode.ROLEPLAY -> "Provide 3 tips for mastering this roleplay scenario."
         }
     }
 
@@ -220,12 +221,10 @@ object CoachingPrompts {
      */
     private fun getSessionModeContext(mode: SessionMode): String {
         return when (mode) {
-            SessionMode.ONE_ON_ONE ->
-                "Build trust, show empathy, ask open questions, listen actively"
-            SessionMode.TEAM_MEETING ->
-                "Ensure everyone participates, manage group dynamics, seek diverse perspectives"
-            SessionMode.DIFFICULT_CONVERSATION ->
-                "Stay calm, de-escalate tension, show empathy, find common ground"
+            SessionMode.ONE_ON_ONE -> "Focus on empathy, active listening, and clarity. Identify if the user is being supportive or directive."
+            SessionMode.TEAM_MEETING -> "Focus on inclusion, clarity of direction, and time management. Identify if the user is dominating or facilitating."
+            SessionMode.DIFFICULT_CONVERSATION -> "Focus on de-escalation, clear boundaries, and staying calm. Identify emotional triggers."
+            SessionMode.ROLEPLAY -> "Focus on staying in character, responding naturally, and achieving the scenario goal."
         }
     }
 

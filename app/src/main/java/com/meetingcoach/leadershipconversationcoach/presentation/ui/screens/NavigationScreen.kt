@@ -27,33 +27,39 @@ import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.Sess
  * All screens share the same SessionViewModel instance
  * State is synchronized across all tabs
  */
+import androidx.compose.runtime.mutableStateOf
+import androidx.activity.compose.BackHandler
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.Text
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.practice.PracticeModeScreen
+
 @Composable
 fun NavigationScreen(
     hasRecordAudioPermission: Boolean = true,
     viewModel: SessionViewModel = hiltViewModel() // Single shared instance
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    var selectedSessionId by remember { androidx.compose.runtime.mutableStateOf<Long?>(null) }
+    var selectedSessionId by remember { mutableStateOf<Long?>(null) }
+    var showPracticeMode by remember { mutableStateOf(false) }
 
     // Handle system back press
-    androidx.activity.compose.BackHandler(enabled = selectedSessionId != null) {
-        selectedSessionId = null
+    BackHandler(enabled = selectedSessionId != null || showPracticeMode) {
+        if (selectedSessionId != null) {
+            selectedSessionId = null
+        } else if (showPracticeMode) {
+            showPracticeMode = false
+        }
     }
 
-    if (selectedSessionId != null) {
-        com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen(
-            sessionId = selectedSessionId!!,
-            onBackClick = { selectedSessionId = null }
-        )
-    } else {
-        Scaffold(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent, // Transparent to prevent black rectangle
-            bottomBar = {
+    Scaffold(
+        bottomBar = {
+            if (selectedSessionId == null && !showPracticeMode) {
                 CoachBottomNavigationBar(
                     currentDestination = when (selectedTab) {
                         0 -> "chat"
                         1 -> "transcript"
-                        2 -> "practice"
+                        2 -> "progress"
                         3 -> "history"
                         4 -> "settings"
                         else -> "chat"
@@ -62,7 +68,7 @@ fun NavigationScreen(
                         selectedTab = when (destination) {
                             "chat" -> 0
                             "transcript" -> 1
-                            "practice" -> 2
+                            "progress" -> 2
                             "history" -> 3
                             "settings" -> 4
                             else -> 0
@@ -70,29 +76,42 @@ fun NavigationScreen(
                     }
                 )
             }
-        ) { paddingValues ->
-            // Full screen box with sage green background
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background) // Sage green
-            ) {
+        }
+    ) { paddingValues ->
+        // Full screen box with sage green background
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background) // Sage green
+        ) {
+            if (showPracticeMode) {
+                PracticeModeScreen(
+                    onBackClick = { showPracticeMode = false },
+                    onScenarioClick = { /* TODO: Start Scenario */ }
+                )
+            } else if (selectedSessionId != null) {
+                SessionDetailScreen(
+                    sessionId = selectedSessionId!!,
+                    onBackClick = { selectedSessionId = null }
+                )
+            } else {
                 when (selectedTab) {
                     0 -> ChatScreen(
                         viewModel = viewModel,
                         modifier = Modifier.padding(paddingValues),
-                        hasRecordAudioPermission = hasRecordAudioPermission
+                        hasRecordAudioPermission = hasRecordAudioPermission,
+                        onNavigateToPractice = { showPracticeMode = true }
                     )
                     1 -> TranscriptScreen(
                         viewModel = viewModel,
                         modifier = Modifier.padding(paddingValues)
                     )
-                    2 -> com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.practice.PracticeModeScreen(
-                        onBackClick = { selectedTab = 0 },
-                        onScenarioClick = { scenario ->
-                            // TODO: Navigate to active practice session
+                    2 -> {
+                        // Progress / Stats Screen
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("Progress & Stats Coming Soon")
                         }
-                    )
+                    }
                     3 -> HistoryScreen(
                         onSessionClick = { sessionId -> selectedSessionId = sessionId },
                         modifier = Modifier.padding(paddingValues)

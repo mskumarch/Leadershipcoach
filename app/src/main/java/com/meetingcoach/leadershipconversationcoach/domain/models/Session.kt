@@ -545,6 +545,7 @@ data class Session(
             SessionMode.ONE_ON_ONE -> "1-on-1"
             SessionMode.TEAM_MEETING -> "Team Meeting"
             SessionMode.DIFFICULT_CONVERSATION -> "Difficult Conversation"
+            SessionMode.ROLEPLAY -> "Roleplay Practice"
         }
 
         val date = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.US)

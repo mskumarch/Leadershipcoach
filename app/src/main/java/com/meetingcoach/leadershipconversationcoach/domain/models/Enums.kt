@@ -16,13 +16,15 @@ package com.meetingcoach.leadershipconversationcoach.domain.models
 enum class SessionMode {
     ONE_ON_ONE,
     TEAM_MEETING,
-    DIFFICULT_CONVERSATION;
+    DIFFICULT_CONVERSATION,
+    ROLEPLAY;
 
     fun getDisplayName(): String {
         return when (this) {
             ONE_ON_ONE -> "One-on-One"
             TEAM_MEETING -> "Team Meeting"
             DIFFICULT_CONVERSATION -> "Difficult Conversation"
+            ROLEPLAY -> "Roleplay Practice"
         }
     }
 
@@ -31,6 +33,7 @@ enum class SessionMode {
             ONE_ON_ONE -> "Direct report check-in, mentoring, or feedback"
             TEAM_MEETING -> "Group discussion, brainstorming, or team decision-making"
             DIFFICULT_CONVERSATION -> "Conflict resolution, critical feedback, or tough topics"
+            ROLEPLAY -> "Practice scenarios with AI personas"
         }
     }
 
@@ -39,6 +42,7 @@ enum class SessionMode {
             ONE_ON_ONE -> "👤"
             TEAM_MEETING -> "👥"
             DIFFICULT_CONVERSATION -> "💬"
+            ROLEPLAY -> "🎭"
         }
     }
 }
