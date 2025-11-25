@@ -39,5 +39,6 @@ data class SessionMetricsEntity(
     val clarityScore: Int,
     val interruptionCount: Int,
     val sentiment: String,
-    val temperature: Int
+    val temperature: Int,
+    val summary: String? = null
 )

@@ -35,6 +35,11 @@ fun NavigationScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedSessionId by remember { androidx.compose.runtime.mutableStateOf<Long?>(null) }
 
+    // Handle system back press
+    androidx.activity.compose.BackHandler(enabled = selectedSessionId != null) {
+        selectedSessionId = null
+    }
+
     if (selectedSessionId != null) {
         com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen(
             sessionId = selectedSessionId!!,
