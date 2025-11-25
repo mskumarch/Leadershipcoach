@@ -34,13 +34,13 @@ private val LightColorScheme = lightColorScheme(
     // Primary colors - Sage Green (Primary Surface)
     primary = SageGreen,
     onPrimary = SoftCream,
-    primaryContainer = Color(0xFFB2C9B7),     // Light sage green
+    primaryContainer = Color(0xFFCDE0DB),     // Light Soft Teal
     onPrimaryContainer = DeepCharcoal,
 
     // Secondary colors - Warm Taupe
     secondary = WarmTaupe,
     onSecondary = DeepCharcoal,
-    secondaryContainer = Color(0xFFE0D4C4),   // Light taupe
+    secondaryContainer = Color(0xFFF2F0EA),   // Light Sand Beige
     onSecondaryContainer = DeepCharcoal,
 
     // Tertiary - Active Blue
