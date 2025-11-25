@@ -254,29 +254,34 @@ class GeminiApiService(
             $basePrompt
             $specificInstructions
             
+            Also analyze:
+            - PACE: Was the speaker too fast/slow? (e.g., "Good pace", "Too fast")
+            - WORDING: Did they use filler words or power words? (e.g., "Used 'um' frequently", "Strong decisive language")
+            - IMPROVEMENTS: List 3 specific actionable improvements.
+            
             Format your response EXACTLY as follows:
             SCORE_1: [0-100]
             SCORE_2: [0-100]
             SCORE_3: [0-100]
-            SUMMARY: [Detailed analysis of nuances, alignment, and insights]
+            SUMMARY: [Detailed analysis]
+            PACE: [Analysis]
+            WORDING: [Analysis]
+            IMPROVEMENTS: [Point 1 | Point 2 | Point 3]
         """.trimIndent()
     }
 
     private fun parseSessionAnalysis(response: String?): SessionAnalysisResult? {
         if (response.isNullOrBlank()) return null
         
-        // We map SCORE_1/2/3 to the fixed fields for now, but the UI should ideally be dynamic.
-        // For now: 
-        // Empathy -> Score 1
-        // Clarity -> Score 2
-        // Listening -> Score 3
-        
         val score1 = Regex("SCORE_1:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
         val score2 = Regex("SCORE_2:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
         val score3 = Regex("SCORE_3:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
         val summary = Regex("SUMMARY:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No summary available."
+        val pace = Regex("PACE:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No pace analysis."
+        val wording = Regex("WORDING:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No wording analysis."
+        val improvements = Regex("IMPROVEMENTS:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No improvements listed."
         
-        return SessionAnalysisResult(score1, score2, score3, summary)
+        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements)
     }
 
     private fun parseCoachingResponse(response: String?): CoachingResponse? {
@@ -330,5 +335,8 @@ data class SessionAnalysisResult(
     val empathyScore: Int,
     val clarityScore: Int,
     val listeningScore: Int,
-    val summary: String
+    val summary: String,
+    val paceAnalysis: String,
+    val wordingAnalysis: String,
+    val improvements: String
 )

@@ -207,6 +207,10 @@ class CoachingEngine(
                 empathyScore = analysis.empathyScore,
                 clarityScore = analysis.clarityScore,
                 listeningScore = analysis.listeningScore,
+                summary = analysis.summary,
+                paceAnalysis = analysis.paceAnalysis,
+                wordingAnalysis = analysis.wordingAnalysis,
+                improvements = analysis.improvements
                 // We preserve other calculated metrics if passed, but here we return just the AI ones
                 // The ViewModel will merge them
             )

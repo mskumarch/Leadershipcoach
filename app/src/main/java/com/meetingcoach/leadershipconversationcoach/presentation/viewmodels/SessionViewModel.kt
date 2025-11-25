@@ -158,7 +158,10 @@ class SessionViewModel @Inject constructor(
                         empathyScore = aiMetrics.empathyScore,
                         clarityScore = aiMetrics.clarityScore,
                         listeningScore = aiMetrics.listeningScore,
-                        summary = aiMetrics.summary
+                        summary = aiMetrics.summary,
+                        paceAnalysis = aiMetrics.paceAnalysis,
+                        wordingAnalysis = aiMetrics.wordingAnalysis,
+                        improvements = aiMetrics.improvements
                     )
                     Log.d(TAG, "AI Analysis complete: Empathy=${metrics.empathyScore}")
                 }
