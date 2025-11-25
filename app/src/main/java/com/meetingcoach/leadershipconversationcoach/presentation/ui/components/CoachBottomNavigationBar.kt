@@ -112,36 +112,17 @@ fun CoachBottomNavigationBar(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(GlassWhite, RoundedCornerShape(percent = 50))
+                        .background(Color.White.copy(alpha = 0.9f), RoundedCornerShape(percent = 50))
                         .border(
                             width = 1.dp,
-                            color = GlassBorderLight, // 30% white border
+                            color = Color(0xFFE5E7EB), // Light gray border
                             shape = RoundedCornerShape(percent = 50)
                         )
-                        .drawBehind {
-                            // Layered shadows
-                            // Outer shadow
-                            drawRoundRect(
-                                color = ShadowStrong, // 12% black
-                                topLeft = Offset(0f, 8.dp.toPx()),
-                                size = size,
-                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
-                            )
-                            // Inner shadow
-                            drawRoundRect(
-                                color = ShadowMedium, // 8% black
-                                topLeft = Offset(0f, 2.dp.toPx()),
-                                size = size,
-                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
-                            )
-                            // Inner highlight (top edge)
-                            drawRoundRect(
-                                color = Color(0xCCFFFFFF), // 80% white
-                                topLeft = Offset(0f, 0f),
-                                size = size.copy(height = 1.dp.toPx()),
-                                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2)
-                            )
-                        }
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(percent = 50),
+                            spotColor = Color(0x40000000)
+                        )
                 )
 
                 // Content Layer (Icons) - NOT BLURRED
