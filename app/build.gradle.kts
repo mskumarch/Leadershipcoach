@@ -90,7 +90,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     // Jetpack Compose BOM (Bill of Materials)
-    implementation(platform("androidx.compose:compose-bom:2024.01.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.09.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")

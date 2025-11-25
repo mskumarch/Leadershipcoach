@@ -1,31 +1,36 @@
 # 🐛 Bug Fixes & Polish
 
-## 1. Chat Screen Layout
-- **Issue**: "Send button overlapped by hamburger menu" & "Huge gap between bottom menu and chat textbox".
-- **Fix**:
-    -   Reduced `ChatInputField` bottom padding from `80dp` to `16dp`. This brings the input field closer to the bottom navigation bar, eliminating the "huge gap".
-    -   The Hamburger Menu FAB remains at `bottom = 100dp`. Since the Input Field is now much lower (at ~16dp + height), the FAB floats clearly *above* the input field, preventing any overlap.
+## 1. Critical Crash Fix (NoSuchMethodError)
+-   **Issue**: "FATAL EXCEPTION: main ... NoSuchMethodError: No virtual method at(...) in KeyframesSpec".
+-   **Cause**: Dependency version mismatch. The project was using an older Compose BOM (`2024.01.00`) which caused a conflict between `androidx.compose.material3` and `androidx.compose.animation`.
+-   **Fix**: Updated Compose BOM to `2024.09.00` in `app/build.gradle.kts`. This aligns all Compose libraries (UI, Material3, Animation) to compatible versions (approx. 1.7.x / 1.3.x).
 
-## 2. App Icon
+## 2. Chat Screen Layout
+-   **Issue**: "Send button overlapped by hamburger menu" & "Huge gap between bottom menu and chat textbox".
+-   **Fix**:
+    -   Reduced `ChatInputField` bottom padding from `80dp` to `16dp`.
+    -   The Hamburger Menu FAB remains at `bottom = 100dp`, floating clearly above the input field.
+
+## 3. App Icon
 -   **Issue**: "Icon is just plain solid color".
 -   **Fix**:
-    -   Replaced the potentially problematic PNG foreground with a **Vector Drawable** (`ic_launcher_foreground.xml`).
-    -   The icon is now a crisp White Speech Bubble with a Star on a Teal background. This ensures it renders correctly on all devices.
+    -   Replaced the PNG foreground with a **Vector Drawable** (`ic_launcher_foreground.xml`).
+    -   The icon is now a crisp White Speech Bubble with a Star on a Teal background.
 
-## 3. Transcript Crash
+## 4. Transcript Screen
 -   **Issue**: "App kills itself when clicking transcript icon".
 -   **Fix**:
-    -   Updated `TranscriptScreen` to explicitly use the `SoftCream` background color, ensuring no resource linking errors.
-    -   Verified safety checks for empty transcript items.
-    -   The crash was likely due to theme resource mismatches or the previous "MutedCoral" issue which is now fully resolved.
+    -   Refactored `TranscriptScreen` to use `LazyColumn` for performance.
+    -   Fixed theme resource references (`SoftCream` -> `MaterialTheme.colorScheme.background`).
+    -   Added safety checks.
+    -   **Note**: The BOM update also fixes the underlying crash in `CircularProgressIndicator` which was affecting this screen.
 
-## 4. Theme Consistency
+## 5. Theme Consistency
 -   **Issue**: "Session mode colors don't match".
 -   **Fix**:
-    -   Updated `SessionModeModal.kt` to use the app's theme colors (`SoftCream`, `DeepCharcoal`) instead of hardcoded grays. It now matches the "Clean Slate" aesthetic.
+    -   Refactored `SessionModeModal.kt` to use `MaterialTheme` colors.
+    -   Created `AppPalette` in `Color.kt` as the single source of truth.
 
 ## 📦 Verification
-1.  **Chat Screen**: Verify the input field is near the bottom, and the Menu FAB is floating above it without blocking the Send button.
-2.  **App Icon**: Verify the app icon shows the white symbol on teal background.
-3.  **Transcript**: Verify clicking the Transcript tab does not crash the app.
-4.  **Session Mode**: Click "Start Recording" -> "Choose Session Type". Verify the modal looks clean and white/teal.
+1.  **Crash Check**: Launch the app, start a session, and navigate to Transcript or History. It should NOT crash.
+2.  **UI Check**: Verify Chat screen layout and App Icon.
