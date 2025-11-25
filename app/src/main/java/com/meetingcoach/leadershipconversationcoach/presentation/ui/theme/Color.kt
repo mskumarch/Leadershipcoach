@@ -27,10 +27,11 @@ import androidx.compose.ui.graphics.Color
 // ============================================================
 
 // PRIMARY SURFACES - Serene Mist Theme (Relaxing & Calm)
-val SageGreen = Color(0xFFA0C1B8)              // Soft Eucalyptus/Teal - Calming primary
-val WarmTaupe = Color(0xFFE8E4D9)              // Sand Beige - Warm secondary
-val SoftCream = Color(0xFFF5F7F8)              // Mist White - Light airy background
-val DeepCharcoal = Color(0xFF374151)           // Soft Charcoal - Readable text
+// PRIMARY SURFACES - Clean Slate Theme (Professional & Airy)
+val SageGreen = Color(0xFF0D9488)              // Teal 600 - Vibrant primary
+val WarmTaupe = Color(0xFFF1F5F9)              // Slate 100 - Light gray secondary
+val SoftCream = Color(0xFFFFFFFF)              // White - Pure background
+val DeepCharcoal = Color(0xFF0F172A)           // Slate 900 - High contrast text
 
 // DARK MODE PALETTE - Deep Sanctuary
 val DarkSageGreen = Color(0xFF2D443E)          // Deep Teal
