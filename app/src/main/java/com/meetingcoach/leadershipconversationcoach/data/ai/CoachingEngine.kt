@@ -188,7 +188,34 @@ class CoachingEngine(
     }
 
     /**
-     * Analyze the full session to generate final metrics
+     * Analyze the session using AUDIO for deeper insights
+     */
+    suspend fun analyzeAudioSession(
+        audioFile: java.io.File
+    ): SessionMetrics? {
+        val modeName = sessionMode?.name ?: "COACHING"
+        val analysis = geminiService.analyzeAudioSession(audioFile, modeName)
+        
+        return if (analysis != null) {
+            SessionMetrics(
+                empathyScore = analysis.empathyScore,
+                clarityScore = analysis.clarityScore,
+                listeningScore = analysis.listeningScore,
+                summary = analysis.summary,
+                paceAnalysis = analysis.paceAnalysis,
+                wordingAnalysis = analysis.wordingAnalysis,
+                improvements = analysis.improvements,
+                // We'll store the raw JSON in a temporary field in metrics if needed, 
+                // or handle it in the ViewModel. For now, let's add it to metrics.
+                aiTranscriptJson = analysis.transcriptJson
+            )
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Analyze the full session to generate final metrics (Text fallback)
      */
     suspend fun analyzeSession(
         transcripts: List<ChatMessage>
@@ -207,6 +234,10 @@ class CoachingEngine(
                 empathyScore = analysis.empathyScore,
                 clarityScore = analysis.clarityScore,
                 listeningScore = analysis.listeningScore,
+                summary = analysis.summary,
+                paceAnalysis = analysis.paceAnalysis,
+                wordingAnalysis = analysis.wordingAnalysis,
+                improvements = analysis.improvements
                 // We preserve other calculated metrics if passed, but here we return just the AI ones
                 // The ViewModel will merge them
             )

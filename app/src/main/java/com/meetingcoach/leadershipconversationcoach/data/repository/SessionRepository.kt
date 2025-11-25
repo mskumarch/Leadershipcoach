@@ -67,7 +67,10 @@ class SessionRepository @Inject constructor(
                 interruptionCount = metrics.interruptionCount,
                 sentiment = metrics.sentiment.name,
                 temperature = metrics.temperature,
-                summary = metrics.summary
+                summary = metrics.summary,
+                paceAnalysis = metrics.paceAnalysis,
+                wordingAnalysis = metrics.wordingAnalysis,
+                improvements = metrics.improvements
             )
 
             sessionDao.insertMetrics(metricsEntity)

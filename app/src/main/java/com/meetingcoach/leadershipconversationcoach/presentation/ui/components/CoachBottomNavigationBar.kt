@@ -52,11 +52,11 @@ enum class NavigationDestination(
         unselectedIcon = Icons.AutoMirrored.Outlined.Article,
         contentDescription = "Transcript"
     ),
-    COACH(
-        route = "coach",
+    PRACTICE(
+        route = "practice",
         selectedIcon = Icons.Filled.Lightbulb,
         unselectedIcon = Icons.Outlined.Lightbulb,
-        contentDescription = "Coach"
+        contentDescription = "Practice"
     ),
     HISTORY(
         route = "history",

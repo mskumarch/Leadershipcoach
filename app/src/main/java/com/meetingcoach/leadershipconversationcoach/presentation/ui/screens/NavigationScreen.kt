@@ -53,7 +53,7 @@ fun NavigationScreen(
                     currentDestination = when (selectedTab) {
                         0 -> "chat"
                         1 -> "transcript"
-                        2 -> "coach"
+                        2 -> "practice"
                         3 -> "history"
                         4 -> "settings"
                         else -> "chat"
@@ -62,7 +62,7 @@ fun NavigationScreen(
                         selectedTab = when (destination) {
                             "chat" -> 0
                             "transcript" -> 1
-                            "coach" -> 2
+                            "practice" -> 2
                             "history" -> 3
                             "settings" -> 4
                             else -> 0
@@ -87,10 +87,11 @@ fun NavigationScreen(
                         viewModel = viewModel,
                         modifier = Modifier.padding(paddingValues)
                     )
-                    2 -> CoachScreen(
-                        viewModel = viewModel,
-                        modifier = Modifier.padding(paddingValues),
-                        hasRecordAudioPermission = hasRecordAudioPermission
+                    2 -> com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.practice.PracticeModeScreen(
+                        onBackClick = { selectedTab = 0 },
+                        onScenarioClick = { scenario ->
+                            // TODO: Navigate to active practice session
+                        }
                     )
                     3 -> HistoryScreen(
                         onSessionClick = { sessionId -> selectedSessionId = sessionId },

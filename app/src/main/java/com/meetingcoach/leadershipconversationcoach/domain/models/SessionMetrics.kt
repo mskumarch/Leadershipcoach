@@ -71,6 +71,10 @@ data class SessionMetrics(
     val empatheticPhraseCount: Int = 0,
     val interruptionCount: Int = 0,
     val summary: String? = null,
+    val paceAnalysis: String? = null,
+    val wordingAnalysis: String? = null,
+    val improvements: String? = null,
+    val aiTranscriptJson: String? = null,
     val lastUpdated: Long = System.currentTimeMillis()
 ) {
 

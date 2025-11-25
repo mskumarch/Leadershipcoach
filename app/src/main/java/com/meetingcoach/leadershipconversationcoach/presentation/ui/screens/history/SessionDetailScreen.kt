@@ -42,7 +42,7 @@ fun SessionDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val sessionDetails = uiState.selectedSession
     var selectedTab by remember { androidx.compose.runtime.mutableIntStateOf(0) }
-    val tabs = listOf("Analysis", "Chat")
+    val tabs = listOf("Insights", "Transcript", "Coaching")
 
     Scaffold(
         topBar = {
@@ -88,8 +88,9 @@ fun SessionDetailScreen(
         } else {
             Box(modifier = Modifier.padding(padding)) {
                 when (selectedTab) {
-                    0 -> AnalysisTab(sessionDetails)
-                    1 -> ChatTab(sessionDetails.messages)
+                    0 -> InsightsTab(sessionDetails)
+                    1 -> TranscriptTab(sessionDetails.messages)
+                    2 -> CoachingTab(sessionDetails.messages)
                 }
             }
         }
@@ -97,51 +98,98 @@ fun SessionDetailScreen(
 }
 
 @Composable
-fun AnalysisTab(sessionDetails: com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails) {
+fun InsightsTab(sessionDetails: com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // ScorecardSection
+        // Scorecard Section
         item {
             ScorecardSection(metrics = sessionDetails.metrics, sessionMode = sessionDetails.session.mode)
         }
 
-        // Summary Section (Placeholder for now, or use AI summary if available)
+        // Summary Section
         item {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Session Summary",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = sessionDetails.metrics?.summary ?: "No AI summary available for this session.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+            InsightCard(title = "Summary", content = sessionDetails.metrics?.summary)
+        }
+        
+        // Pace Analysis
+        item {
+            InsightCard(title = "Speaking Pace", content = sessionDetails.metrics?.paceAnalysis)
+        }
+        
+        // Wording Analysis
+        item {
+            InsightCard(title = "Wording Style", content = sessionDetails.metrics?.wordingAnalysis)
+        }
+        
+        // Improvements
+        item {
+            InsightCard(title = "Places to Improve", content = sessionDetails.metrics?.improvements, isHighlight = true)
+        }
+    }
+}
+
+@Composable
+fun InsightCard(title: String, content: String?, isHighlight: Boolean = false) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = if (isHighlight) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (isHighlight) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = content ?: "Analysis not available.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isHighlight) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun TranscriptTab(messages: List<SessionMessageEntity>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Filter only transcript messages
+        val transcriptMessages = messages.filter { 
+            it.messageType == "TRANSCRIPT" || (it.speaker != null && it.speaker != "AI") 
+        }
+        
+        if (transcriptMessages.isEmpty()) {
+            item { Text("No transcript available.") }
+        } else {
+            items(transcriptMessages) { message ->
+                TranscriptItem(message)
             }
         }
     }
 }
 
 @Composable
-fun ChatTab(messages: List<SessionMessageEntity>) {
+fun CoachingTab(messages: List<SessionMessageEntity>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Show all messages including AI
         items(messages) { message ->
             ChatHistoryItem(message)
         }
@@ -253,16 +301,25 @@ fun MetricRow(label: String, score: Int) {
 
 @Composable
 fun TranscriptItem(message: SessionMessageEntity) {
-    val speakerName = if (message.speaker == "UNKNOWN" || message.speaker == null) "Speaker" else message.speaker
+    // Check if content starts with [Speaker Name]
+    val speakerRegex = Regex("^\\[(.+?)\\]\\s*(.*)")
+    val match = speakerRegex.find(message.content)
     
+    val speakerName = match?.groupValues?.get(1) ?: (message.speaker ?: "Speaker")
+    val contentText = match?.groupValues?.get(2) ?: message.content
+    
+    // Clean up "Speaker" vs "Unknown"
+    val displaySpeaker = if (speakerName == "UNKNOWN" || speakerName == "null") "Speaker" else speakerName
+
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Text(
-            text = speakerName,
+            text = displaySpeaker,
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            text = message.content,
+            text = contentText,
             style = MaterialTheme.typography.bodyMedium
         )
     }
