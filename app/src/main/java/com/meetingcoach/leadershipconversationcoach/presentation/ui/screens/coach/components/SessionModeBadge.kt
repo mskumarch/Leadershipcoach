@@ -271,5 +271,6 @@ private fun getModeFocus(mode: SessionMode): String {
         SessionMode.ONE_ON_ONE -> "Focus: Empathy & Listening"
         SessionMode.TEAM_MEETING -> "Focus: Inclusion & Balance"
         SessionMode.DIFFICULT_CONVERSATION -> "Focus: De-escalation & Calm"
+        SessionMode.ROLEPLAY -> "Focus: Immersion & Goal"
     }
 }

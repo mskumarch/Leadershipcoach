@@ -34,7 +34,8 @@ import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.Sess
 fun ChatScreen(
     viewModel: SessionViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
-    hasRecordAudioPermission: Boolean = false
+    hasRecordAudioPermission: Boolean = false,
+    onNavigateToPractice: () -> Unit
 ) {
     val sessionState by viewModel.sessionState.collectAsState()
     var inputText by remember { mutableStateOf("") }
@@ -316,7 +317,11 @@ fun ChatScreen(
         if (showSessionModeModal) {
             SessionModeModal(
                 onModeSelected = { mode ->
-                    viewModel.startSession(mode, hasRecordAudioPermission)
+                    if (mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.ROLEPLAY) {
+                        onNavigateToPractice()
+                    } else {
+                        viewModel.startSession(mode, hasRecordAudioPermission)
+                    }
                     showSessionModeModal = false
                 },
                 onDismiss = { showSessionModeModal = false }

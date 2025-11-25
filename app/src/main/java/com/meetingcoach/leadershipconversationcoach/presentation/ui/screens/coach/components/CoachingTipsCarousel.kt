@@ -275,5 +275,25 @@ private fun getCoachingTips(mode: SessionMode): List<CoachingTip> {
                 category = "DE-ESCALATION"
             )
         )
+        SessionMode.ROLEPLAY -> listOf(
+            CoachingTip(
+                icon = "🎭",
+                title = "Stay in character",
+                tip = "Immerse yourself in the role. Respond naturally as if it were real.",
+                category = "IMMERSION"
+            ),
+            CoachingTip(
+                icon = "🎯",
+                title = "Focus on the goal",
+                tip = "Remember your objective (e.g., giving feedback). Don't get sidetracked.",
+                category = "OBJECTIVE"
+            ),
+            CoachingTip(
+                icon = "🧪",
+                title = "Experiment safely",
+                tip = "Try different approaches. This is a safe space to fail and learn.",
+                category = "LEARNING"
+            )
+        )
     }
 }

@@ -125,6 +125,12 @@ class SessionViewModel @Inject constructor(
     }
 
     fun stopSession() {
+        val currentState = _sessionState.value
+        if (!currentState.isRecording) return
+
+        // Mark as not recording immediately to prevent double-save
+        _sessionState.update { it.copy(isRecording = false) }
+
         timerJob?.cancel()
 
         // Stop STT
@@ -137,32 +143,18 @@ class SessionViewModel @Inject constructor(
         engine?.stopSession()
         coachingEngine = null
 
-        // Show analyzing state
-        val analyzingMessage = ChatMessage(
-            type = MessageType.CONTEXT,
-            content = "🧠 Analyzing conversation with AI...",
-            priority = Priority.INFO
-        )
-        addMessage(analyzingMessage)
-
         viewModelScope.launch {
             // Calculate basic metrics
             updateMetrics()
-            var currentState = _sessionState.value
             var metrics = currentState.metrics ?: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
 
-            // Perform AI Analysis (Audio First)
+            // Perform AI Analysis (Text Only for now to ensure stability)
             try {
-                val audioFile = audioRecorder?.stopRecording()
-                audioRecorder = null // Release recorder
+                // val audioFile = audioRecorder?.stopRecording()
+                // audioRecorder = null 
                 
-                val aiMetrics = if (audioFile != null && audioFile.exists()) {
-                    Log.d(TAG, "Analyzing audio file: ${audioFile.length()} bytes")
-                    engine?.analyzeAudioSession(audioFile)
-                } else {
-                    Log.w(TAG, "Audio file missing, falling back to text analysis")
-                    engine?.analyzeSession(currentState.messages)
-                }
+                // Fallback to text analysis
+                val aiMetrics = engine?.analyzeSession(currentState.messages)
 
                 if (aiMetrics != null) {
                     // Merge AI metrics with calculated metrics
@@ -228,7 +220,15 @@ class SessionViewModel @Inject constructor(
                 addMessage(errorMessage)
             }
             
-            _sessionState.update { it.copy(isRecording = false) }
+            // Reset Session State for next time
+            _sessionState.update { 
+                SessionState(
+                    mode = it.mode, // Keep the selected mode
+                    isRecording = false,
+                    messages = emptyList(), // Clear messages
+                    metrics = com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics() // Clear metrics
+                ) 
+            }
         }
     }
 
@@ -238,9 +238,9 @@ class SessionViewModel @Inject constructor(
 
     private fun startSpeechRecognition() {
 
-        // Start Audio Recording
-        audioRecorder = com.meetingcoach.leadershipconversationcoach.data.audio.AudioRecorder(context)
-        recordedAudioFile = audioRecorder?.startRecording()
+        // Start Audio Recording - DISABLED to fix STT conflict
+        // audioRecorder = com.meetingcoach.leadershipconversationcoach.data.audio.AudioRecorder(context)
+        // recordedAudioFile = audioRecorder?.startRecording()
 
         // Start STT
         sttService = LocalSpeechToTextService(context)
