@@ -16,7 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.data.local.SessionMessageEntity
 import com.meetingcoach.leadershipconversationcoach.data.local.SessionMetricsEntity
@@ -35,20 +41,44 @@ fun SessionDetailScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val sessionDetails = uiState.selectedSession
+    var selectedTab by remember { androidx.compose.runtime.mutableIntStateOf(0) }
+    val tabs = listOf("Analysis", "Chat")
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Session Insights") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+            Column {
+                TopAppBar(
+                    title = { Text("Session Insights") },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    )
                 )
-            )
+                
+                TabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.Indicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            text = { Text(title) }
+                        )
+                    }
+                }
+            }
         }
     ) { padding ->
         if (sessionDetails == null) {
@@ -56,30 +86,106 @@ fun SessionDetailScreen(
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                // Scorecard Section
-                item {
-                    ScorecardSection(metrics = sessionDetails.metrics)
+            Box(modifier = Modifier.padding(padding)) {
+                when (selectedTab) {
+                    0 -> AnalysisTab(sessionDetails)
+                    1 -> ChatTab(sessionDetails.messages)
                 }
+            }
+        }
+    }
+}
 
-                // Transcript Section
-                item {
+@Composable
+fun AnalysisTab(sessionDetails: com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // Scorecard Section
+        item {
+            ScorecardSection(metrics = sessionDetails.metrics)
+        }
+
+        // Summary Section (Placeholder for now, or use AI summary if available)
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Transcript",
-                        style = MaterialTheme.typography.titleLarge,
+                        text = "Session Summary",
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "AI Summary will appear here after analysis.", // TODO: Add summary field to DB
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
+            }
+        }
+    }
+}
 
-                items(sessionDetails.messages) { message ->
-                    TranscriptItem(message)
+@Composable
+fun ChatTab(messages: List<SessionMessageEntity>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(messages) { message ->
+            ChatHistoryItem(message)
+        }
+    }
+}
+
+@Composable
+fun ChatHistoryItem(message: SessionMessageEntity) {
+    val isUser = message.speaker == "USER" || message.messageType == "USER_QUESTION"
+    val isAi = message.messageType == "AI_RESPONSE" || message.messageType.contains("NUDGE") || message.messageType == "CONTEXT"
+    
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = when {
+                    isUser -> MaterialTheme.colorScheme.primaryContainer
+                    isAi -> MaterialTheme.colorScheme.secondaryContainer
+                    else -> MaterialTheme.colorScheme.surfaceVariant // Transcript
                 }
+            ),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.widthIn(max = 300.dp)
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                if (!isUser) {
+                    Text(
+                        text = when {
+                            isAi -> "AI Coach"
+                            else -> message.speaker ?: "Speaker"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                
+                Text(
+                    text = message.content,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }
@@ -135,21 +241,6 @@ fun MetricRow(label: String, score: Int) {
             text = "$score/100",
             modifier = Modifier.padding(start = 8.dp),
             style = MaterialTheme.typography.bodySmall
-        )
-    }
-}
-
-@Composable
-fun TranscriptItem(message: SessionMessageEntity) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-        Text(
-            text = message.speaker ?: "Unknown",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = message.content,
-            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

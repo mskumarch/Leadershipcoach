@@ -9,8 +9,9 @@
     -   ✅ **History**: View past sessions with date, duration, and mode.
     -   ✅ **Deep Insights**: 
         -   Post-session AI analysis (Empathy, Clarity, Listening scores).
-        -   Full transcript viewer.
-        -   AI-generated summary (infrastructure ready).
+        -   **Tabs**: Separate "Analysis" and "Chat" views.
+        -   **Chat History**: View full conversation including AI nudges.
+    -   ✅ **Transcript Quality**: Improved chunking to prevent missing words.
 
 ## 🔮 Proposed Future Features
 
