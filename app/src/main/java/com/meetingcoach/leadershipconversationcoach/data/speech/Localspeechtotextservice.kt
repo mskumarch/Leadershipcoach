@@ -296,14 +296,14 @@ class LocalSpeechToTextService(
             override fun onResults(results: Bundle?) {
                 val currentTime = System.currentTimeMillis()
 
-                // Throttle final results
-                if (currentTime - lastFinalResultTime < MIN_TIME_BETWEEN_FINALS) {
-                    // Too soon, schedule restart but skip this result
-                    if (shouldContinueListening) {
-                        scheduleRestart()
-                    }
-                    return
-                }
+                // Throttle final results - REMOVED to prevent data loss
+                // if (currentTime - lastFinalResultTime < MIN_TIME_BETWEEN_FINALS) {
+                //    // Too soon, schedule restart but skip this result
+                //    if (shouldContinueListening) {
+                //        scheduleRestart()
+                //    }
+                //    return
+                // }
 
                 lastFinalResultTime = currentTime
                 isCurrentlyListening = false
