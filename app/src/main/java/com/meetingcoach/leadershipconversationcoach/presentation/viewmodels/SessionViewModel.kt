@@ -30,7 +30,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SessionViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val sessionRepository: com.meetingcoach.leadershipconversationcoach.data.repository.SessionRepository
 ) : ViewModel() {
 
     companion object {
@@ -129,11 +130,77 @@ class SessionViewModel @Inject constructor(
         sttService?.release()
         sttService = null
 
-        // Stop coaching
-        coachingEngine?.stopSession()
+        // Stop coaching engine but keep reference for analysis
+        val engine = coachingEngine
+        engine?.stopSession()
         coachingEngine = null
 
-        _sessionState.update { it.copy(isRecording = false) }
+        // Show analyzing state
+        val analyzingMessage = ChatMessage(
+            type = MessageType.CONTEXT,
+            content = "🧠 Analyzing conversation with AI...",
+            priority = Priority.INFO
+        )
+        addMessage(analyzingMessage)
+
+        viewModelScope.launch {
+            // Calculate basic metrics
+            updateMetrics()
+            var currentState = _sessionState.value
+            var metrics = currentState.metrics ?: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
+
+            // Perform AI Analysis
+            try {
+                val aiMetrics = engine?.analyzeSession(currentState.messages)
+                if (aiMetrics != null) {
+                    // Merge AI metrics with calculated metrics
+                    metrics = metrics.copy(
+                        empathyScore = aiMetrics.empathyScore,
+                        clarityScore = aiMetrics.clarityScore,
+                        listeningScore = aiMetrics.listeningScore
+                    )
+                    Log.d(TAG, "AI Analysis complete: Empathy=${metrics.empathyScore}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "AI Analysis failed", e)
+            }
+
+            // Save session to database
+            try {
+                val startTime = currentState.startTime ?: System.currentTimeMillis()
+                val endTime = System.currentTimeMillis()
+                val duration = ((endTime - startTime) / 1000).toInt()
+
+                sessionRepository.saveSession(
+                    mode = currentState.mode ?: SessionMode.ONE_ON_ONE,
+                    startedAt = java.time.Instant.ofEpochMilli(startTime),
+                    endedAt = java.time.Instant.ofEpochMilli(endTime),
+                    durationSeconds = duration,
+                    messages = currentState.messages,
+                    metrics = metrics
+                )
+                Log.d(TAG, "Session saved successfully")
+                
+                // Notify UI
+                val savedMessage = ChatMessage(
+                    type = MessageType.CONTEXT,
+                    content = "✅ Session saved with AI Insights",
+                    priority = Priority.INFO
+                )
+                addMessage(savedMessage)
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to save session", e)
+                val errorMessage = ChatMessage(
+                    type = MessageType.CONTEXT,
+                    content = "⚠️ Failed to save session: ${e.message}",
+                    priority = Priority.URGENT
+                )
+                addMessage(errorMessage)
+            }
+            
+            _sessionState.update { it.copy(isRecording = false) }
+        }
     }
 
     // ============================================================

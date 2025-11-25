@@ -83,8 +83,8 @@ class SessionRepository @Inject constructor(
 
     suspend fun getAllSessions(): Result<List<SessionEntity>> = withContext(Dispatchers.IO) {
         try {
-            val sessions = sessionDao.getAllSessions()
-            Result.success(emptyList())
+            val sessions = sessionDao.getAllSessionsList()
+            Result.success(sessions)
         } catch (e: Exception) {
             Result.failure(e)
         }
