@@ -37,7 +37,7 @@ fun ChatInputField(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Surface)
+            .background(Color.Transparent)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Bottom
