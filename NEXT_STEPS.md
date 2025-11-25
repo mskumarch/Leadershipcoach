@@ -8,10 +8,11 @@
     -   ✅ **Auto-Save**: Sessions are automatically saved to local database.
     -   ✅ **History**: View past sessions with date, duration, and mode.
     -   ✅ **Deep Insights**: 
-        -   Post-session AI analysis (Empathy, Clarity, Listening scores).
+        -   **Context-Aware Analysis**: Tailored metrics for Team Meetings (Alignment), Difficult Conversations (Conflict), etc.
+        -   **AI Summary**: Detailed text analysis of nuances and dynamics.
         -   **Tabs**: Separate "Analysis" and "Chat" views.
         -   **Chat History**: View full conversation including AI nudges.
-    -   ✅ **Transcript Quality**: Improved chunking to prevent missing words.
+    -   ✅ **Transcript Quality**: Improved chunking and speaker labeling.
 
 ## 🔮 Proposed Future Features
 

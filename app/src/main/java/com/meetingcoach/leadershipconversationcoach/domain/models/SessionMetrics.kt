@@ -70,6 +70,7 @@ data class SessionMetrics(
     val openQuestionCount: Int = 0,
     val empatheticPhraseCount: Int = 0,
     val interruptionCount: Int = 0,
+    val summary: String? = null,
     val lastUpdated: Long = System.currentTimeMillis()
 ) {
 

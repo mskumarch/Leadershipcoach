@@ -219,32 +219,64 @@ class GeminiApiService(
     }
 
     private fun buildSessionAnalysisPrompt(transcript: String, sessionMode: String): String {
-        return """
-            You are an expert leadership coach analyzing a completed "$sessionMode" session.
-            Transcript: "$transcript"
+        val basePrompt = "You are an expert leadership coach analyzing a completed '$sessionMode' session.\nTranscript: \"$transcript\"\n"
+        
+        val specificInstructions = when (sessionMode) {
+            "TEAM_MEETING" -> """
+                Analyze the team dynamics:
+                1. Alignment: Who is aligned? Who is against? (Score 0-100)
+                2. Participation: Was it balanced? (Score 0-100)
+                3. Clarity: Were goals clear? (Score 0-100)
+                
+                SUMMARY should focus on: Key conflicts, alignment issues, and hidden tensions.
+            """.trimIndent()
             
-            Grade this session (0-100) on:
-            1. Empathy: Understanding and validating others' feelings.
-            2. Clarity: Communicating clearly and concisely.
-            3. Listening: Asking questions and letting others speak.
+            "DIFFICULT_CONVERSATION" -> """
+                Analyze the conflict resolution:
+                1. Empathy: Did the leader validate feelings? (Score 0-100)
+                2. Objectivity: Did they stick to facts? (Score 0-100)
+                3. De-escalation: Did tension drop? (Score 0-100)
+                
+                SUMMARY should focus on: Emotional shifts, resistance points, and resolution.
+            """.trimIndent()
+            
+            else -> """
+                Analyze the coaching/1:1 session:
+                1. Empathy: Understanding feelings. (Score 0-100)
+                2. Clarity: Clear communication. (Score 0-100)
+                3. Listening: Asking open questions. (Score 0-100)
+                
+                SUMMARY should focus on: Rapport, key takeaways, and coaching impact.
+            """.trimIndent()
+        }
+
+        return """
+            $basePrompt
+            $specificInstructions
             
             Format your response EXACTLY as follows:
-            EMPATHY: [0-100]
-            CLARITY: [0-100]
-            LISTENING: [0-100]
-            SUMMARY: [Brief summary of performance]
+            SCORE_1: [0-100]
+            SCORE_2: [0-100]
+            SCORE_3: [0-100]
+            SUMMARY: [Detailed analysis of nuances, alignment, and insights]
         """.trimIndent()
     }
 
     private fun parseSessionAnalysis(response: String?): SessionAnalysisResult? {
         if (response.isNullOrBlank()) return null
         
-        val empathy = Regex("EMPATHY:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
-        val clarity = Regex("CLARITY:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
-        val listening = Regex("LISTENING:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
+        // We map SCORE_1/2/3 to the fixed fields for now, but the UI should ideally be dynamic.
+        // For now: 
+        // Empathy -> Score 1
+        // Clarity -> Score 2
+        // Listening -> Score 3
+        
+        val score1 = Regex("SCORE_1:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
+        val score2 = Regex("SCORE_2:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
+        val score3 = Regex("SCORE_3:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
         val summary = Regex("SUMMARY:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No summary available."
         
-        return SessionAnalysisResult(empathy, clarity, listening, summary)
+        return SessionAnalysisResult(score1, score2, score3, summary)
     }
 
     private fun parseCoachingResponse(response: String?): CoachingResponse? {

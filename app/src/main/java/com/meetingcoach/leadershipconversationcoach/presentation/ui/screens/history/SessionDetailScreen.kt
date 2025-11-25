@@ -104,9 +104,9 @@ fun AnalysisTab(sessionDetails: com.meetingcoach.leadershipconversationcoach.dat
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // Scorecard Section
+        // ScorecardSection
         item {
-            ScorecardSection(metrics = sessionDetails.metrics)
+            ScorecardSection(metrics = sessionDetails.metrics, sessionMode = sessionDetails.session.mode)
         }
 
         // Summary Section (Placeholder for now, or use AI summary if available)
@@ -124,7 +124,7 @@ fun AnalysisTab(sessionDetails: com.meetingcoach.leadershipconversationcoach.dat
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "AI Summary will appear here after analysis.", // TODO: Add summary field to DB
+                        text = sessionDetails.metrics?.summary ?: "No AI summary available for this session.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -192,7 +192,13 @@ fun ChatHistoryItem(message: SessionMessageEntity) {
 }
 
 @Composable
-fun ScorecardSection(metrics: SessionMetricsEntity?) {
+fun ScorecardSection(metrics: SessionMetricsEntity?, sessionMode: String = "ONE_ON_ONE") {
+    val labels = when (sessionMode) {
+        "TEAM_MEETING" -> Triple("Alignment", "Participation", "Clarity")
+        "DIFFICULT_CONVERSATION" -> Triple("Empathy", "Objectivity", "De-escalation")
+        else -> Triple("Empathy", "Clarity", "Listening")
+    }
+
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         modifier = Modifier.fillMaxWidth()
@@ -206,9 +212,9 @@ fun ScorecardSection(metrics: SessionMetricsEntity?) {
             Spacer(modifier = Modifier.height(16.dp))
 
             if (metrics != null) {
-                MetricRow("Empathy", metrics.empathyScore)
-                MetricRow("Clarity", metrics.clarityScore)
-                MetricRow("Listening", metrics.listeningScore)
+                MetricRow(labels.first, metrics.empathyScore)
+                MetricRow(labels.second, metrics.clarityScore)
+                MetricRow(labels.third, metrics.listeningScore)
                 Spacer(modifier = Modifier.height(8.dp))
                 Divider()
                 Spacer(modifier = Modifier.height(8.dp))
@@ -241,6 +247,23 @@ fun MetricRow(label: String, score: Int) {
             text = "$score/100",
             modifier = Modifier.padding(start = 8.dp),
             style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+@Composable
+fun TranscriptItem(message: SessionMessageEntity) {
+    val speakerName = if (message.speaker == "UNKNOWN" || message.speaker == null) "Speaker" else message.speaker
+    
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Text(
+            text = speakerName,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = message.content,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
