@@ -26,33 +26,37 @@ import androidx.compose.ui.graphics.Color
 // PREMIUM COLOR PALETTE
 // ============================================================
 
-// PRIMARY SURFACES - Sage & Taupe (60% coverage)
-val SageGreen = Color(0xFF8FA894)              // Primary surface - warm, grounding
-val WarmTaupe = Color(0xFFC6A884)              // Secondary surface - elevated cards
-val SoftCream = Color(0xFFF7F8F6)              // Text and highlights on dark surfaces
-val DeepCharcoal = Color(0xFF2E2E2E)           // Text on light surfaces
+// PRIMARY SURFACES - Serene Mist Theme (Relaxing & Calm)
+val SageGreen = Color(0xFFA0C1B8)              // Soft Eucalyptus/Teal - Calming primary
+val WarmTaupe = Color(0xFFE8E4D9)              // Sand Beige - Warm secondary
+val SoftCream = Color(0xFFF5F7F8)              // Mist White - Light airy background
+val DeepCharcoal = Color(0xFF374151)           // Soft Charcoal - Readable text
 
-// DARK MODE PALETTE
-val DarkSageGreen = Color(0xFF6B8070)          // Darker sage for dark mode background
-val DarkWarmTaupe = Color(0xFF9B8468)          // Darker taupe for dark mode surfaces
-val DarkBackground = Color(0xFF1A1F1E)         // Deep sage-tinted black
-val DarkSurface = Color(0xFF252B2A)            // Slightly lighter sage-tinted black
+// DARK MODE PALETTE - Deep Sanctuary
+val DarkSageGreen = Color(0xFF2D443E)          // Deep Teal
+val DarkWarmTaupe = Color(0xFF4A453A)          // Deep Sand
+val DarkBackground = Color(0xFF111827)         // Deep Night Blue/Gray
+val DarkSurface = Color(0xFF1F2937)            // Dark Surface
+val DarkTextPrimary = Color(0xFFF3F4F6)        // Off-white text
+val DarkTextSecondary = Color(0xFF9CA3AF)      // Muted text
 
-// ACCENT COLORS
-val ActiveBlue = Color(0xFF4285F4)             // Primary Action / User Bubble
-val ActiveBlueLight = Color(0xFF6EA0F8)        // Gradient End
-val MutedCoral = Color(0xFFE57373)             // Error / Stop / Alert
-val Success = Color(0xFF81C784)                // Success / Positive Sentiment
-val Warning = Color(0xFFFFB74D)                // Warning / Neutral Sentiment
+// ACCENT COLORS - Nature Inspired
+val ActiveBlue = Color(0xFF6B8E9B)             // Ocean Blue - Focus/Action
+val ActiveBlueLight = Color(0xFF8FB3C0)        // Lighter Ocean Blue
+val MutedCoral = Color(0xFFE0AFA0)             // Soft Coral - Alerts/Recording
+val SuccessGreen = Color(0xFF86A873)           // Leaf Green - Success
+val WarningYellow = Color(0xFFE6C785)          // Sun Yellow - Warning
+val Success = SuccessGreen                     // Alias for backward compatibility
+val Warning = WarningYellow                    // Alias for backward compatibility
 val Info = Color(0xFF64B5F6)                   // Info / Tips
 val NeutralGray = Color(0xFF6B7280)            // Secondary Text / Inactive Icons
 
 // GLASSMORPHISM - Translucent Layers
 val GlassWhite = Color(0xB3FFFFFF)             // 70% white for glass surfaces
-val GlassTaupe = Color(0xF2C6A884)             // 95% taupe for AI cards
+val GlassTaupe = Color(0xF2E8E4D9)             // 95% Sand Beige (New Taupe)
 val GlassBorderLight = Color(0x4DFFFFFF)       // 30% white border
 val NavGlassBase = Color(0xB3FFFFFF)           // 70% white
-val NavGlassTint = Color(0x1A8FA894)           // 10% sage tint
+val NavGlassTint = Color(0x1AA0C1B8)           // 10% Soft Teal (New Sage)
 val NavGlassHighlight = Color(0x4DFFFFFF)      // 30% white edge highlight
 
 // SHADOW COLORS - Layered Depth
@@ -110,7 +114,7 @@ val DarkOnBackground = SoftCream
 val DarkOnSurface = SoftCream
 
 val TextPrimary = DeepCharcoal
-val DarkTextPrimary = SoftCream
+// val DarkTextPrimary = SoftCream // Removed duplicate
 val DarkSurfaceVariant = DarkWarmTaupe
 val DarkOutline = NeutralGray
 val ShadowColor = ShadowMedium
@@ -132,7 +136,7 @@ val DarkAIBubbleBackground = DarkWarmTaupe
 // Additional missing colors
 val SurfaceVariant = WarmTaupe
 val AIBubbleText = DeepCharcoal
-val DarkTextSecondary = NeutralGray
+// val DarkTextSecondary = NeutralGray // Removed duplicate
 
 // More Legacy Colors for Compatibility
 val GlossyPrimaryStart = ActiveBlue
