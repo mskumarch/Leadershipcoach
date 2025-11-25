@@ -268,42 +268,22 @@ fun ChatScreen(
                         showQuickActions = false
                     },
                     onActionSelected = { command ->
-                        // Dynamic responses based on actual context (simulated)
-                        val response = when (command) {
-                            ActionCommand.SUMMARIZE_LAST_10_MIN -> 
-                                "📝 Summary of recent conversation:\n\n" +
-                                "• Key topics discussed: Project timeline, resources\n" +
-                                "• You asked clarifying questions about scope\n" +
-                                "• Sentiment is generally positive but cautious\n" +
-                                "• Action item: Review budget proposal"
-                            
-                            ActionCommand.EXPLAIN_RESPONSE -> 
-                                "💭 Analysis of last response:\n\n" +
-                                "The speaker seems hesitant. They might need reassurance about the deadline. " +
-                                "Try asking: 'What support do you need to feel confident?'"
-                            
-                            ActionCommand.CHECK_TONE -> 
-                                "🎤 Your tone check:\n\n" +
-                                "✅ Calm and steady pace\n" +
-                                "✅ Good use of open-ended questions\n" +
-                                "💡 Remember to pause after asking to let them think"
-                            
-                            ActionCommand.WHAT_DID_I_MISS -> 
-                                "❗ Potential missed cues:\n\n" +
-                                "• They hesitated when mentioning the budget\n" +
-                                "• Repeated use of 'maybe' suggests uncertainty"
-                            
-                            ActionCommand.SUGGEST_NEXT_QUESTION -> 
-                                "🔮 Suggested follow-up:\n\n" +
-                                "\"How does this align with your team's capacity right now?\""
-                            
-                            ActionCommand.HOW_AM_I_DOING -> 
-                                "📊 Session Performance:\n\n" +
-                                "🟢 Empathy: High\n" +
-                                "🟢 Listening: Good\n" +
-                                "🟡 Clarity: Could be more concise"
+                        // Convert command to a prompt for the AI
+                        val prompt = when (command) {
+                            ActionCommand.SUMMARIZE_LAST_10_MIN -> "Summarize the last 10 minutes of this conversation."
+                            ActionCommand.EXPLAIN_RESPONSE -> "Analyze the last response and explain the underlying sentiment."
+                            ActionCommand.CHECK_TONE -> "Check my tone in the recent transcripts. Am I speaking too fast or too aggressively?"
+                            ActionCommand.WHAT_DID_I_MISS -> "What cues or important points might I have missed recently?"
+                            ActionCommand.SUGGEST_NEXT_QUESTION -> "Suggest a good follow-up question based on the current context."
+                            ActionCommand.HOW_AM_I_DOING -> "Evaluate my performance in this session so far (empathy, listening, clarity)."
                         }
-                        viewModel.addAIResponse(response)
+                        
+                        // Add user request to chat (optional, or just show AI response)
+                        // viewModel.addUserMessage(prompt) // Optional: if we want to show what user asked
+                        
+                        // Trigger AI response
+                        viewModel.getAIResponse(prompt)
+                        
                         showQuickActions = false
                     },
                     onDismiss = { showQuickActions = false }
