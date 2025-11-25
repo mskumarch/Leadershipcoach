@@ -1,29 +1,14 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.transcript
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,142 +29,130 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Transcript Screen - Simple Live Transcript View with SharedViewModel
+ * Transcript Screen - Live Transcript View
  *
- * Design Philosophy:
- * - Show ONLY the live conversation transcript
- * - Clean, minimal, easy to read
- * - No analysis during live session
- * - Timeline, stats, and analysis moved to History screen (post-session)
- *
- * Features:
- * - Real-time transcript display
- * - Speaker identification with color coding
- * - Timestamps for each utterance
- * - Emotion indicators
- * - Auto-scroll to latest
- * - Synced with SessionViewModel
- *
- * Post-session features (moved to History):
- * - Timeline scrubber with markers
- * - Speaker statistics panel
- * - Export options
- * - Full analysis and insights
+ * Refactored for performance (LazyColumn) and stability.
  */
 @Composable
 fun TranscriptScreen(
     viewModel: SessionViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    // Observe session state from SharedViewModel
     val sessionState by viewModel.sessionState.collectAsState()
+    val listState = rememberLazyListState()
 
     // Filter messages to show only transcript items
-    val transcriptItems = sessionState.messages.filter {
-        it.type == MessageType.TRANSCRIPT
+    val transcriptItems = remember(sessionState.messages) {
+        sessionState.messages.filter { it.type == MessageType.TRANSCRIPT }
+    }
+
+    // Auto-scroll to bottom when new items arrive
+    LaunchedEffect(transcriptItems.size) {
+        if (transcriptItems.isNotEmpty()) {
+            listState.animateScrollToItem(transcriptItems.size - 1)
+        }
     }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(SoftCream) // Clean White Background
+            .background(MaterialTheme.colorScheme.background) // Uses SoftCream from Theme
     ) {
         if (sessionState.isRecording && transcriptItems.isNotEmpty()) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(bottom = 88.dp) // Space for stop button above nav
+                modifier = Modifier.fillMaxSize()
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(WarmTaupe) // Light Gray Header
-                        .padding(horizontal = 24.dp, vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                // Header
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "📝 Live Transcript",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        Text(
+                            text = "📝 Live Transcript",
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Recording indicator
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .background(
-                                        Color(0xFFEF4444),
-                                        shape = androidx.compose.foundation.shape.CircleShape
-                                    )
-                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Recording indicator
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(
+                                            MaterialTheme.colorScheme.error,
+                                            shape = androidx.compose.foundation.shape.CircleShape
+                                        )
+                                )
+
+                                Text(
+                                    text = "Recording",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
 
                             Text(
-                                text = "Recording",
+                                text = sessionState.duration,
                                 fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.Medium
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontWeight = FontWeight.Bold
                             )
                         }
+                    }
+                }
 
-                        Text(
-                            text = sessionState.duration,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontWeight = FontWeight.Bold
+                // Transcript List
+                LazyColumn(
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = 100.dp, top = 16.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(transcriptItems) { item ->
+                        val timestamp = formatTimestamp(item.timestamp)
+                        val speakerName = item.speaker?.getDisplayName() ?: "Unknown"
+                        
+                        val speakerIndex = when (item.speaker) {
+                            Speaker.USER -> 0
+                            Speaker.OTHER -> 1
+                            Speaker.SYSTEM -> 2
+                            else -> 0
+                        }
+
+                        val emotionName = item.metadata?.emotion?.getDisplayName() ?: "Neutral"
+                        val emotionEmoji = getEmotionEmoji(emotionName)
+
+                        TranscriptItem(
+                            speakerName = speakerName,
+                            timestamp = timestamp,
+                            content = item.content,
+                            speakerColor = getSpeakerColor(speakerIndex),
+                            emotion = emotionName,
+                            emotionEmoji = emotionEmoji
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Transcript items
-                transcriptItems.forEach { item ->
-                    val timestamp = formatTimestamp(item.timestamp)
-
-                    // ✅ Use domain model properties correctly
-                    val speakerName = item.speaker?.getDisplayName() ?: "Unknown"
-
-                    // ✅ Get speaker index for color (map Speaker enum to index)
-                    // ✅ Get speaker index for color (map Speaker enum to index)
-                    val speakerIndex = when (item.speaker) {
-                        Speaker.USER -> 0
-                        Speaker.OTHER -> 1
-                        Speaker.SYSTEM -> 2
-                        else -> 0
-                    }
-
-                    // Get emotion
-                    val emotionName = item.metadata?.emotion?.getDisplayName() ?: "Neutral"
-                    val emotionEmoji = getEmotionEmoji(emotionName)
-
-                    TranscriptItem(
-                        speakerName = speakerName,
-                        timestamp = timestamp,
-                        content = item.content,
-                        speakerColor = getSpeakerColor(speakerIndex),
-                        emotion = emotionName,
-                        emotionEmoji = emotionEmoji
-                    )
-                }
             }
             
-            // Floating Stop Button at bottom
+            // Stop Button
             FloatingActionButton(
                 onClick = { viewModel.stopSession() },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 88.dp), // Above nav bar (72dp + 16dp)
+                    .padding(bottom = 88.dp),
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError
             ) {
@@ -198,49 +171,38 @@ fun TranscriptScreen(
                     )
                 }
             }
+
         } else if (!sessionState.isRecording) {
             // Empty state - no recording
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = Icons.Default.Article,
-                    contentDescription = null,
-                    modifier = Modifier.size(80.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
                 Text(
-                    text = "No Active Recording",
-                    style = MaterialTheme.typography.headlineSmall,
+                    text = "No Active Session",
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center
+                    color = MaterialTheme.colorScheme.onBackground
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
                 Text(
-                    text = "Start a coaching session to see the live transcript",
+                    text = "Start a recording from the Coach tab to see the live transcript here.",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         } else {
             // Recording but no transcript yet
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary
@@ -267,7 +229,6 @@ fun TranscriptScreen(
         }
     }
 }
-
 
 // Format timestamp from milliseconds to MM:SS
 private fun formatTimestamp(timestamp: Long): String {

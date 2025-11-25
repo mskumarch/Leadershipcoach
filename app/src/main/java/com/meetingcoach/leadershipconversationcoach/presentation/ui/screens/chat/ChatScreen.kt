@@ -20,12 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.domain.models.MessageType
-import com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.*
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.*
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.SessionViewModel
 
+/**
+ * Chat Screen - Main Interaction Hub
+ *
+ * Refactored to use MaterialTheme colors and modular components.
+ */
 @Composable
 fun ChatScreen(
     viewModel: SessionViewModel = hiltViewModel(),
@@ -40,7 +44,7 @@ fun ChatScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(SoftCream) // Clean White Background
+            .background(MaterialTheme.colorScheme.background)
     ) {
         if (sessionState.isRecording) {
             // ============================================================
@@ -50,7 +54,7 @@ fun ChatScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Simple Status Header (No Blur)
+                    // Simple Status Header
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -71,7 +75,7 @@ fun ChatScreen(
                             text = "Recording",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
-                            color = DeepCharcoal
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -79,7 +83,7 @@ fun ChatScreen(
                         Text(
                             text = "•",
                             fontSize = 14.sp,
-                            color = DeepCharcoal
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -88,7 +92,7 @@ fun ChatScreen(
                             text = sessionState.duration,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepCharcoal
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
 
@@ -140,7 +144,7 @@ fun ChatScreen(
                                                 Text(
                                                     text = message.content,
                                                     style = MaterialTheme.typography.bodyMedium,
-                                                    color = DeepCharcoal
+                                                    color = MaterialTheme.colorScheme.onSurface
                                                 )
                                             }
                                         }
@@ -158,7 +162,7 @@ fun ChatScreen(
                                 Text(
                                     text = "Listening...",
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = DeepCharcoal.copy(alpha = 0.6f)
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                 )
                             }
                         }
@@ -173,7 +177,7 @@ fun ChatScreen(
                         Box(
                             modifier = Modifier
                                 .padding(16.dp)
-                                .padding(bottom = 16.dp) // Reduced padding to fix gap
+                                .padding(bottom = 16.dp) // Reduced padding
                         ) {
                             ChatInputField(
                                 value = inputText,
@@ -242,8 +246,8 @@ fun ChatScreen(
             // Floating Action Button - Menu
             FloatingActionButton(
                 onClick = { showQuickActions = true },
-                containerColor = SoftCream,
-                contentColor = ActiveBlue,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary,
                 elevation = FloatingActionButtonDefaults.elevation(8.dp),
                 shape = CircleShape,
                 modifier = Modifier
@@ -278,12 +282,12 @@ fun ChatScreen(
                 Button(
                     onClick = { showSessionModeModal = true },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ActiveBlue
+                        containerColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
                         .height(56.dp)
-                        .shadow(8.dp, RoundedCornerShape(50), spotColor = ActiveBlue.copy(alpha = 0.3f))
+                        .shadow(8.dp, RoundedCornerShape(50), spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
                 ) {
                     Text(
                         text = "🎙️ Start Recording",
@@ -332,7 +336,7 @@ private fun TipRow(icon: String, text: String) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = DeepCharcoal.copy(alpha = 0.8f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
         )
     }
 }
