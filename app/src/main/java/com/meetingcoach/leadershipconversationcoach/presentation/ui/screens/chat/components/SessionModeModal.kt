@@ -29,7 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode // ✅ Add this import
+import com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 
 /**
  * Session Mode Selection Modal
@@ -50,7 +51,7 @@ fun SessionModeModal(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = SoftCream
     ) {
         Column(
             modifier = Modifier
@@ -69,14 +70,14 @@ fun SessionModeModal(
                     text = "Choose Session Type",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F2937)
+                    color = DeepCharcoal
                 )
 
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color(0xFF6B7280)
+                        tint = DeepCharcoal.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -84,13 +85,13 @@ fun SessionModeModal(
             Text(
                 text = "AI will adapt coaching to your context",
                 fontSize = 14.sp,
-                color = Color(0xFF6B7280),
+                color = DeepCharcoal.copy(alpha = 0.6f),
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 0.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Divider(color = Color(0xFFE5E7EB))
+            Divider(color = DeepCharcoal.copy(alpha = 0.1f))
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -117,7 +118,7 @@ fun SessionModeModal(
                 Text(
                     text = "Cancel",
                     fontSize = 16.sp,
-                    color = Color(0xFF6B7280)
+                    color = DeepCharcoal.copy(alpha = 0.6f)
                 )
             }
         }
@@ -144,7 +145,7 @@ private fun SessionModeCard(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFF9FAFB)
+                containerColor = Color.White
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 2.dp
@@ -172,13 +173,13 @@ private fun SessionModeCard(
                         text = mode.getDisplayName(),  // ✅ Changed from mode.displayName
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF1F2937)
+                        color = DeepCharcoal
                     )
 
                     Text(
                         text = mode.getDescription(),  // ✅ Changed from mode.description
                         fontSize = 13.sp,
-                        color = Color(0xFF6B7280),
+                        color = DeepCharcoal.copy(alpha = 0.7f),
                         lineHeight = 18.sp
                     )
                 }
