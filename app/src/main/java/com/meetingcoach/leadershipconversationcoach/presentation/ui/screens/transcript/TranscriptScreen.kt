@@ -82,7 +82,7 @@ fun TranscriptScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(SoftCream) // Clean White Background
     ) {
         if (sessionState.isRecording && transcriptItems.isNotEmpty()) {
             Column(
@@ -94,7 +94,7 @@ fun TranscriptScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(WarmTaupe) // Light Gray Header
                         .padding(horizontal = 24.dp, vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {

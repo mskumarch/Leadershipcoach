@@ -104,7 +104,7 @@ fun ChatScreen(
                                     .fillMaxSize()
                                     .verticalScroll(rememberScrollState())
                                     .padding(horizontal = 16.dp, vertical = 12.dp)
-                                    .padding(bottom = 160.dp), // Space for FABs and Input
+                                    .padding(bottom = 100.dp), // Space for FABs and Input
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 sessionState.messages.forEach { message ->
@@ -173,7 +173,7 @@ fun ChatScreen(
                         Box(
                             modifier = Modifier
                                 .padding(16.dp)
-                                .padding(bottom = 80.dp) // Space for bottom nav
+                                .padding(bottom = 16.dp) // Reduced padding to fix gap
                         ) {
                             ChatInputField(
                                 value = inputText,
@@ -196,7 +196,7 @@ fun ChatScreen(
                     onClick = { viewModel.stopSession() },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 170.dp), // Above input field
+                        .padding(bottom = 100.dp), // Aligned with Menu FAB
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError
                 ) {
