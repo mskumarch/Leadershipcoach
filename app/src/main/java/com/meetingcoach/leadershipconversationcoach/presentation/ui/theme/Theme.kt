@@ -48,8 +48,9 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = Color.White,
 
     // Background - Sage Green (60% coverage)
-    background = SageGreen,
-    onBackground = SoftCream,
+    // Background - Clean White
+    background = SoftCream,
+    onBackground = DeepCharcoal,
 
     // Surface - Soft Cream
     surface = SoftCream,

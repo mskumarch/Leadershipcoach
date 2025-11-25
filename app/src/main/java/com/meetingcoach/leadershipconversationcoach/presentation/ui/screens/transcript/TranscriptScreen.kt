@@ -180,8 +180,8 @@ fun TranscriptScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 88.dp), // Above nav bar (72dp + 16dp)
-                containerColor = MutedCoral,
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
