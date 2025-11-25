@@ -131,6 +131,9 @@ class GeminiApiService(
     /**
      * Generate session summary at the end
      */
+    /**
+     * Generate session summary at the end
+     */
     suspend fun generateSessionSummary(
         fullTranscript: String,
         sessionMetrics: Map<String, Any>
@@ -141,6 +144,23 @@ class GeminiApiService(
             response.text?.trim()
         } catch (e: Exception) {
             Log.e(TAG, "Error generating summary: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
+     * Deep analysis of the entire session
+     */
+    suspend fun analyzeSession(
+        fullTranscript: String,
+        sessionMode: String
+    ): SessionAnalysisResult? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = buildSessionAnalysisPrompt(fullTranscript, sessionMode)
+            val response = generativeModel.generateContent(prompt)
+            parseSessionAnalysis(response.text)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error analyzing session: ${e.message}", e)
             null
         }
     }
@@ -198,6 +218,35 @@ class GeminiApiService(
         return "Summarize this coaching session with key points and feedback. Transcript: \"$transcript\""
     }
 
+    private fun buildSessionAnalysisPrompt(transcript: String, sessionMode: String): String {
+        return """
+            You are an expert leadership coach analyzing a completed "$sessionMode" session.
+            Transcript: "$transcript"
+            
+            Grade this session (0-100) on:
+            1. Empathy: Understanding and validating others' feelings.
+            2. Clarity: Communicating clearly and concisely.
+            3. Listening: Asking questions and letting others speak.
+            
+            Format your response EXACTLY as follows:
+            EMPATHY: [0-100]
+            CLARITY: [0-100]
+            LISTENING: [0-100]
+            SUMMARY: [Brief summary of performance]
+        """.trimIndent()
+    }
+
+    private fun parseSessionAnalysis(response: String?): SessionAnalysisResult? {
+        if (response.isNullOrBlank()) return null
+        
+        val empathy = Regex("EMPATHY:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
+        val clarity = Regex("CLARITY:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
+        val listening = Regex("LISTENING:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
+        val summary = Regex("SUMMARY:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No summary available."
+        
+        return SessionAnalysisResult(empathy, clarity, listening, summary)
+    }
+
     private fun parseCoachingResponse(response: String?): CoachingResponse? {
         if (response.isNullOrBlank() || response.contains("NONE", ignoreCase = true)) return null
         
@@ -243,4 +292,11 @@ data class ApiUsageStats(
     val lastRequestTime: Long,
     val dailyLimit: Int,
     val remainingRequests: Int
+)
+
+data class SessionAnalysisResult(
+    val empathyScore: Int,
+    val clarityScore: Int,
+    val listeningScore: Int,
+    val summary: String
 )

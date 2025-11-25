@@ -187,6 +187,34 @@ class CoachingEngine(
         }
     }
 
+    /**
+     * Analyze the full session to generate final metrics
+     */
+    suspend fun analyzeSession(
+        transcripts: List<ChatMessage>
+    ): SessionMetrics? {
+        val fullText = transcripts
+            .filter { it.type == MessageType.TRANSCRIPT }
+            .joinToString("\n") { "${it.speaker?.name ?: "Unknown"}: ${it.content}" }
+            
+        if (fullText.isBlank()) return null
+        
+        val modeName = sessionMode?.name ?: "COACHING"
+        val analysis = geminiService.analyzeSession(fullText, modeName)
+        
+        return if (analysis != null) {
+            SessionMetrics(
+                empathyScore = analysis.empathyScore,
+                clarityScore = analysis.clarityScore,
+                listeningScore = analysis.listeningScore,
+                // We preserve other calculated metrics if passed, but here we return just the AI ones
+                // The ViewModel will merge them
+            )
+        } else {
+            null
+        }
+    }
+
     // ============================================================
     // Private Analysis Methods
     // ============================================================

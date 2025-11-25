@@ -33,59 +33,68 @@ fun NavigationScreen(
     viewModel: SessionViewModel = hiltViewModel() // Single shared instance
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedSessionId by remember { androidx.compose.runtime.mutableStateOf<Long?>(null) }
 
-    Scaffold(
-        containerColor = androidx.compose.ui.graphics.Color.Transparent, // Transparent to prevent black rectangle
-        bottomBar = {
-            CoachBottomNavigationBar(
-                currentDestination = when (selectedTab) {
-                    0 -> "chat"
-                    1 -> "transcript"
-                    2 -> "coach"
-                    3 -> "history"
-                    4 -> "settings"
-                    else -> "chat"
-                },
-                onNavigate = { destination ->
-                    selectedTab = when (destination) {
-                        "chat" -> 0
-                        "transcript" -> 1
-                        "coach" -> 2
-                        "history" -> 3
-                        "settings" -> 4
-                        else -> 0
+    if (selectedSessionId != null) {
+        com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen(
+            sessionId = selectedSessionId!!,
+            onBackClick = { selectedSessionId = null }
+        )
+    } else {
+        Scaffold(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent, // Transparent to prevent black rectangle
+            bottomBar = {
+                CoachBottomNavigationBar(
+                    currentDestination = when (selectedTab) {
+                        0 -> "chat"
+                        1 -> "transcript"
+                        2 -> "coach"
+                        3 -> "history"
+                        4 -> "settings"
+                        else -> "chat"
+                    },
+                    onNavigate = { destination ->
+                        selectedTab = when (destination) {
+                            "chat" -> 0
+                            "transcript" -> 1
+                            "coach" -> 2
+                            "history" -> 3
+                            "settings" -> 4
+                            else -> 0
+                        }
                     }
+                )
+            }
+        ) { paddingValues ->
+            // Full screen box with sage green background
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background) // Sage green
+            ) {
+                when (selectedTab) {
+                    0 -> ChatScreen(
+                        viewModel = viewModel,
+                        modifier = Modifier.padding(paddingValues),
+                        hasRecordAudioPermission = hasRecordAudioPermission
+                    )
+                    1 -> TranscriptScreen(
+                        viewModel = viewModel,
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                    2 -> CoachScreen(
+                        viewModel = viewModel,
+                        modifier = Modifier.padding(paddingValues),
+                        hasRecordAudioPermission = hasRecordAudioPermission
+                    )
+                    3 -> HistoryScreen(
+                        onSessionClick = { sessionId -> selectedSessionId = sessionId },
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                    4 -> SettingsScreen(
+                        modifier = Modifier.padding(paddingValues)
+                    )
                 }
-            )
-        }
-    ) { paddingValues ->
-        // Full screen box with sage green background
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // Sage green
-        ) {
-            when (selectedTab) {
-                0 -> ChatScreen(
-                    viewModel = viewModel,
-                    modifier = Modifier.padding(paddingValues),
-                    hasRecordAudioPermission = hasRecordAudioPermission
-                )
-                1 -> TranscriptScreen(
-                    viewModel = viewModel,
-                    modifier = Modifier.padding(paddingValues)
-                )
-                2 -> CoachScreen(
-                    viewModel = viewModel,
-                    modifier = Modifier.padding(paddingValues),
-                    hasRecordAudioPermission = hasRecordAudioPermission
-                )
-                3 -> HistoryScreen(
-                    modifier = Modifier.padding(paddingValues)
-                )
-                4 -> SettingsScreen(
-                    modifier = Modifier.padding(paddingValues)
-                )
             }
         }
     }
