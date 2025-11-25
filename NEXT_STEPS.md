@@ -7,26 +7,18 @@
 -   **Features**:
     -   ✅ **Auto-Save**: Sessions are automatically saved to local database.
     -   ✅ **History**: View past sessions with date, duration, and mode.
-    -   ✅ **Deep Insights**: 
-        -   **Context-Aware Analysis**: Tailored metrics for different session modes.
-        -   **Enhanced Metrics**: Pace, Wording Style, and Actionable Improvements.
-        -   **3-Tab Layout**: Insights, Transcript, and Coaching tabs.
-    -   ✅ **Transcript Quality**: Improved chunking and speaker labeling.
+    -   ✅ **Deep Insights**: Audio-First Analysis with Speaker ID, Pace, and Tone.
+    -   ✅ **Speaker ID**: High-quality transcript with speaker labels replaces real-time text.
+    -   ✅ **Practice Mode (UI)**: Scenario selection screen is live.
 
 ## 🔮 Proposed Future Features
 
-### 1. 🗣️ Speaker Identification (High Priority)
-*Solving the "Who said what?" problem.*
--   **Option A**: "Team Mode" (Multi-device sync).
--   **Option B**: Manual Tagging (User labels "Speaker 1" as "John").
--   **Decision Needed**: Which approach to prioritize?
+### 1. 🎭 Roleplay & Practice Mode (Active Session)
+*The AI speaks back.*
+-   **Next Step**: Implement `PracticeSessionScreen` and `PracticeViewModel`.
+-   **Logic**: User speaks -> STT -> Gemini (Persona) -> TTS (AI Voice).
 
-### 2. 🎭 Roleplay & Practice Mode
-*Safe space to fail and learn.*
--   **Scenario Library**: "Giving Feedback", "Salary Negotiation".
--   **AI Personas**: The AI adopts a specific character.
-
-### 3. 🏆 Gamification & Progression
+### 2. 🏆 Gamification & Progression
 *Make learning addictive.*
 -   **Streaks & Achievements**: "7-Day Streak", "Master Listener".
 
@@ -35,4 +27,4 @@
 -   **CI/CD**: Automate builds and testing.
 
 ---
-**Next Immediate Step**: Decide on Speaker Identification strategy (Team Mode vs Manual Tagging) or proceed with Roleplay Mode.
+**Next Immediate Step**: Implement the active `PracticeSessionScreen` where the user actually talks to the AI persona.

@@ -301,16 +301,25 @@ fun MetricRow(label: String, score: Int) {
 
 @Composable
 fun TranscriptItem(message: SessionMessageEntity) {
-    val speakerName = if (message.speaker == "UNKNOWN" || message.speaker == null) "Speaker" else message.speaker
+    // Check if content starts with [Speaker Name]
+    val speakerRegex = Regex("^\\[(.+?)\\]\\s*(.*)")
+    val match = speakerRegex.find(message.content)
     
+    val speakerName = match?.groupValues?.get(1) ?: (message.speaker ?: "Speaker")
+    val contentText = match?.groupValues?.get(2) ?: message.content
+    
+    // Clean up "Speaker" vs "Unknown"
+    val displaySpeaker = if (speakerName == "UNKNOWN" || speakerName == "null") "Speaker" else speakerName
+
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Text(
-            text = speakerName,
+            text = displaySpeaker,
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            text = message.content,
+            text = contentText,
             style = MaterialTheme.typography.bodyMedium
         )
     }

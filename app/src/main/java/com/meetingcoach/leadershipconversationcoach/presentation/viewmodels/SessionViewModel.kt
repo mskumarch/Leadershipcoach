@@ -43,9 +43,11 @@ class SessionViewModel @Inject constructor(
     val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
 
     // Services
-    private var sttService: SpeechToTextService? = null
+    private var sttService: LocalSpeechToTextService? = null
     private var geminiService: GeminiApiService? = null
     private var coachingEngine: CoachingEngine? = null
+    private var audioRecorder: com.meetingcoach.leadershipconversationcoach.data.audio.AudioRecorder? = null
+    private var recordedAudioFile: java.io.File? = null
 
     // Timer
     private var timerJob: Job? = null
@@ -149,9 +151,19 @@ class SessionViewModel @Inject constructor(
             var currentState = _sessionState.value
             var metrics = currentState.metrics ?: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
 
-            // Perform AI Analysis
+            // Perform AI Analysis (Audio First)
             try {
-                val aiMetrics = engine?.analyzeSession(currentState.messages)
+                val audioFile = audioRecorder?.stopRecording()
+                audioRecorder = null // Release recorder
+                
+                val aiMetrics = if (audioFile != null && audioFile.exists()) {
+                    Log.d(TAG, "Analyzing audio file: ${audioFile.length()} bytes")
+                    engine?.analyzeAudioSession(audioFile)
+                } else {
+                    Log.w(TAG, "Audio file missing, falling back to text analysis")
+                    engine?.analyzeSession(currentState.messages)
+                }
+
                 if (aiMetrics != null) {
                     // Merge AI metrics with calculated metrics
                     metrics = metrics.copy(
@@ -161,12 +173,25 @@ class SessionViewModel @Inject constructor(
                         summary = aiMetrics.summary,
                         paceAnalysis = aiMetrics.paceAnalysis,
                         wordingAnalysis = aiMetrics.wordingAnalysis,
-                        improvements = aiMetrics.improvements
+                        improvements = aiMetrics.improvements,
+                        aiTranscriptJson = aiMetrics.aiTranscriptJson
                     )
                     Log.d(TAG, "AI Analysis complete: Empathy=${metrics.empathyScore}")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "AI Analysis failed", e)
+            }
+
+            // Parse AI Transcript if available
+            val finalMessages = if (metrics.aiTranscriptJson != null) {
+                try {
+                    parseAiTranscript(metrics.aiTranscriptJson!!, currentState.messages)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to parse AI transcript", e)
+                    currentState.messages
+                }
+            } else {
+                currentState.messages
             }
 
             // Save session to database
@@ -180,7 +205,7 @@ class SessionViewModel @Inject constructor(
                     startedAt = java.time.Instant.ofEpochMilli(startTime),
                     endedAt = java.time.Instant.ofEpochMilli(endTime),
                     durationSeconds = duration,
-                    messages = currentState.messages,
+                    messages = finalMessages,
                     metrics = metrics
                 )
                 Log.d(TAG, "Session saved successfully")
@@ -213,13 +238,14 @@ class SessionViewModel @Inject constructor(
 
     private fun startSpeechRecognition() {
 
-        // Initialize STT service
-        sttService = LocalSpeechToTextService(context)
+        // Start Audio Recording
+        audioRecorder = com.meetingcoach.leadershipconversationcoach.data.audio.AudioRecorder(context)
+        recordedAudioFile = audioRecorder?.startRecording()
 
-        // Start listening
+        // Start STT
+        sttService = LocalSpeechToTextService(context)
         sttService?.startListening(
             onTranscriptReceived = { chunk ->
-
                 // Only process final results for cleaner transcript
                 if (!chunk.isPartial) {
                     // Add to transcript messages
@@ -243,20 +269,10 @@ class SessionViewModel @Inject constructor(
                 }
             },
             onError = { error ->
-                // Log error but don't crash
-                Log.e(TAG, "STT error: $error")
-
-                // Show error in UI only for critical errors
-                if (error.contains("permission", ignoreCase = true)) {
-                    val errorMessage = ChatMessage(
-                        type = MessageType.CONTEXT,
-                        content = "⚠️ $error",
-                        priority = Priority.INFO
-                    )
-                    addMessage(errorMessage)
-                }
+                Log.e(TAG, "STT Error: $error")
             }
         )
+
     }
 
     // ============================================================
@@ -424,5 +440,39 @@ class SessionViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopSession()
+    }
+    private fun parseAiTranscript(json: String, originalMessages: List<ChatMessage>): List<ChatMessage> {
+        val messages = mutableListOf<ChatMessage>()
+        
+        // Keep non-transcript messages (e.g., AI Nudges, Context)
+        messages.addAll(originalMessages.filter { it.type != MessageType.TRANSCRIPT })
+        
+        try {
+            val jsonArray = org.json.JSONArray(json)
+            for (i in 0 until jsonArray.length()) {
+                val item = jsonArray.getJSONObject(i)
+                val speaker = item.optString("speaker", "Unknown")
+                val text = item.optString("text", "")
+                
+                if (text.isNotBlank()) {
+                    // Prepend speaker label to text since our Speaker enum is limited
+                    val contentWithSpeaker = "[$speaker] $text"
+                    
+                    messages.add(
+                        ChatMessage(
+                            type = MessageType.TRANSCRIPT,
+                            content = contentWithSpeaker,
+                            speaker = com.meetingcoach.leadershipconversationcoach.domain.models.Speaker.OTHER, // Default to OTHER
+                            timestamp = System.currentTimeMillis() 
+                        )
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "JSON Parsing error", e)
+            return originalMessages
+        }
+        
+        return messages.sortedBy { it.timestamp }
     }
 }

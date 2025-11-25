@@ -74,6 +74,7 @@ data class SessionMetrics(
     val paceAnalysis: String? = null,
     val wordingAnalysis: String? = null,
     val improvements: String? = null,
+    val aiTranscriptJson: String? = null,
     val lastUpdated: Long = System.currentTimeMillis()
 ) {
 

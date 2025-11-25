@@ -3,9 +3,11 @@ package com.meetingcoach.leadershipconversationcoach.data.ai
 import android.content.Context
 import android.util.Log
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.GenerateContentResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * GeminiApiService - Gemini AI Integration
@@ -149,7 +151,36 @@ class GeminiApiService(
     }
 
     /**
-     * Deep analysis of the entire session
+     * Deep analysis of the session using AUDIO (for Speaker ID and Tone)
+     */
+    suspend fun analyzeAudioSession(
+        audioFile: File,
+        sessionMode: String
+    ): SessionAnalysisResult? = withContext(Dispatchers.IO) {
+        try {
+            if (!audioFile.exists()) {
+                Log.e(TAG, "Audio file not found: ${audioFile.absolutePath}")
+                return@withContext null
+            }
+
+            val audioBytes = audioFile.readBytes()
+            
+            // Build the prompt with audio
+            val prompt = content {
+                blob("audio/mp4", audioBytes) // Assuming m4a/mp4 format
+                text(buildAudioAnalysisPrompt(sessionMode))
+            }
+
+            val response = generativeModel.generateContent(prompt)
+            parseSessionAnalysis(response.text)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error analyzing audio session: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
+     * Deep analysis of the entire session (Text fallback)
      */
     suspend fun analyzeSession(
         fullTranscript: String,
@@ -218,6 +249,40 @@ class GeminiApiService(
         return "Summarize this coaching session with key points and feedback. Transcript: \"$transcript\""
     }
 
+    private fun buildAudioAnalysisPrompt(sessionMode: String): String {
+        return """
+            You are an expert leadership coach analyzing the AUDIO of a '$sessionMode' session.
+            
+            Tasks:
+            1. SPEAKER ID: Identify different speakers (Speaker 1, Speaker 2, etc.).
+            2. TONE ANALYSIS: Listen for hesitation, confidence, sarcasm, or tension.
+            3. TRANSCRIPT: Generate a high-quality transcript with speaker labels.
+            
+            Analyze the following metrics (0-100):
+            1. Empathy
+            2. Clarity
+            3. Listening
+            
+            Also analyze:
+            - PACE: Was the speaker too fast/slow?
+            - WORDING: Filler words vs Power words?
+            - IMPROVEMENTS: 3 actionable tips.
+            
+            Format your response EXACTLY as follows:
+            SCORE_1: [0-100]
+            SCORE_2: [0-100]
+            SCORE_3: [0-100]
+            SUMMARY: [Detailed analysis of tone and dynamics]
+            PACE: [Analysis]
+            WORDING: [Analysis]
+            IMPROVEMENTS: [Point 1 | Point 2 | Point 3]
+            TRANSCRIPT_JSON:
+            [
+              {"speaker": "Speaker 1", "text": "..."}
+            ]
+        """.trimIndent()
+    }
+
     private fun buildSessionAnalysisPrompt(transcript: String, sessionMode: String): String {
         val basePrompt = "You are an expert leadership coach analyzing a completed '$sessionMode' session.\nTranscript: \"$transcript\"\n"
         
@@ -281,7 +346,17 @@ class GeminiApiService(
         val wording = Regex("WORDING:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No wording analysis."
         val improvements = Regex("IMPROVEMENTS:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No improvements listed."
         
-        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements)
+        // Parse JSON Transcript
+        val jsonStart = response.indexOf("TRANSCRIPT_JSON:")
+        val transcriptJson = if (jsonStart != -1) {
+            val jsonContent = response.substring(jsonStart + "TRANSCRIPT_JSON:".length).trim()
+            // Simple cleanup to ensure it looks like JSON (sometimes Gemini adds markdown code blocks)
+            jsonContent.removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+        } else {
+            null
+        }
+        
+        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, transcriptJson)
     }
 
     private fun parseCoachingResponse(response: String?): CoachingResponse? {
@@ -338,5 +413,6 @@ data class SessionAnalysisResult(
     val summary: String,
     val paceAnalysis: String,
     val wordingAnalysis: String,
-    val improvements: String
+    val improvements: String,
+    val transcriptJson: String? = null
 )
