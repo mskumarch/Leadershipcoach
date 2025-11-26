@@ -4,6 +4,8 @@
 -   **Core**: Live Transcription & Coaching (Stable)
 -   **UI**: 
     -   ✅ **Premium Redesign**: "WOW" factor achieved.
+    -   ✅ **Navigation**: Custom "Pop-up" Bottom Bar with Lightbulb FAB.
+    -   ✅ **Theme**: Calm Green Gradient Background.
     -   ✅ **History Tab**: Swipe-to-delete, Date grouping, Gradient cards.
     -   ✅ **Session Insights**: Swipe navigation, Transcript summary.
 -   **Features**:
