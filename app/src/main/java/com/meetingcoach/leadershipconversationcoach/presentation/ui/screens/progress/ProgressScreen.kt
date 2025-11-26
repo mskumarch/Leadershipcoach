@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.dashboard.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
 
 @Composable
 fun ProgressScreen(
@@ -85,7 +87,7 @@ fun ProgressScreen(
                     .shadow(4.dp, CircleShape)
             ) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.EmojiEvents,
+                    imageVector = Icons.Filled.EmojiEvents,
                     contentDescription = "Achievements",
                     tint = Color(0xFFFFD700) // Gold
                 )
