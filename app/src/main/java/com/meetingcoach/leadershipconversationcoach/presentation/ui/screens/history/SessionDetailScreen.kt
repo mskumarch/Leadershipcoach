@@ -189,7 +189,12 @@ fun TranscriptTab(messages: List<SessionMessageEntity>, summary: String?) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Summary Section
+        // Summary Section
         if (!summary.isNullOrBlank()) {
+            val parts = summary.split("### Takeaways")
+            val mainSummary = parts.getOrNull(0)?.trim()
+            val takeaways = parts.getOrNull(1)?.trim()
+
             item {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
@@ -203,11 +208,27 @@ fun TranscriptTab(messages: List<SessionMessageEntity>, summary: String?) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = summary,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        
+                        // Render Main Summary
+                        if (mainSummary != null) {
+                            FormattedBulletPoints(mainSummary, MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                        
+                        // Render Takeaways if present
+                        if (!takeaways.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Divider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            Text(
+                                text = "🚀 Key Takeaways",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            FormattedBulletPoints(takeaways, MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
                     }
                 }
             }
@@ -396,5 +417,37 @@ fun TranscriptItem(message: SessionMessageEntity) {
             text = contentText,
             style = MaterialTheme.typography.bodyMedium
         )
+    }
+}
+
+@Composable
+fun FormattedBulletPoints(text: String, color: Color) {
+    val lines = text.lines()
+    Column {
+        lines.forEach { line ->
+            val trimmed = line.trim()
+            if (trimmed.startsWith("*") || trimmed.startsWith("-") || trimmed.startsWith("•")) {
+                Row(modifier = Modifier.padding(bottom = 4.dp)) {
+                    Text(
+                        text = "•",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = color,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        text = trimmed.drop(1).trim(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = color
+                    )
+                }
+            } else if (trimmed.isNotBlank()) {
+                Text(
+                    text = trimmed,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = color,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+        }
     }
 }
