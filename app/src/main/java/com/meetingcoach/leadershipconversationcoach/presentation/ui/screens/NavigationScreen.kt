@@ -31,6 +31,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Brush
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.CalmGreenStart
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.CalmGreenEnd
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.practice.PracticeModeScreen
 
@@ -78,11 +81,15 @@ fun NavigationScreen(
             }
         }
     ) { paddingValues ->
-        // Full screen box with sage green background
+        // Full screen box with calm green gradient background
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // Sage green
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(CalmGreenStart, CalmGreenEnd)
+                    )
+                )
         ) {
             if (showPracticeMode) {
                 PracticeModeScreen(

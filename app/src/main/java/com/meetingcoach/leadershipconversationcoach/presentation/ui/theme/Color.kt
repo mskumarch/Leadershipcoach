@@ -101,6 +101,8 @@ val RecordingActive = AppPalette.Red500
 val RecordingPulse = AppPalette.Red500.copy(alpha = 0.5f)
 val RecordingWave = AppPalette.Red500.copy(alpha = 0.2f)
 val GradientCoralRose = listOf(AppPalette.Red500, AppPalette.Amber500)
+val CalmGreenStart = Color(0xFFE6FFFA) // Teal 50
+val CalmGreenEnd = Color(0xFFCCFBF1)   // Teal 100
 
 // Effects
 val InnerGlowLight = Color.White.copy(alpha = 0.2f)
