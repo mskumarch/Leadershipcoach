@@ -37,6 +37,8 @@ import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.CalmGr
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.practice.PracticeModeScreen
 
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.gamification.AchievementsScreen
+
 @Composable
 fun NavigationScreen(
     hasRecordAudioPermission: Boolean = true,
@@ -45,19 +47,22 @@ fun NavigationScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedSessionId by remember { mutableStateOf<Long?>(null) }
     var showPracticeMode by remember { mutableStateOf(false) }
+    var showAchievements by remember { mutableStateOf(false) }
 
     // Handle system back press
-    BackHandler(enabled = selectedSessionId != null || showPracticeMode) {
+    BackHandler(enabled = selectedSessionId != null || showPracticeMode || showAchievements) {
         if (selectedSessionId != null) {
             selectedSessionId = null
         } else if (showPracticeMode) {
             showPracticeMode = false
+        } else if (showAchievements) {
+            showAchievements = false
         }
     }
 
     Scaffold(
         bottomBar = {
-            if (selectedSessionId == null && !showPracticeMode) {
+            if (selectedSessionId == null && !showPracticeMode && !showAchievements) {
                 CoachBottomNavigationBar(
                     currentDestination = when (selectedTab) {
                         0 -> "chat"
@@ -96,6 +101,10 @@ fun NavigationScreen(
                     onBackClick = { showPracticeMode = false },
                     onScenarioClick = { /* TODO: Start Scenario */ }
                 )
+            } else if (showAchievements) {
+                AchievementsScreen(
+                    onBackClick = { showAchievements = false }
+                )
             } else if (selectedSessionId != null) {
                 SessionDetailScreen(
                     sessionId = selectedSessionId!!,
@@ -115,7 +124,8 @@ fun NavigationScreen(
                     )
                     2 -> {
                         com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
-                            modifier = Modifier.padding(paddingValues)
+                            modifier = Modifier.padding(paddingValues),
+                            onAchievementsClick = { showAchievements = true }
                         )
                     }
                     3 -> HistoryScreen(

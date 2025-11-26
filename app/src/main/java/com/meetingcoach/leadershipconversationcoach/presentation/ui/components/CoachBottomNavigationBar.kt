@@ -104,13 +104,13 @@ fun CoachBottomNavigationBar(
             .height(100.dp), // Increased height to accommodate pop-up
         contentAlignment = Alignment.BottomCenter
     ) {
-        // The Pill Background
+        // The Pill Background (Now Full Width)
         Surface(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(80.dp) // Increased from 72.dp
-                .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(percent = 50),
+                .fillMaxWidth()
+                .height(80.dp)
+                .align(Alignment.BottomCenter), // Align to bottom
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             color = Color.White.copy(alpha = 0.9f),
             shadowElevation = 8.dp,
             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5E7EB))

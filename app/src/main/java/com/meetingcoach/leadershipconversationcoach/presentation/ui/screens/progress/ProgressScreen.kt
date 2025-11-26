@@ -27,11 +27,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.dashboard.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
 
 @Composable
 fun ProgressScreen(
     modifier: Modifier = Modifier,
-    viewModel: com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.ProgressViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    viewModel: com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.ProgressViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
+    onAchievementsClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTimeRange by remember { mutableStateOf("7D") }
@@ -56,19 +59,42 @@ fun ProgressScreen(
             .padding(24.dp)
     ) {
         // Header
-        Text(
-            text = "Your Growth",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = AppPalette.Slate900,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = "Track your leadership journey",
-            fontSize = 16.sp,
-            color = AppPalette.Slate500,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Your Growth",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = AppPalette.Slate900,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "Track your leadership journey",
+                    fontSize = 16.sp,
+                    color = AppPalette.Slate500
+                )
+            }
+            // Achievements Button
+            IconButton(
+                onClick = onAchievementsClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(Color.White, CircleShape)
+                    .shadow(4.dp, CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.EmojiEvents,
+                    contentDescription = "Achievements",
+                    tint = Color(0xFFFFD700) // Gold
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Time Range Selector (Glassmorphic Pill)
         TimeRangeSelector(

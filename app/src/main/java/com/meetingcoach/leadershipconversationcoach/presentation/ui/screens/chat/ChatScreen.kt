@@ -227,13 +227,12 @@ fun ChatScreen(
             // Quick Actions Sheet - PULL
             if (showQuickActions) {
                 QuickActionsSheet(
-                    suggestedQuestions = getContextualQuestions(
-                        hasEmotion = true,
-                        longSilence = false,
-                        topicChange = false
-                    ),
+                    suggestedQuestions = viewModel.getSuggestedQuestions(sessionState.mode),
                     onQuestionSelected = { question ->
-                        inputText = question
+                        // Send message immediately
+                        viewModel.addUserMessage(question)
+                        val aiResponse = viewModel.getAIResponse(question)
+                        viewModel.addAIResponse(aiResponse)
                         showQuickActions = false
                     },
                     onActionSelected = { command ->
