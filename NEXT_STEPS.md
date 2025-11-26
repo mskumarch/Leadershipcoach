@@ -30,9 +30,12 @@
 *Detect long silences or monologues.*
 -   Add logic to `CoachingEngine`.
 
-## 🛠 Technical Improvements
--   **Unit Tests**: Increase coverage.
--   **CI/CD**: Automate builds.
+## 💼 Commercialization Track (New)
+See `COMMERCIALIZATION_ROADMAP.md` for full details.
+1.  **Backend**: Set up API Proxy (Firebase/Node.js).
+2.  **Auth**: User Login & Cloud Sync.
+3.  **Legal**: Privacy Policy & Terms.
+4.  **Monetization**: Subscription Paywall.
 
 ---
-**Next Immediate Step**: Implement the `PracticeSessionScreen` for the Roleplay feature.
+**Next Immediate Step**: Choose between **Roleplay Feature** (Product) or **Backend Setup** (Commercialization).
