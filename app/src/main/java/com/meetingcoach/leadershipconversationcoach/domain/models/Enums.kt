@@ -17,7 +17,8 @@ enum class SessionMode {
     ONE_ON_ONE,
     TEAM_MEETING,
     DIFFICULT_CONVERSATION,
-    ROLEPLAY;
+    ROLEPLAY,
+    OFFICE_POLITICS;
 
     fun getDisplayName(): String {
         return when (this) {
@@ -25,6 +26,7 @@ enum class SessionMode {
             TEAM_MEETING -> "Team Meeting"
             DIFFICULT_CONVERSATION -> "Difficult Conversation"
             ROLEPLAY -> "Roleplay Practice"
+            OFFICE_POLITICS -> "Office Politics"
         }
     }
 
@@ -34,6 +36,7 @@ enum class SessionMode {
             TEAM_MEETING -> "Group discussion, brainstorming, or team decision-making"
             DIFFICULT_CONVERSATION -> "Conflict resolution, critical feedback, or tough topics"
             ROLEPLAY -> "Practice scenarios with AI personas"
+            OFFICE_POLITICS -> "Navigate power dynamics and strategic situations"
         }
     }
 
@@ -43,6 +46,7 @@ enum class SessionMode {
             TEAM_MEETING -> "👥"
             DIFFICULT_CONVERSATION -> "💬"
             ROLEPLAY -> "🎭"
+            OFFICE_POLITICS -> "♟️"
         }
     }
 }

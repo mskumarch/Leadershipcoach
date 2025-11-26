@@ -1,6 +1,8 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -8,16 +10,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.core.*
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.home.HomeIdleState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.domain.models.MessageType
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.*
@@ -262,55 +270,9 @@ fun ChatScreen(
                 )
             }
         } else {
-            // ============================================================
-            // IDLE STATE - Welcome Screen
-            // ============================================================
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                FloatingEmptyState(
-                    icon = "🎯",
-                    title = "Ready for Your Meeting",
-                    subtitle = "Get real-time coaching during your calls"
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Button(
-                    onClick = { showSessionModeModal = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(50),
-                    modifier = Modifier
-                        .height(56.dp)
-                        .shadow(8.dp, RoundedCornerShape(50), spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
-                ) {
-                    Text(
-                        text = "🎙️ Start Recording",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(48.dp))
-
-                // Quick tips in glass card
-                SettingsCard {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        TipRow("💬", "Coaching appears inline naturally")
-                        TipRow("☰", "Tap menu for quick actions")
-                        TipRow("📋", "Copy suggestions to your chat")
-                    }
-                }
-            }
+            HomeIdleState(
+                onStartSession = { showSessionModeModal = true }
+            )
         }
 
         // Session Mode Modal
