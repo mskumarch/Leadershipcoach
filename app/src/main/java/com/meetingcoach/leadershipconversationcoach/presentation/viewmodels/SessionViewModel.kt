@@ -122,6 +122,14 @@ class SessionViewModel @Inject constructor(
         startTimer()
         startSpeechRecognition()
         startCoachingEngine(mode)
+        
+        // Start Foreground Service
+        val serviceIntent = android.content.Intent(context, com.meetingcoach.leadershipconversationcoach.services.SessionService::class.java)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
     }
 
     fun stopSession() {
@@ -132,6 +140,11 @@ class SessionViewModel @Inject constructor(
         _sessionState.update { it.copy(isRecording = false) }
 
         timerJob?.cancel()
+        
+        // Stop Foreground Service
+        val serviceIntent = android.content.Intent(context, com.meetingcoach.leadershipconversationcoach.services.SessionService::class.java)
+        serviceIntent.action = com.meetingcoach.leadershipconversationcoach.services.SessionService.ACTION_STOP_SESSION
+        context.startService(serviceIntent)
 
         // Stop STT
         sttService?.stopListening()

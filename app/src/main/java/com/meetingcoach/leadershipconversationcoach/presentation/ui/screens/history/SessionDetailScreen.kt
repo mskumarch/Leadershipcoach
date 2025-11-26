@@ -1,9 +1,12 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -11,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +33,7 @@ import com.meetingcoach.leadershipconversationcoach.data.local.SessionMessageEnt
 import com.meetingcoach.leadershipconversationcoach.data.local.SessionMetricsEntity
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.HistoryViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SessionDetailScreen(
     sessionId: Long,
@@ -41,7 +46,9 @@ fun SessionDetailScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val sessionDetails = uiState.selectedSession
-    var selectedTab by remember { androidx.compose.runtime.mutableIntStateOf(0) }
+    
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val scope = rememberCoroutineScope()
     val tabs = listOf("Insights", "Transcript", "Coaching")
 
     Scaffold(
@@ -60,20 +67,24 @@ fun SessionDetailScreen(
                 )
                 
                 TabRow(
-                    selectedTabIndex = selectedTab,
+                    selectedTabIndex = pagerState.currentPage,
                     containerColor = MaterialTheme.colorScheme.background,
                     contentColor = MaterialTheme.colorScheme.primary,
                     indicator = { tabPositions ->
                         TabRowDefaults.Indicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
                 ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
+                            selected = pagerState.currentPage == index,
+                            onClick = { 
+                                scope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
                             text = { Text(title) }
                         )
                     }
@@ -86,10 +97,13 @@ fun SessionDetailScreen(
                 CircularProgressIndicator()
             }
         } else {
-            Box(modifier = Modifier.padding(padding)) {
-                when (selectedTab) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.padding(padding)
+            ) { page ->
+                when (page) {
                     0 -> InsightsTab(sessionDetails)
-                    1 -> TranscriptTab(sessionDetails.messages)
+                    1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
                     2 -> CoachingTab(sessionDetails.messages)
                 }
             }
@@ -159,13 +173,38 @@ fun InsightCard(title: String, content: String?, isHighlight: Boolean = false) {
 }
 
 @Composable
-fun TranscriptTab(messages: List<SessionMessageEntity>) {
+fun TranscriptTab(messages: List<SessionMessageEntity>, summary: String?) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // Summary Section
+        if (!summary.isNullOrBlank()) {
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "✨ Executive Summary",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = summary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+        }
+
         // Filter only transcript messages
         val transcriptMessages = messages.filter { 
             it.messageType == "TRANSCRIPT" || (it.speaker != null && it.speaker != "AI") 
@@ -189,9 +228,20 @@ fun CoachingTab(messages: List<SessionMessageEntity>) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Show all messages including AI
-        items(messages) { message ->
-            ChatHistoryItem(message)
+        // Show only AI responses, Nudges, and User Questions (exclude raw transcript)
+        val coachingMessages = messages.filter { 
+            it.messageType == "AI_RESPONSE" || 
+            it.messageType.contains("NUDGE") || 
+            it.messageType == "USER_QUESTION" ||
+            it.messageType == "CONTEXT"
+        }
+        
+        if (coachingMessages.isEmpty()) {
+            item { Text("No coaching insights available for this session.") }
+        } else {
+            items(coachingMessages) { message ->
+                ChatHistoryItem(message)
+            }
         }
     }
 }

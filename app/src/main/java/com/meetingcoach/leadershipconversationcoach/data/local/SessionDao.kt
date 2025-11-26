@@ -29,6 +29,9 @@ interface SessionDao {
     @Query("SELECT * FROM session_metrics WHERE sessionId = :sessionId")
     suspend fun getSessionMetrics(sessionId: Long): SessionMetricsEntity?
 
+    @Query("SELECT * FROM session_metrics")
+    suspend fun getAllMetrics(): List<SessionMetricsEntity>
+
     @Delete
     suspend fun deleteSession(session: SessionEntity)
 

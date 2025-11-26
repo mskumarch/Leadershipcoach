@@ -321,6 +321,7 @@ class CoachingEngine(
         }
 
         // Check for critical situations
+        // Check for critical situations
         val urgentNudge = when {
             // Talking WAY too much (>80%)
             metrics.talkRatio > 80 -> {
@@ -349,6 +350,15 @@ class CoachingEngine(
                     priority = Priority.IMPORTANT
                 )
             }
+            
+            // Filler Words Check (New)
+            checkFillerWords() -> {
+                ChatMessage(
+                    type = MessageType.HELPFUL_TIP,
+                    content = "Detected frequent filler words ('um', 'like'). Pause instead of filling the silence.",
+                    priority = Priority.HELPFUL
+                )
+            }
 
             else -> null
         }
@@ -359,6 +369,18 @@ class CoachingEngine(
             nudgeHistory.add(urgentNudge.content)
             onNudgeGenerated?.invoke(urgentNudge)
         }
+    }
+
+    private fun checkFillerWords(): Boolean {
+        // Get last 3 user transcripts
+        val userChunks = recentTranscripts.takeLast(5).filter { it.isFromUser() }
+        if (userChunks.isEmpty()) return false
+        
+        val fillerRegex = Regex("\\b(um|uh|like|you know|sort of)\\b", RegexOption.IGNORE_CASE)
+        val totalFillers = userChunks.sumOf { fillerRegex.findAll(it.text).count() }
+        
+        // Trigger if > 3 fillers in last few chunks
+        return totalFillers > 3
     }
 
     /**

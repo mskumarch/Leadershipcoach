@@ -116,4 +116,12 @@ class SessionRepository @Inject constructor(
             Result.failure(e)
         }
     }
+    suspend fun getAllMetrics(): Result<List<SessionMetricsEntity>> = withContext(Dispatchers.IO) {
+        try {
+            val metrics = sessionDao.getAllMetrics()
+            Result.success(metrics)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
