@@ -13,27 +13,26 @@
     -   ✅ **Progress Dashboard**: Real data integration.
     -   ✅ **Background Processing**: Foreground Service implemented.
     -   ✅ **Advanced Nudges**: Filler Word Counter & Personality Detection implemented.
-    -   ✅ **Gamification Backend**: Achievements system (Database, Repository, Logic) implemented.
+    -   ✅ **Gamification**: Backend & UI (Achievements Screen) implemented.
 
 ## 🔮 Proposed Future Features
 
-### 1. 🏆 Gamification UI (Next Priority)
-*Visualize the achievements.*
--   **UI**: Create an `AchievementsScreen` to display unlocked badges.
--   **Integration**: Link from the "Lightbulb" FAB or Profile.
-
-### 2. 🎭 Roleplay Active Session
+### 1. 🎭 Roleplay Active Session (Next Priority)
 *The AI speaks back.*
 -   **Logic**: User speaks -> STT -> Gemini (Persona) -> TTS (AI Voice).
 -   **UI**: Immersive chat interface with "End Roleplay" button.
 
-### 3. 🎙️ Voice Tone Analysis
+### 2. 🎙️ Voice Tone Analysis
 *Analyze pitch and emotion.*
 -   Requires resolving AudioRecorder conflict with SpeechRecognizer.
+
+### 3. 🧠 Smart Pause Detection
+*Detect long silences or monologues.*
+-   Add logic to `CoachingEngine`.
 
 ## 🛠 Technical Improvements
 -   **Unit Tests**: Increase coverage.
 -   **CI/CD**: Automate builds.
 
 ---
-**Next Immediate Step**: Implement the `AchievementsScreen` to visualize the gamification system.
+**Next Immediate Step**: Implement the `PracticeSessionScreen` for the Roleplay feature.
