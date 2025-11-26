@@ -309,6 +309,39 @@ class CoachingEngine(
                 onNudgeGenerated?.invoke(nudge)
             }
         }
+        
+        // Check Personality (every 2 minutes)
+        checkPersonality()
+    }
+
+    private var lastPersonalityCheckTime: Long = 0L
+
+    private suspend fun checkPersonality() {
+        val now = System.currentTimeMillis()
+        if (now - lastPersonalityCheckTime < 120_000L) return // Check every 2 mins
+        
+        // Need at least 5 chunks from OTHER person
+        val otherChunks = recentTranscripts.filter { !it.isFromUser() }
+        if (otherChunks.size < 5) return
+        
+        val transcript = otherChunks.joinToString("\n") { it.text }
+        val analysis = geminiService.detectPersonality(transcript)
+        
+        if (analysis != null && analysis.style != "UNKNOWN") {
+            lastPersonalityCheckTime = now
+            
+            val message = ChatMessage(
+                type = MessageType.CONTEXT,
+                content = "💡 Detected Style: ${analysis.style}\n${analysis.advice}",
+                priority = Priority.INFO
+            )
+            
+            // Only show if we haven't shown this style recently
+            if (!nudgeHistory.any { it.contains(analysis.style) }) {
+                nudgeHistory.add(message.content)
+                onNudgeGenerated?.invoke(message)
+            }
+        }
     }
 
     /**

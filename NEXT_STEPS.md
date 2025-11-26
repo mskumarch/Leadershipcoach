@@ -9,7 +9,8 @@
 -   **Features**:
     -   ✅ **Office Politics Mode**: Specialized coaching.
     -   ✅ **Progress Dashboard**: Real data integration.
-    -   ✅ **Background Processing**: Foreground Service implemented for reliability.
+    -   ✅ **Background Processing**: Foreground Service implemented.
+    -   ✅ **Advanced Nudges**: Filler Word Counter & Personality Detection implemented.
 
 ## 🔮 Proposed Future Features
 
@@ -18,16 +19,14 @@
 -   **Logic**: User speaks -> STT -> Gemini (Persona) -> TTS (AI Voice).
 -   **UI**: Immersive chat interface with "End Roleplay" button.
 
-### 2. 🧠 Advanced Nudges
-*Smarter real-time feedback.*
--   **Smart Pause**: Detect silence > 2s.
--   **Filler Words**: Count "um", "uh".
--   **Personality Detection**: Analyze communication style.
-
-### 3. 🏆 Gamification
+### 2. 🏆 Gamification
 *Make learning addictive.*
 -   **Streaks**: "7-Day Streak".
 -   **Achievements**: "Master Listener", "Politics Pro".
+
+### 3. 🎙️ Voice Tone Analysis
+*Analyze pitch and emotion.*
+-   Requires resolving AudioRecorder conflict with SpeechRecognizer.
 
 ## 🛠 Technical Improvements
 -   **Unit Tests**: Increase coverage.

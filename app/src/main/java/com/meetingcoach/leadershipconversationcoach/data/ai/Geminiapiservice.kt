@@ -131,6 +131,22 @@ class GeminiApiService(
     }
 
     /**
+     * Detect personality style of the other person
+     */
+    suspend fun detectPersonality(
+        recentTranscript: String
+    ): PersonalityAnalysis? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = CoachingPrompts.detectPersonality(recentTranscript)
+            val response = generativeModel.generateContent(prompt)
+            parsePersonalityAnalysis(response.text)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error detecting personality: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Generate session summary at the end
      */
     /**
@@ -376,6 +392,15 @@ class GeminiApiService(
         val level = Regex("TENSION_LEVEL:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         return TensionAnalysis(level, "", "")
     }
+    private fun parsePersonalityAnalysis(response: String?): PersonalityAnalysis? {
+        if (response.isNullOrBlank()) return null
+        
+        val style = Regex("STYLE:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "UNKNOWN"
+        val confidence = Regex("CONFIDENCE:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "Low"
+        val advice = Regex("ADVICE:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "Adapt to their style."
+        
+        return PersonalityAnalysis(style, confidence, advice)
+    }
 }
 
 /**
@@ -394,6 +419,15 @@ data class TensionAnalysis(
     val level: Int,          // 0-100 tension level
     val indicators: String,  // What caused tension
     val suggestion: String   // How to de-escalate
+)
+
+/**
+ * Personality analysis result
+ */
+data class PersonalityAnalysis(
+    val style: String,       // DRIVER, ANALYTICAL, AMIABLE, EXPRESSIVE
+    val confidence: String,  // High, Medium, Low
+    val advice: String       // How to adapt
 )
 
 /**
