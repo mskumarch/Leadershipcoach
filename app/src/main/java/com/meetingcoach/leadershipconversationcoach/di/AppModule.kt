@@ -27,4 +27,19 @@ object AppModule {
     fun provideSessionDao(database: AppDatabase): SessionDao {
         return database.sessionDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideAchievementDao(database: AppDatabase): com.meetingcoach.leadershipconversationcoach.data.local.AchievementDao {
+        return database.achievementDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGeminiApiService(@ApplicationContext context: Context): com.meetingcoach.leadershipconversationcoach.data.ai.GeminiApiService {
+        return com.meetingcoach.leadershipconversationcoach.data.ai.GeminiApiService(
+            context = context,
+            apiKey = com.meetingcoach.leadershipconversationcoach.BuildConfig.GEMINI_API_KEY
+        )
+    }
 }

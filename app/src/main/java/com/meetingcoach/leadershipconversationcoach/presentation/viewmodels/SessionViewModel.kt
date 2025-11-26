@@ -25,13 +25,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.meetingcoach.leadershipconversationcoach.data.preferences.UserPreferencesRepository
+import com.meetingcoach.leadershipconversationcoach.data.repository.GamificationRepository
+import com.meetingcoach.leadershipconversationcoach.data.repository.SessionRepository
+import com.meetingcoach.leadershipconversationcoach.data.local.SessionEntity
+import com.meetingcoach.leadershipconversationcoach.data.local.SessionMessageEntity
 import javax.inject.Inject
 
 @HiltViewModel
 class SessionViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val sessionRepository: com.meetingcoach.leadershipconversationcoach.data.repository.SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val geminiService: GeminiApiService,
+    private val gamificationRepository: GamificationRepository
 ) : ViewModel() {
 
     companion object {
@@ -44,7 +50,7 @@ class SessionViewModel @Inject constructor(
 
     // Services
     private var sttService: LocalSpeechToTextService? = null
-    private var geminiService: GeminiApiService? = null
+    // private var geminiService: GeminiApiService? = null // Removed, using injected instance
     private var coachingEngine: CoachingEngine? = null
     private var audioRecorder: com.meetingcoach.leadershipconversationcoach.data.audio.AudioRecorder? = null
     private var recordedAudioFile: java.io.File? = null
@@ -56,8 +62,12 @@ class SessionViewModel @Inject constructor(
     private var currentAnalysisInterval = 60_000L
 
     init {
-        // Initialize Gemini service
-        initializeGeminiService()
+        // Initialize Gemini service - REMOVED (Injected)
+        // initializeGeminiService()
+
+        viewModelScope.launch {
+            gamificationRepository.initializeDefaults()
+        }
 
         // Observe settings
         viewModelScope.launch {
@@ -75,21 +85,21 @@ class SessionViewModel @Inject constructor(
     // INITIALIZATION
     // ============================================================
 
-    private fun initializeGeminiService() {
-        try {
-            val apiKey = BuildConfig.GEMINI_API_KEY
+    // private fun initializeGeminiService() {
+    //     try {
+    //         val apiKey = BuildConfig.GEMINI_API_KEY
 
-            if (apiKey.isEmpty()) {
-                Log.e(TAG, "GEMINI_API_KEY is empty! Check local.properties")
-                return
-            }
+    //         if (apiKey.isEmpty()) {
+    //             Log.e(TAG, "GEMINI_API_KEY is empty! Check local.properties")
+    //             return
+    //         }
 
-            geminiService = GeminiApiService(context, apiKey)
+    //         geminiService = GeminiApiService(context, apiKey)
 
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize Gemini service", e)
-        }
-    }
+    //     } catch (e: Exception) {
+    //         Log.e(TAG, "Failed to initialize Gemini service", e)
+    //     }
+    // }
 
 
 
@@ -205,7 +215,7 @@ class SessionViewModel @Inject constructor(
                 val endTime = System.currentTimeMillis()
                 val duration = ((endTime - startTime) / 1000).toInt()
 
-                sessionRepository.saveSession(
+                val result = sessionRepository.saveSession(
                     mode = currentState.mode ?: SessionMode.ONE_ON_ONE,
                     startedAt = java.time.Instant.ofEpochMilli(startTime),
                     endedAt = java.time.Instant.ofEpochMilli(endTime),
@@ -213,6 +223,7 @@ class SessionViewModel @Inject constructor(
                     messages = finalMessages,
                     metrics = metrics
                 )
+                val sessionId = result.getOrThrow()
                 Log.d(TAG, "Session saved successfully")
                 
                 // Notify UI
@@ -222,6 +233,25 @@ class SessionViewModel @Inject constructor(
                     priority = Priority.INFO
                 )
                 addMessage(savedMessage)
+                
+                // Check Achievements
+                val metricsEntity = com.meetingcoach.leadershipconversationcoach.data.local.SessionMetricsEntity(
+                    sessionId = sessionId,
+                    talkRatioUser = metrics.talkRatio,
+                    questionCount = metrics.questionCount,
+                    openQuestionCount = metrics.openQuestionCount,
+                    empathyScore = metrics.empathyScore,
+                    listeningScore = metrics.listeningScore,
+                    clarityScore = metrics.clarityScore,
+                    interruptionCount = metrics.interruptionCount,
+                    sentiment = metrics.sentiment.name,
+                    temperature = metrics.temperature,
+                    summary = metrics.summary,
+                    paceAnalysis = metrics.paceAnalysis,
+                    wordingAnalysis = metrics.wordingAnalysis,
+                    improvements = metrics.improvements
+                )
+                gamificationRepository.checkAchievements(metricsEntity)
 
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to save session", e)

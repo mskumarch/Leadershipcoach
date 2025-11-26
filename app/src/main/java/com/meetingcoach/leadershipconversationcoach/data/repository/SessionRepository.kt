@@ -124,4 +124,13 @@ class SessionRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun getAverageMetrics(): Result<com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple?> = withContext(Dispatchers.IO) {
+        try {
+            val averages = sessionDao.getAverageMetrics()
+            Result.success(averages)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

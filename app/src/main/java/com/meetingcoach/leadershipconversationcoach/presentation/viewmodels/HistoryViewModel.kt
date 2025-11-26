@@ -16,7 +16,8 @@ data class HistoryUiState(
     val sessions: List<SessionEntity> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    val selectedSession: SessionWithDetails? = null
+    val selectedSession: SessionWithDetails? = null,
+    val averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple? = null
 )
 
 @HiltViewModel
@@ -46,15 +47,22 @@ class HistoryViewModel @Inject constructor(
 
     fun loadSessionDetails(sessionId: Long) {
         viewModelScope.launch {
-            sessionRepository.getSessionWithDetails(sessionId)
-                .onSuccess { details ->
-                    _uiState.value = _uiState.value.copy(selectedSession = details)
-                }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        error = error.message ?: "Failed to load session details"
-                    )
-                }
+            // Load details
+            val detailsResult = sessionRepository.getSessionWithDetails(sessionId)
+            
+            // Load averages
+            val averagesResult = sessionRepository.getAverageMetrics()
+            
+            if (detailsResult.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    selectedSession = detailsResult.getOrNull(),
+                    averageMetrics = averagesResult.getOrNull()
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    error = detailsResult.exceptionOrNull()?.message ?: "Failed to load details"
+                )
+            }
         }
     }
 

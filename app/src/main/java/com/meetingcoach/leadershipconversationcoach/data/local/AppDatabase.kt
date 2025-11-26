@@ -9,13 +9,15 @@ import androidx.room.RoomDatabase
     entities = [
         SessionEntity::class,
         SessionMessageEntity::class,
-        SessionMetricsEntity::class
+        SessionMetricsEntity::class,
+        AchievementEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun sessionDao(): SessionDao
+    abstract fun achievementDao(): AchievementDao
 
     companion object {
         @Volatile

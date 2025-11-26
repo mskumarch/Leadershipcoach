@@ -46,6 +46,7 @@ fun SessionDetailScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val sessionDetails = uiState.selectedSession
+    val averageMetrics = uiState.averageMetrics
     
     val pagerState = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
@@ -102,7 +103,7 @@ fun SessionDetailScreen(
                 modifier = Modifier.padding(padding)
             ) { page ->
                 when (page) {
-                    0 -> InsightsTab(sessionDetails)
+                    0 -> InsightsTab(sessionDetails, averageMetrics)
                     1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
                     2 -> CoachingTab(sessionDetails.messages)
                 }
@@ -112,7 +113,10 @@ fun SessionDetailScreen(
 }
 
 @Composable
-fun InsightsTab(sessionDetails: com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails) {
+fun InsightsTab(
+    sessionDetails: com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails,
+    averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple?
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -121,7 +125,11 @@ fun InsightsTab(sessionDetails: com.meetingcoach.leadershipconversationcoach.dat
     ) {
         // Scorecard Section
         item {
-            ScorecardSection(metrics = sessionDetails.metrics, sessionMode = sessionDetails.session.mode)
+            ScorecardSection(
+                metrics = sessionDetails.metrics, 
+                sessionMode = sessionDetails.session.mode,
+                averageMetrics = averageMetrics
+            )
         }
 
         // Summary Section
@@ -290,7 +298,11 @@ fun ChatHistoryItem(message: SessionMessageEntity) {
 }
 
 @Composable
-fun ScorecardSection(metrics: SessionMetricsEntity?, sessionMode: String = "ONE_ON_ONE") {
+fun ScorecardSection(
+    metrics: SessionMetricsEntity?, 
+    sessionMode: String = "ONE_ON_ONE",
+    averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple? = null
+) {
     val labels = when (sessionMode) {
         "TEAM_MEETING" -> Triple("Alignment", "Participation", "Clarity")
         "DIFFICULT_CONVERSATION" -> Triple("Empathy", "Objectivity", "De-escalation")
@@ -310,9 +322,9 @@ fun ScorecardSection(metrics: SessionMetricsEntity?, sessionMode: String = "ONE_
             Spacer(modifier = Modifier.height(16.dp))
 
             if (metrics != null) {
-                MetricRow(labels.first, metrics.empathyScore)
-                MetricRow(labels.second, metrics.clarityScore)
-                MetricRow(labels.third, metrics.listeningScore)
+                MetricRow(labels.first, metrics.empathyScore, averageMetrics?.avgEmpathy)
+                MetricRow(labels.second, metrics.clarityScore, averageMetrics?.avgClarity)
+                MetricRow(labels.third, metrics.listeningScore, averageMetrics?.avgListening)
                 Spacer(modifier = Modifier.height(8.dp))
                 Divider()
                 Spacer(modifier = Modifier.height(8.dp))
@@ -325,27 +337,39 @@ fun ScorecardSection(metrics: SessionMetricsEntity?, sessionMode: String = "ONE_
 }
 
 @Composable
-fun MetricRow(label: String, score: Int) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = label, modifier = Modifier.width(100.dp))
-        LinearProgressIndicator(
-            progress = score / 100f,
-            modifier = Modifier
-                .weight(1f)
-                .height(8.dp),
-            color = if (score > 70) Color(0xFF4CAF50) else Color(0xFFFFC107),
-            trackColor = Color.LightGray
-        )
-        Text(
-            text = "$score/100",
-            modifier = Modifier.padding(start = 8.dp),
-            style = MaterialTheme.typography.bodySmall
-        )
+fun MetricRow(label: String, score: Int, average: Double? = null) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = label, modifier = Modifier.width(100.dp))
+            LinearProgressIndicator(
+                progress = score / 100f,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(8.dp),
+                color = if (score > 70) Color(0xFF4CAF50) else Color(0xFFFFC107),
+                trackColor = Color.LightGray
+            )
+            Text(
+                text = "$score/100",
+                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        if (average != null) {
+            val diff = score - average
+            val diffText = if (diff >= 0) "+${diff.toInt()}" else "${diff.toInt()}"
+            val diffColor = if (diff >= 0) Color(0xFF4CAF50) else Color.Red
+            
+            Text(
+                text = "vs Avg: $diffText",
+                style = MaterialTheme.typography.labelSmall,
+                color = diffColor,
+                modifier = Modifier.padding(start = 100.dp) // Align with progress bar
+            )
+        }
     }
 }
 
