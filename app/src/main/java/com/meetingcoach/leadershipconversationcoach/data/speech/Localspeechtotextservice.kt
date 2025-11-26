@@ -20,27 +20,6 @@ import kotlinx.coroutines.launch
  *
  * Uses Android's built-in SpeechRecognizer API for real-time speech transcription.
  * This is a FREE service that works offline (on compatible devices like Pixel 9 Pro).
- *
- * Features:
- * - Continuous recognition (auto-restart)
- * - Partial results (see text as it's being spoken)
- * - Automatic punctuation (on newer Android versions)
- * - Low latency (<100ms)
- * - No cost
- * - Good accuracy (85-90% in quiet environments)
- *
- * Limitations:
- * - No speaker diarization (can't identify who's speaking)
- * - Lower accuracy than Google Cloud STT
- * - May struggle with noise/accents
- * - Requires RECORD_AUDIO permission
- *
- * Optimized for: Pixel 9 Pro with Gemini Nano
- *
- * Architecture: Data Layer - STT Implementation
- *
- * Created for: FREE Speech Recognition
- * Last Updated: November 2025
  */
 class LocalSpeechToTextService(
     private val context: Context
@@ -57,6 +36,7 @@ class LocalSpeechToTextService(
     // Auto-restart management
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
     private var restartJob: Job? = null
+    private var currentRestartDelay = RESTART_DELAY_MS
 
     // State tracking
     private var lastPartialResult: String = ""
@@ -110,6 +90,7 @@ class LocalSpeechToTextService(
         // Enable continuous listening
         shouldContinueListening = true
         restartAttempts = 0
+        currentRestartDelay = RESTART_DELAY_MS
 
         // Start recognition
         startRecognition()
@@ -137,6 +118,7 @@ class LocalSpeechToTextService(
         restartAttempts = 0
         lastFinalResultTime = 0L
         lastPartialResultTime = 0L
+        currentRestartDelay = RESTART_DELAY_MS
     }
 
     override fun pauseListening() {
@@ -276,10 +258,9 @@ class LocalSpeechToTextService(
                     SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Recognizer busy"
                     SpeechRecognizer.ERROR_SERVER -> "Server error"
                     SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected"
+                    11 -> "Server disconnected" // ERROR_SERVER_DISCONNECTED
                     else -> "Unknown error ($error)"
                 }
-
-
 
                 // Don't report "no match" or "speech timeout" as errors - these are normal
                 if (error != SpeechRecognizer.ERROR_NO_MATCH &&
@@ -287,26 +268,28 @@ class LocalSpeechToTextService(
                     onErrorCallback?.invoke(errorMessage)
                 }
 
-                // Auto-restart for continuous listening
+                // Auto-restart for continuous listening with backoff
                 if (shouldContinueListening) {
+                    // Increase delay for errors to prevent tight loops
+                    if (error != SpeechRecognizer.ERROR_NO_MATCH && 
+                        error != SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                        currentRestartDelay = (currentRestartDelay * 2).coerceAtMost(5000L)
+                    } else {
+                        // Reset delay for normal timeouts
+                        currentRestartDelay = RESTART_DELAY_MS
+                    }
                     scheduleRestart()
                 }
             }
 
             override fun onResults(results: Bundle?) {
                 val currentTime = System.currentTimeMillis()
-
-                // Throttle final results - REMOVED to prevent data loss
-                // if (currentTime - lastFinalResultTime < MIN_TIME_BETWEEN_FINALS) {
-                //    // Too soon, schedule restart but skip this result
-                //    if (shouldContinueListening) {
-                //        scheduleRestart()
-                //    }
-                //    return
-                // }
-
                 lastFinalResultTime = currentTime
                 isCurrentlyListening = false
+
+                // Reset backoff on success
+                currentRestartDelay = RESTART_DELAY_MS
+                restartAttempts = 0
 
                 // Extract recognized text
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
@@ -400,7 +383,7 @@ class LocalSpeechToTextService(
 
         // Schedule restart
         restartJob = serviceScope.launch {
-            delay(RESTART_DELAY_MS)
+            delay(currentRestartDelay)
             if (shouldContinueListening && !isCurrentlyListening) {
                 startRecognition()
             }
