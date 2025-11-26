@@ -173,10 +173,21 @@ class SessionViewModel @Inject constructor(
 
             // Perform AI Analysis (Text Only for now to ensure stability)
             try {
-                // val audioFile = audioRecorder?.stopRecording()
-                // audioRecorder = null 
+                // 1. Clean up Transcript
+                val rawTranscript = currentState.messages
+                    .filter { it.type == MessageType.TRANSCRIPT }
+                    .joinToString("\n") { it.content }
+
+                var cleanedMessages: List<ChatMessage> = emptyList()
                 
-                // Fallback to text analysis
+                if (rawTranscript.isNotBlank()) {
+                    val cleanedJson = geminiService.cleanUpTranscript(rawTranscript)
+                    if (cleanedJson != null) {
+                        cleanedMessages = parseAiTranscript(cleanedJson, emptyList())
+                    }
+                }
+
+                // 2. Analyze Session
                 val aiMetrics = engine?.analyzeSession(currentState.messages)
 
                 if (aiMetrics != null) {
@@ -193,74 +204,74 @@ class SessionViewModel @Inject constructor(
                     )
                     Log.d(TAG, "AI Analysis complete: Empathy=${metrics.empathyScore}")
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "AI Analysis failed", e)
-            }
-
-            // Parse AI Transcript if available
-            val finalMessages = if (metrics.aiTranscriptJson != null) {
-                try {
-                    parseAiTranscript(metrics.aiTranscriptJson!!, currentState.messages)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to parse AI transcript", e)
+                
+                // 3. Merge Messages (Replace raw transcript with cleaned one)
+                val nonTranscriptMessages = currentState.messages.filter { it.type != MessageType.TRANSCRIPT }
+                val finalMessagesList = if (cleanedMessages.isNotEmpty()) {
+                    (nonTranscriptMessages + cleanedMessages).sortedBy { it.timestamp }
+                } else {
                     currentState.messages
                 }
-            } else {
-                currentState.messages
-            }
-
-            // Save session to database
-            try {
-                val startTime = currentState.startTime ?: System.currentTimeMillis()
-                val endTime = System.currentTimeMillis()
-                val duration = ((endTime - startTime) / 1000).toInt()
-
-                val result = sessionRepository.saveSession(
-                    mode = currentState.mode ?: SessionMode.ONE_ON_ONE,
-                    startedAt = java.time.Instant.ofEpochMilli(startTime),
-                    endedAt = java.time.Instant.ofEpochMilli(endTime),
-                    durationSeconds = duration,
-                    messages = finalMessages,
-                    metrics = metrics
-                )
-                val sessionId = result.getOrThrow()
-                Log.d(TAG, "Session saved successfully")
                 
-                // Notify UI
-                val savedMessage = ChatMessage(
-                    type = MessageType.CONTEXT,
-                    content = "✅ Session saved with AI Insights",
-                    priority = Priority.INFO
-                )
-                addMessage(savedMessage)
+                // Update currentState for saving
+                // We don't update _sessionState here to avoid UI flicker, just use local var for saving
                 
-                // Check Achievements
-                val metricsEntity = com.meetingcoach.leadershipconversationcoach.data.local.SessionMetricsEntity(
-                    sessionId = sessionId,
-                    talkRatioUser = metrics.talkRatio,
-                    questionCount = metrics.questionCount,
-                    openQuestionCount = metrics.openQuestionCount,
-                    empathyScore = metrics.empathyScore,
-                    listeningScore = metrics.listeningScore,
-                    clarityScore = metrics.clarityScore,
-                    interruptionCount = metrics.interruptionCount,
-                    sentiment = metrics.sentiment.name,
-                    temperature = metrics.temperature,
-                    summary = metrics.summary,
-                    paceAnalysis = metrics.paceAnalysis,
-                    wordingAnalysis = metrics.wordingAnalysis,
-                    improvements = metrics.improvements
-                )
-                gamificationRepository.checkAchievements(metricsEntity)
+                // Save session to database
+                try {
+                    val startTime = currentState.startTime ?: System.currentTimeMillis()
+                    val endTime = System.currentTimeMillis()
+                    val duration = ((endTime - startTime) / 1000).toInt()
+
+                    val result = sessionRepository.saveSession(
+                        mode = currentState.mode ?: SessionMode.ONE_ON_ONE,
+                        startedAt = java.time.Instant.ofEpochMilli(startTime),
+                        endedAt = java.time.Instant.ofEpochMilli(endTime),
+                        durationSeconds = duration,
+                        messages = finalMessagesList,
+                        metrics = metrics
+                    )
+                    val sessionId = result.getOrThrow()
+                    Log.d(TAG, "Session saved successfully")
+                    
+                    // Notify UI
+                    val savedMessage = ChatMessage(
+                        type = MessageType.CONTEXT,
+                        content = "✅ Session saved with AI Insights",
+                        priority = Priority.INFO
+                    )
+                    addMessage(savedMessage)
+                    
+                    // Check Achievements
+                    val metricsEntity = com.meetingcoach.leadershipconversationcoach.data.local.SessionMetricsEntity(
+                        sessionId = sessionId,
+                        talkRatioUser = metrics.talkRatio,
+                        questionCount = metrics.questionCount,
+                        openQuestionCount = metrics.openQuestionCount,
+                        empathyScore = metrics.empathyScore,
+                        listeningScore = metrics.listeningScore,
+                        clarityScore = metrics.clarityScore,
+                        interruptionCount = metrics.interruptionCount,
+                        sentiment = metrics.sentiment.name,
+                        temperature = metrics.temperature,
+                        summary = metrics.summary,
+                        paceAnalysis = metrics.paceAnalysis,
+                        wordingAnalysis = metrics.wordingAnalysis,
+                        improvements = metrics.improvements
+                    )
+                    gamificationRepository.checkAchievements(metricsEntity)
+
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to save session", e)
+                    val errorMessage = ChatMessage(
+                        type = MessageType.CONTEXT,
+                        content = "⚠️ Failed to save session: ${e.message}",
+                        priority = Priority.URGENT
+                    )
+                    addMessage(errorMessage)
+                }
 
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to save session", e)
-                val errorMessage = ChatMessage(
-                    type = MessageType.CONTEXT,
-                    content = "⚠️ Failed to save session: ${e.message}",
-                    priority = Priority.URGENT
-                )
-                addMessage(errorMessage)
+                Log.e(TAG, "AI Analysis failed", e)
             }
             
             // Reset Session State for next time

@@ -216,6 +216,48 @@ class GeminiApiService(
     // Private Helper Methods (Prompts & Parsing)
     // ============================================================
 
+    /**
+     * Clean up and structure the raw transcript
+     */
+    suspend fun cleanUpTranscript(
+        rawTranscript: String
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = """
+                You are an expert editor. 
+                Clean up the following raw speech-to-text transcript.
+                
+                Tasks:
+                1. Fix grammar and punctuation.
+                2. Identify speakers if possible (Label as "User" and "Other" based on context).
+                3. Format as a clean dialogue script.
+                4. Remove filler words (um, uh, like).
+                
+                Raw Transcript:
+                "$rawTranscript"
+                
+                Output ONLY valid JSON in this format:
+                [
+                  {"speaker": "User", "text": "Hello, how are you?"},
+                  {"speaker": "Other", "text": "I am good, thanks."}
+                ]
+            """.trimIndent()
+            
+            val response = generativeModel.generateContent(prompt)
+            val text = response.text?.trim()
+            
+            // Simple cleanup to ensure it looks like JSON
+            text?.removePrefix("```json")?.removePrefix("```")?.removeSuffix("```")?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error cleaning transcript: ${e.message}", e)
+            null
+        }
+    }
+
+    // ============================================================
+    // Private Helper Methods (Prompts & Parsing)
+    // ============================================================
+
     private fun buildAnalysisPrompt(
         transcript: String,
         sessionMode: String,
@@ -227,7 +269,9 @@ class GeminiApiService(
             Session: $sessionMode. Talk Ratio: User $talkRatio%.
             Transcript: "$transcript"
             
-            Provide ONE specific coaching nudge if needed.
+            Provide ONE specific, actionable coaching nudge.
+            Be concise (under 15 words). Direct and punchy.
+            
             Format:
             TYPE: [URGENT/IMPORTANT/HELPFUL]
             MESSAGE: [Suggestion]
@@ -237,16 +281,19 @@ class GeminiApiService(
     }
 
     private fun buildQuestionPrompt(context: String, sessionMode: String): String {
-        return "Suggest one open-ended question for this $sessionMode context: \"$context\""
+        return "Suggest one powerful, open-ended question for this $sessionMode context. Context: \"$context\""
     }
 
     private fun buildCoachingAnswerPrompt(question: String, context: String?): String {
         val ctx = context?.let { "Context: \"$it\"\n" } ?: ""
         return """
-            You are a leadership coach.
+            You are a seasoned leadership coach.
             $ctx
             User asks: "$question"
-            Answer helpfully and concisely (under 100 words).
+            
+            Answer directly and concisely (under 50 words).
+            Use a coaching tone: empowering, specific, and action-oriented.
+            Avoid vague generalizations. Give a concrete step or perspective.
         """.trimIndent()
     }
 
@@ -262,7 +309,19 @@ class GeminiApiService(
     }
 
     private fun buildSummaryPrompt(transcript: String, metrics: Map<String, Any>): String {
-        return "Summarize this coaching session with key points and feedback. Transcript: \"$transcript\""
+        return """
+            Summarize this coaching session.
+            Transcript: "$transcript"
+            
+            Format exactly as:
+            * [Key Point 1]
+            * [Key Point 2]
+            * [Key Point 3]
+            
+            ### Takeaways
+            * [Actionable Takeaway 1]
+            * [Actionable Takeaway 2]
+        """.trimIndent()
     }
 
     private fun buildAudioAnalysisPrompt(sessionMode: String): String {
@@ -344,7 +403,7 @@ class GeminiApiService(
             SCORE_1: [0-100]
             SCORE_2: [0-100]
             SCORE_3: [0-100]
-            SUMMARY: [Detailed analysis]
+            SUMMARY: [Detailed analysis. Use bullet points for readability.]
             PACE: [Analysis]
             WORDING: [Analysis]
             IMPROVEMENTS: [Point 1 | Point 2 | Point 3]
