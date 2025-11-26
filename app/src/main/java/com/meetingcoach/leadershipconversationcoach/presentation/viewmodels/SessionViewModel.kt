@@ -458,6 +458,47 @@ class SessionViewModel @Inject constructor(
         }
     }
 
+    fun getSuggestedQuestions(mode: SessionMode?): List<String> {
+        val currentMode = mode ?: SessionMode.ONE_ON_ONE
+        return when (currentMode) {
+            SessionMode.ONE_ON_ONE -> listOf(
+                "How can I support you better?",
+                "What are your top priorities this week?",
+                "What roadblocks are you facing?",
+                "How are you feeling about your workload?",
+                "Is there anything else on your mind?"
+            )
+            SessionMode.TEAM_MEETING -> listOf(
+                "Does anyone have a different perspective?",
+                "What are the next steps?",
+                "Are we aligned on this decision?",
+                "Who will own this action item?",
+                "Let's recap what we've agreed on."
+            )
+            SessionMode.DIFFICULT_CONVERSATION -> listOf(
+                "I want to understand your perspective.",
+                "What I'm hearing is...",
+                "How can we move forward together?",
+                "What impact do you think this has?",
+                "Let's focus on the solution."
+            )
+            SessionMode.ROLEPLAY -> listOf(
+                "Tell me more about the situation.",
+                "How would you handle this objection?",
+                "Let's try a different approach.",
+                "What was the outcome?",
+                "Give me some feedback on my response."
+            )
+            SessionMode.OFFICE_POLITICS -> listOf(
+                "Who are the key stakeholders here?",
+                "What is the underlying motivation?",
+                "How does this align with our goals?",
+                "What are the risks?",
+                "How can we influence this outcome?"
+            )
+        }
+    }
+
     // ============================================================
     // TIMER
     // ============================================================

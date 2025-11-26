@@ -238,35 +238,3 @@ private fun ActionItem(
         }
     }
 }
-
-/**
- * Get contextual AI questions based on conversation state
- */
-fun getContextualQuestions(
-    hasEmotion: Boolean = false,
-    longSilence: Boolean = false,
-    topicChange: Boolean = false
-): List<String> {
-    return buildList {
-        // Always include these basics
-        add("What concerns you most about this?")
-        add("How can I support you?")
-        add("What would success look like?")
-
-        // Context-aware additions
-        if (hasEmotion) {
-            add("How are you feeling about this?")
-            add("What's most challenging for you?")
-        }
-
-        if (longSilence) {
-            add("What are your thoughts on this?")
-            add("Tell me more about that")
-        }
-
-        if (topicChange) {
-            add("Should we explore this further?")
-            add("What else is important?")
-        }
-    }.take(5) // Max 5 questions
-}
