@@ -107,10 +107,9 @@ fun NavigationScreen(
                         modifier = Modifier.padding(paddingValues)
                     )
                     2 -> {
-                        // Progress / Stats Screen
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Progress & Stats Coming Soon")
-                        }
+                        com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
+                            modifier = Modifier.padding(paddingValues)
+                        )
                     }
                     3 -> HistoryScreen(
                         onSessionClick = { sessionId -> selectedSessionId = sessionId },

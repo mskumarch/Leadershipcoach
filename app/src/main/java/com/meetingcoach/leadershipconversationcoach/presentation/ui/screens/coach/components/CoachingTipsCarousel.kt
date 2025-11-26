@@ -295,5 +295,25 @@ private fun getCoachingTips(mode: SessionMode): List<CoachingTip> {
                 category = "LEARNING"
             )
         )
+        SessionMode.OFFICE_POLITICS -> listOf(
+            CoachingTip(
+                icon = "♟️",
+                title = "Map the players",
+                tip = "Identify key stakeholders and their hidden agendas. Who influences whom?",
+                category = "STRATEGY"
+            ),
+            CoachingTip(
+                icon = "🤝",
+                title = "Build alliances",
+                tip = "Focus on shared interests. Help others achieve their goals to build political capital.",
+                category = "RELATIONSHIPS"
+            ),
+            CoachingTip(
+                icon = "🛡️",
+                title = "Protect your reputation",
+                tip = "Be consistent and transparent. Avoid gossip but stay informed.",
+                category = "REPUTATION"
+            )
+        )
     }
 }
