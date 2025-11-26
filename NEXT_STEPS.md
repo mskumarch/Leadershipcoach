@@ -3,12 +3,13 @@
 ## 🎯 Current Status
 -   **Core**: Live Transcription & Coaching (Stable)
 -   **UI**: 
-    -   ✅ **Premium Redesign**: "WOW" factor achieved with glassmorphism, gradients, and animations.
-    -   ✅ **Refactored Codebase**: Enterprise-grade component architecture.
+    -   ✅ **Premium Redesign**: "WOW" factor achieved.
+    -   ✅ **History Tab**: Swipe-to-delete, Date grouping, Gradient cards.
+    -   ✅ **Session Insights**: Swipe navigation, Transcript summary.
 -   **Features**:
-    -   ✅ **Office Politics Mode**: Specialized coaching for power dynamics and strategy.
-    -   ✅ **Progress Dashboard**: Visual stats and charts.
-    -   ✅ **Roleplay Mode**: Integrated into session flow.
+    -   ✅ **Office Politics Mode**: Specialized coaching.
+    -   ✅ **Progress Dashboard**: Real data integration.
+    -   ✅ **Background Processing**: Foreground Service implemented for reliability.
 
 ## 🔮 Proposed Future Features
 
@@ -17,15 +18,16 @@
 -   **Logic**: User speaks -> STT -> Gemini (Persona) -> TTS (AI Voice).
 -   **UI**: Immersive chat interface with "End Roleplay" button.
 
-### 2. 🏆 Gamification
+### 2. 🧠 Advanced Nudges
+*Smarter real-time feedback.*
+-   **Smart Pause**: Detect silence > 2s.
+-   **Filler Words**: Count "um", "uh".
+-   **Personality Detection**: Analyze communication style.
+
+### 3. 🏆 Gamification
 *Make learning addictive.*
 -   **Streaks**: "7-Day Streak".
 -   **Achievements**: "Master Listener", "Politics Pro".
-
-### 3. ☁️ Cloud Sync
-*Access anywhere.*
--   **Auth**: Google Sign-In.
--   **Database**: Firestore/Supabase.
 
 ## 🛠 Technical Improvements
 -   **Unit Tests**: Increase coverage.

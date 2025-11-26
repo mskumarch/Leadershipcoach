@@ -62,10 +62,19 @@ fun SessionCard(
             ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = Color.Transparent // We'll use Box background for gradient
         )
     ) {
-        Box {
+        Box(
+            modifier = Modifier.background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White,
+                        Color(0xFFF8FAFC) // Very subtle slate gradient
+                    )
+                )
+            )
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

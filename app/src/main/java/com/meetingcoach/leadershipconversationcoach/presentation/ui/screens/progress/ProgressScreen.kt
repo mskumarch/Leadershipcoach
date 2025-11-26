@@ -30,16 +30,16 @@ import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.d
 
 @Composable
 fun ProgressScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.ProgressViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     var selectedTimeRange by remember { mutableStateOf("7D") }
     val scrollState = rememberScrollState()
 
-    // Mock Data for "WOW" effect
-    val overallScore = 85
-    val empathyScore = 92
-    val clarityScore = 78
-    val listeningScore = 88
+    LaunchedEffect(Unit) {
+        viewModel.loadProgressData()
+    }
 
     Column(
         modifier = modifier
@@ -78,40 +78,47 @@ fun ProgressScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Main Score Card (Hero)
-        HeroScoreCard(score = overallScore)
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            // Main Score Card (Hero)
+            HeroScoreCard(score = uiState.overallScore)
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        // Metrics Grid
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            MetricCard(
-                title = "Empathy",
-                score = empathyScore,
-                color = Color(0xFF10B981), // Emerald
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                title = "Clarity",
-                score = clarityScore,
-                color = Color(0xFF3B82F6), // Blue
-                modifier = Modifier.weight(1f)
-            )
-            MetricCard(
-                title = "Listening",
-                score = listeningScore,
-                color = Color(0xFF8B5CF6), // Violet
-                modifier = Modifier.weight(1f)
-            )
+            // Metrics Grid
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                MetricCard(
+                    title = "Empathy",
+                    score = uiState.empathyScore,
+                    color = Color(0xFF10B981), // Emerald
+                    modifier = Modifier.weight(1f)
+                )
+                MetricCard(
+                    title = "Clarity",
+                    score = uiState.clarityScore,
+                    color = Color(0xFF3B82F6), // Blue
+                    modifier = Modifier.weight(1f)
+                )
+                MetricCard(
+                    title = "Listening",
+                    score = uiState.listeningScore,
+                    color = Color(0xFF8B5CF6), // Violet
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Activity Chart
+            // Pass real data if available, otherwise mock
+            ActivityChartCard(timeRange = selectedTimeRange) // Update this component to accept data later
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Activity Chart
-        ActivityChartCard(timeRange = selectedTimeRange)
         
         Spacer(modifier = Modifier.height(100.dp)) // Bottom padding
     }
