@@ -108,7 +108,7 @@ fun CoachBottomNavigationBar(
         Surface(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .height(72.dp)
+                .height(80.dp) // Increased from 72.dp
                 .padding(bottom = 16.dp),
             shape = RoundedCornerShape(percent = 50),
             color = Color.White.copy(alpha = 0.9f),

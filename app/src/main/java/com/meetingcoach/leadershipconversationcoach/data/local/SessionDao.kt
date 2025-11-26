@@ -32,6 +32,9 @@ interface SessionDao {
     @Query("SELECT * FROM session_metrics")
     suspend fun getAllMetrics(): List<SessionMetricsEntity>
 
+    @Query("SELECT AVG(empathyScore) as avgEmpathy, AVG(clarityScore) as avgClarity, AVG(listeningScore) as avgListening FROM session_metrics")
+    suspend fun getAverageMetrics(): AverageMetricsTuple?
+
     @Delete
     suspend fun deleteSession(session: SessionEntity)
 
@@ -51,3 +54,9 @@ interface SessionDao {
         }
     }
 }
+
+data class AverageMetricsTuple(
+    val avgEmpathy: Double?,
+    val avgClarity: Double?,
+    val avgListening: Double?
+)
