@@ -560,6 +560,38 @@ object CoachingPrompts {
     }
 
     // ============================================================
+    // PERSONALITY DETECTION PROMPTS
+    // ============================================================
+
+    /**
+     * Detect the communication style/personality of the other person
+     */
+    fun detectPersonality(transcript: String): String {
+        return """
+            Analyze the speech patterns of the OTHER person (not the User) in this conversation.
+            
+            TRANSCRIPT:
+            "$transcript"
+            
+            Identify their primary communication style based on the Social Styles model:
+            1. DRIVER: Direct, results-oriented, fast-paced. "What" questions.
+            2. ANALYTICAL: Data-driven, precise, slow-paced. "How" questions.
+            3. AMIABLE: Relationship-oriented, supportive, slow-paced. "Why" questions.
+            4. EXPRESSIVE: Enthusiastic, idea-oriented, fast-paced. "Who" questions.
+            
+            Respond in this EXACT format:
+            STYLE: [DRIVER/ANALYTICAL/AMIABLE/EXPRESSIVE]
+            CONFIDENCE: [High/Medium/Low]
+            ADVICE: [One specific tip to adapt to them]
+            
+            Example:
+            STYLE: DRIVER
+            CONFIDENCE: High
+            ADVICE: Be brief and focus on results. Skip the small talk.
+        """.trimIndent()
+    }
+
+    // ============================================================
     // CONTEXT BUILDERS
     // ============================================================
 
