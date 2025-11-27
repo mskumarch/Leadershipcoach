@@ -57,10 +57,24 @@ fun HistoryScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         if (uiState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.primary
-            )
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+                    Text(
+                        text = "History",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                items(5) {
+                    com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.SessionCardSkeleton()
+                }
+            }
         } else if (uiState.sessions.isEmpty()) {
             EmptyHistoryState()
         } else {
