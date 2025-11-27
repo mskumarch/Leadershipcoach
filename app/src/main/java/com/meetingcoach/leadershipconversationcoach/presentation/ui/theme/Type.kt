@@ -371,3 +371,26 @@ fun TextStyle.underline(): TextStyle {
         textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
     )
 }
+
+/**
+ * Scale typography by a given factor
+ */
+fun Typography.scale(factor: Float): Typography {
+    return this.copy(
+        displayLarge = this.displayLarge.copy(fontSize = this.displayLarge.fontSize * factor, lineHeight = this.displayLarge.lineHeight * factor),
+        displayMedium = this.displayMedium.copy(fontSize = this.displayMedium.fontSize * factor, lineHeight = this.displayMedium.lineHeight * factor),
+        displaySmall = this.displaySmall.copy(fontSize = this.displaySmall.fontSize * factor, lineHeight = this.displaySmall.lineHeight * factor),
+        headlineLarge = this.headlineLarge.copy(fontSize = this.headlineLarge.fontSize * factor, lineHeight = this.headlineLarge.lineHeight * factor),
+        headlineMedium = this.headlineMedium.copy(fontSize = this.headlineMedium.fontSize * factor, lineHeight = this.headlineMedium.lineHeight * factor),
+        headlineSmall = this.headlineSmall.copy(fontSize = this.headlineSmall.fontSize * factor, lineHeight = this.headlineSmall.lineHeight * factor),
+        titleLarge = this.titleLarge.copy(fontSize = this.titleLarge.fontSize * factor, lineHeight = this.titleLarge.lineHeight * factor),
+        titleMedium = this.titleMedium.copy(fontSize = this.titleMedium.fontSize * factor, lineHeight = this.titleMedium.lineHeight * factor),
+        titleSmall = this.titleSmall.copy(fontSize = this.titleSmall.fontSize * factor, lineHeight = this.titleSmall.lineHeight * factor),
+        bodyLarge = this.bodyLarge.copy(fontSize = this.bodyLarge.fontSize * factor, lineHeight = this.bodyLarge.lineHeight * factor),
+        bodyMedium = this.bodyMedium.copy(fontSize = this.bodyMedium.fontSize * factor, lineHeight = this.bodyMedium.lineHeight * factor),
+        bodySmall = this.bodySmall.copy(fontSize = this.bodySmall.fontSize * factor, lineHeight = this.bodySmall.lineHeight * factor),
+        labelLarge = this.labelLarge.copy(fontSize = this.labelLarge.fontSize * factor, lineHeight = this.labelLarge.lineHeight * factor),
+        labelMedium = this.labelMedium.copy(fontSize = this.labelMedium.fontSize * factor, lineHeight = this.labelMedium.lineHeight * factor),
+        labelSmall = this.labelSmall.copy(fontSize = this.labelSmall.fontSize * factor, lineHeight = this.labelSmall.lineHeight * factor)
+    )
+}

@@ -25,6 +25,10 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val analysisInterval by viewModel.analysisInterval.collectAsState()
+    val fontSizeScale by viewModel.fontSizeScale.collectAsState()
+    val coachingStyle by viewModel.coachingStyle.collectAsState()
+    val hapticEnabled by viewModel.hapticEnabled.collectAsState()
+    val dailyNudgeTime by viewModel.dailyNudgeTime.collectAsState()
 
     Column(
         modifier = modifier
@@ -107,6 +111,142 @@ fun SettingsScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        // Appearance Section
+        SectionHeader(
+            title = "Appearance",
+            icon = "🎨"
+        )
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = "Text Size",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("A", style = MaterialTheme.typography.bodySmall)
+                    Slider(
+                        value = fontSizeScale,
+                        onValueChange = { viewModel.setFontSizeScale(it) },
+                        valueRange = 0.8f..1.4f,
+                        steps = 5,
+                        modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
+                    )
+                    Text("A", style = MaterialTheme.typography.headlineSmall)
+                }
+                
+                Text(
+                    text = "Preview: The quick brown fox jumps over the lazy dog.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Preferences Section
+        SectionHeader(
+            title = "Preferences",
+            icon = "⚙️"
+        )
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                // Haptic Feedback Toggle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Haptic Feedback",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Vibrate on interactions",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = hapticEnabled,
+                        onCheckedChange = { viewModel.setHapticEnabled(it) }
+                    )
+                }
+                
+                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                
+                // Coaching Style
+                Text(
+                    text = "Coaching Style",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                val styles = listOf("EMPATHETIC" to "Empathetic Friend", "EXECUTIVE" to "Executive Coach", "SOCRATIC" to "Socratic Mentor")
+                
+                styles.forEach { (key, label) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = coachingStyle == key,
+                            onClick = { viewModel.setCoachingStyle(key) }
+                        )
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
 
         // Info Card
         InfoCard()

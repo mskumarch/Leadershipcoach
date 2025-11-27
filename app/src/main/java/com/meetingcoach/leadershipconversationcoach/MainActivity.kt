@@ -17,10 +17,16 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.NavigationScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.LeadershipConversationCoachTheme
+import com.meetingcoach.leadershipconversationcoach.data.preferences.UserPreferencesRepository
+import androidx.compose.runtime.collectAsState
+import javax.inject.Inject
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     private var hasRecordAudioPermission by mutableStateOf(false)
 
@@ -43,8 +49,12 @@ class MainActivity : ComponentActivity() {
         ) == PackageManager.PERMISSION_GRANTED
 
         setContent {
+            val fontScale by userPreferencesRepository.fontSizeScaleFlow.collectAsState(initial = 1.0f)
+
             // Apply theme here
-            LeadershipConversationCoachTheme {
+            LeadershipConversationCoachTheme(
+                fontScale = fontScale
+            ) {
                 // Request permission if not granted
                 LaunchedEffect(Unit) {
                     if (!hasRecordAudioPermission) {
