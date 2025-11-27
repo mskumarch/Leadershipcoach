@@ -51,6 +51,10 @@ fun ChatScreen(
 ) {
     val sessionState by viewModel.sessionState.collectAsState()
     val audioLevel by viewModel.audioLevel.collectAsState()
+    val currentGrowStage by viewModel.currentGrowStage.collectAsState()
+    val suggestedQuestion by viewModel.suggestedQuestion.collectAsState()
+    val activeNudge by viewModel.activeNudge.collectAsState()
+    
     var inputText by remember { mutableStateOf("") }
     var showSessionModeModal by remember { mutableStateOf(false) }
     var showSaveDialog by remember { mutableStateOf(false) }
@@ -123,6 +127,18 @@ fun ChatScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
                         )
+                    }
+                    
+                    // GROW Stage Indicator (Only for 1:1)
+                    if (sessionState.mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.ONE_ON_ONE && currentGrowStage != "START") {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            GrowStageIndicator(currentStage = currentGrowStage)
+                        }
                     }
 
                     // Main content area - Messages flow
@@ -279,16 +295,20 @@ fun ChatScreen(
                 }
             }
 
-            // Quick Actions Sheet - PULL
+            // Quick Actions Sheet
             if (showQuickActions) {
                 QuickActionsSheet(
                     suggestedQuestions = viewModel.getSuggestedQuestions(sessionState.mode),
+                    dynamicQuestion = suggestedQuestion?.suggestedQuestion,
                     onQuestionSelected = { question ->
                         // Send message immediately
                         viewModel.addUserMessage(question)
                         val aiResponse = viewModel.getAIResponse(question)
                         viewModel.addAIResponse(aiResponse)
                         showQuickActions = false
+                    },
+                    onDynamicQuestionRequested = {
+                        viewModel.requestContextualQuestion()
                     },
                     onActionSelected = { command ->
                         val prompt = when (command) {
