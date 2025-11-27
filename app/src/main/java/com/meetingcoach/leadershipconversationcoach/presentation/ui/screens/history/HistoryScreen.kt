@@ -12,9 +12,11 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.*
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.DismissValue
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.rememberDismissState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.HistoryViewModel
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun HistoryScreen(
     onSessionClick: (Long) -> Unit,
@@ -118,9 +120,9 @@ fun HistoryScreen(
                         items = sessions,
                         key = { it.id }
                     ) { session ->
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = {
-                                if (it == SwipeToDismissBoxValue.EndToStart) {
+                        val dismissState = rememberDismissState(
+                            confirmStateChange = {
+                                if (it == DismissValue.DismissedToStart) {
                                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                                     viewModel.deleteSession(session.id)
                                     true
@@ -130,11 +132,11 @@ fun HistoryScreen(
                             }
                         )
 
-                        SwipeToDismissBox(
+                        SwipeToDismiss(
                             state = dismissState,
-                            backgroundContent = {
+                            background = {
                                 val color = when (dismissState.dismissDirection) {
-                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                                    DismissDirection.EndToStart -> MaterialTheme.colorScheme.errorContainer
                                     else -> Color.Transparent
                                 }
                                 
@@ -152,13 +154,14 @@ fun HistoryScreen(
                                     )
                                 }
                             },
-                            enableDismissFromStartToEnd = false
-                        ) {
-                            com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.SessionCard(
-                                session = session,
-                                onClick = { onSessionClick(session.id) }
-                            )
-                        }
+                            dismissContent = {
+                                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.SessionCard(
+                                    session = session,
+                                    onClick = { onSessionClick(session.id) }
+                                )
+                            },
+                            directions = setOf(DismissDirection.EndToStart)
+                        )
                     }
                 }
                 
