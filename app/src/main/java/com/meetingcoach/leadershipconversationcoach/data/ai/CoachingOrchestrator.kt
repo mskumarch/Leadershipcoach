@@ -74,19 +74,22 @@ class CoachingOrchestrator @Inject constructor() {
         }
     }
     
-    // Revised loop to accept transcript provider
-    private var transcriptProvider: (() -> List<ChatMessage>)? = null
+    // Local message buffer
+    private val messages = java.util.concurrent.CopyOnWriteArrayList<ChatMessage>()
     
-    fun setTranscriptProvider(provider: () -> List<ChatMessage>) {
-        transcriptProvider = provider
+    fun addMessage(message: ChatMessage) {
+        messages.add(message)
+    }
+    
+    fun clearMessages() {
+        messages.clear()
     }
     
     suspend fun runNavigatorNow() {
         val strategy = currentStrategy ?: return
-        val transcript = transcriptProvider?.invoke() ?: emptyList()
-        if (transcript.isEmpty()) return
+        if (messages.isEmpty()) return
 
-        val result = strategy.navigator.process(transcript, emptyMap())
+        val result = strategy.navigator.process(messages.toList(), emptyMap())
         if (result != null) {
             _currentStage.emit(result.currentStage)
         }
@@ -94,10 +97,9 @@ class CoachingOrchestrator @Inject constructor() {
     
     suspend fun runGuardianNow() {
         val strategy = currentStrategy ?: return
-        val transcript = transcriptProvider?.invoke() ?: emptyList()
-        if (transcript.isEmpty()) return
+        if (messages.isEmpty()) return
 
-        val result = strategy.guardian.process(transcript, mapOf("stage" to _currentStage.value))
+        val result = strategy.guardian.process(messages.toList(), mapOf("stage" to _currentStage.value))
         if (result != null) {
             _activeNudge.emit(result)
         }
