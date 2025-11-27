@@ -22,11 +22,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PulsingConcentricCircles
 
 @Composable
 fun HomeIdleState(
     onStartSession: () -> Unit
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -63,30 +66,10 @@ fun HomeIdleState(
         ) {
             // Hero Icon with Pulse
             Box(contentAlignment = Alignment.Center) {
-                val infiniteTransition = rememberInfiniteTransition(label = "pulse_hero")
-                val scale by infiniteTransition.animateFloat(
-                    initialValue = 1f,
-                    targetValue = 1.1f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(2000, easing = EaseInOutQuad),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "scale"
-                )
-                
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .scale(scale)
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
-                                )
-                            ),
-                            shape = CircleShape
-                        )
+                PulsingConcentricCircles(
+                    size = 140.dp,
+                    centerColor = AppPalette.Sage500,
+                    ringColor = AppPalette.Sage500.copy(alpha = 0.3f)
                 )
                 Text(
                     text = "🎙️",
@@ -115,7 +98,10 @@ fun HomeIdleState(
 
             // Main Action Button (Glassmorphic)
             Button(
-                onClick = onStartSession,
+                onClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    onStartSession()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
