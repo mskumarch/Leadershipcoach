@@ -23,31 +23,31 @@ import androidx.core.view.WindowCompat
  */
 
 private val LightColorScheme = lightColorScheme(
-    // Primary - Teal
-    primary = AppPalette.Teal600,
+    // Primary - Modern Sage
+    primary = AppPalette.Sage600,
     onPrimary = AppPalette.White,
-    primaryContainer = AppPalette.Teal100,
-    onPrimaryContainer = AppPalette.Teal700,
+    primaryContainer = AppPalette.Sage100,
+    onPrimaryContainer = AppPalette.Sage600,
 
-    // Secondary - Slate
-    secondary = AppPalette.Slate700,
+    // Secondary - Lavender
+    secondary = AppPalette.Lavender500,
     onSecondary = AppPalette.White,
-    secondaryContainer = AppPalette.Slate100,
-    onSecondaryContainer = AppPalette.Slate900,
+    secondaryContainer = AppPalette.Lavender100,
+    onSecondaryContainer = AppPalette.Stone900,
 
-    // Tertiary - Blue
-    tertiary = AppPalette.Blue500,
+    // Tertiary - Stone/Neutral
+    tertiary = AppPalette.Stone500,
     onTertiary = AppPalette.White,
-    tertiaryContainer = AppPalette.Blue500.copy(alpha = 0.1f),
-    onTertiaryContainer = AppPalette.Blue500,
+    tertiaryContainer = AppPalette.Stone100,
+    onTertiaryContainer = AppPalette.Stone900,
 
     // Background & Surface
-    background = AppPalette.White,
-    onBackground = AppPalette.Slate900,
+    background = AppPalette.Stone50,
+    onBackground = AppPalette.Stone900,
     surface = AppPalette.White,
-    onSurface = AppPalette.Slate900,
-    surfaceVariant = AppPalette.Slate50,
-    onSurfaceVariant = AppPalette.Slate700,
+    onSurface = AppPalette.Stone900,
+    surfaceVariant = AppPalette.Stone100,
+    onSurfaceVariant = AppPalette.Stone700,
 
     // Error
     error = AppPalette.Red500,
@@ -55,27 +55,27 @@ private val LightColorScheme = lightColorScheme(
     errorContainer = AppPalette.Red500.copy(alpha = 0.1f),
     onErrorContainer = AppPalette.Red500,
 
-    outline = AppPalette.Slate500,
-    outlineVariant = AppPalette.Slate100
+    outline = AppPalette.Stone500,
+    outlineVariant = AppPalette.Stone100
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = AppPalette.Teal600,
+    primary = AppPalette.Sage500,
     onPrimary = AppPalette.White,
-    primaryContainer = AppPalette.Teal700,
-    onPrimaryContainer = AppPalette.Teal100,
+    primaryContainer = AppPalette.Sage600,
+    onPrimaryContainer = AppPalette.Sage100,
 
-    secondary = AppPalette.Slate500,
+    secondary = AppPalette.Lavender500,
     onSecondary = AppPalette.White,
-    secondaryContainer = AppPalette.Slate700,
-    onSecondaryContainer = AppPalette.Slate100,
+    secondaryContainer = AppPalette.Stone700,
+    onSecondaryContainer = AppPalette.Lavender100,
 
-    background = AppPalette.Slate900,
+    background = DarkBackground,
     onBackground = AppPalette.White,
-    surface = AppPalette.Slate900,
+    surface = DarkBackground,
     onSurface = AppPalette.White,
-    surfaceVariant = AppPalette.Slate700,
-    onSurfaceVariant = AppPalette.Slate100,
+    surfaceVariant = AppPalette.Stone700,
+    onSurfaceVariant = AppPalette.Stone100,
 
     error = AppPalette.Red500,
     onError = AppPalette.White

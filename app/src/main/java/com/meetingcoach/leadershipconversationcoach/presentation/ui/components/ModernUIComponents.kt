@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.sin
 import kotlin.random.Random
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 
 /**
  * Modern UI Components Library
@@ -35,8 +36,9 @@ import kotlin.random.Random
 fun PulsingConcentricCircles(
     modifier: Modifier = Modifier,
     isActive: Boolean = true,
-    centerColor: Color = Color(0xFF9575CD), // Lavender
-    ringColor: Color = Color(0xFF9575CD).copy(alpha = 0.3f),
+
+    centerColor: Color = AppPalette.Lavender500, // Lavender
+    ringColor: Color = AppPalette.Lavender500.copy(alpha = 0.3f),
     size: Dp = 200.dp
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
@@ -127,7 +129,7 @@ fun PulsingConcentricCircles(
 fun WaveformVisualization(
     modifier: Modifier = Modifier,
     isActive: Boolean = true,
-    color: Color = Color(0xFF9575CD),
+    color: Color = AppPalette.Lavender500,
     barCount: Int = 40
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "waveform")
@@ -203,9 +205,9 @@ fun GlassmorphicBackground(
 fun OrganicShapeDecoration(
     modifier: Modifier = Modifier,
     colors: List<Color> = listOf(
-        Color(0xFFFF9B71), // Coral
-        Color(0xFFB39DDB), // Lavender
-        Color(0xFF80CBC4)  // Mint
+        AppPalette.Sage500, // Sage
+        AppPalette.Lavender500, // Lavender
+        AppPalette.Sage100  // Light Sage
     )
 ) {
     Box(modifier = modifier) {
@@ -249,8 +251,8 @@ fun OrganicShapeDecoration(
 fun GradientButton(
     modifier: Modifier = Modifier,
     colors: List<Color> = listOf(
-        Color(0xFFFF9B71),
-        Color(0xFFFF7B9C)
+        AppPalette.Sage500,
+        AppPalette.Sage600
     ),
     content: @Composable () -> Unit
 ) {
