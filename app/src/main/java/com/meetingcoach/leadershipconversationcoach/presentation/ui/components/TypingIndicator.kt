@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.graphicsLayer
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 
 /**
@@ -70,6 +71,3 @@ private fun Dot(scale: Float, size: Dp, color: Color) {
             .background(color, CircleShape)
     )
 }
-
-// Need to import graphicsLayer
-import androidx.compose.ui.graphics.graphicsLayer
