@@ -124,7 +124,7 @@ fun ChatScreen(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         Text(
-                            text = if (sessionState.isPaused) "Paused" else "Recording",
+                            text = if (sessionState.isPaused) androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.status_paused) else androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.status_recording),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onBackground
@@ -145,6 +145,27 @@ fun ChatScreen(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+
+                    // Metrics Bar (Talk Ratio & Quality)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Talk Ratio Gauge
+                        com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.TalkRatioGauge(
+                            userTalkRatio = sessionState.metrics.talkRatio,
+                            size = 48.dp
+                        )
+
+                        // Question Quality Badge
+                        com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.QuestionQualityBadge(
+                            openQuestionCount = sessionState.metrics.openQuestionCount,
+                            totalQuestionCount = sessionState.metrics.questionCount
                         )
                     }
                     
@@ -308,7 +329,7 @@ fun ChatScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(Icons.Default.Stop, contentDescription = "Stop")
-                            Text("Stop Session", fontWeight = FontWeight.Bold)
+                            Text(androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.stop_session), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -316,6 +337,13 @@ fun ChatScreen(
 
             // Quick Actions Sheet
             if (showQuickActions) {
+                val promptSummarize = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_summarize)
+                val promptExplain = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_explain)
+                val promptCheckTone = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_check_tone)
+                val promptWhatMissed = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_what_missed)
+                val promptSuggestQuestion = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_suggest_question)
+                val promptEvaluate = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_evaluate)
+
                 QuickActionsSheet(
                     suggestedQuestions = viewModel.getSuggestedQuestions(sessionState.mode),
                     dynamicQuestion = suggestedQuestion?.suggestedQuestion,
@@ -329,12 +357,12 @@ fun ChatScreen(
 
                     onActionSelected = { command ->
                         val prompt = when (command) {
-                            ActionCommand.SUMMARIZE_LAST_10_MIN -> "Summarize the last 10 minutes of this conversation."
-                            ActionCommand.EXPLAIN_RESPONSE -> "Analyze the last response and explain the underlying sentiment."
-                            ActionCommand.CHECK_TONE -> "Check my tone in the recent transcripts. Am I speaking too fast or too aggressively?"
-                            ActionCommand.WHAT_DID_I_MISS -> "What cues or important points might I have missed recently?"
-                            ActionCommand.SUGGEST_NEXT_QUESTION -> "Suggest a good follow-up question based on the current context."
-                            ActionCommand.HOW_AM_I_DOING -> "Evaluate my performance in this session so far (empathy, listening, clarity)."
+                            ActionCommand.SUMMARIZE_LAST_10_MIN -> promptSummarize
+                            ActionCommand.EXPLAIN_RESPONSE -> promptExplain
+                            ActionCommand.CHECK_TONE -> promptCheckTone
+                            ActionCommand.WHAT_DID_I_MISS -> promptWhatMissed
+                            ActionCommand.SUGGEST_NEXT_QUESTION -> promptSuggestQuestion
+                            ActionCommand.HOW_AM_I_DOING -> promptEvaluate
                         }
                         viewModel.getAIResponse(prompt)
                         showQuickActions = false

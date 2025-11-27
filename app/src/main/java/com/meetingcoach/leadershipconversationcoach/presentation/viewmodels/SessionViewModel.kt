@@ -99,7 +99,7 @@ class SessionViewModel @Inject constructor(
             Log.e(TAG, "Microphone permission not granted")
             addMessage(ChatMessage(
                 type = MessageType.CONTEXT,
-                content = "⚠️ Microphone permission is required to start a session",
+                content = context.getString(com.meetingcoach.leadershipconversationcoach.R.string.permission_mic_required),
                 priority = Priority.URGENT
             ))
             return
@@ -210,7 +210,7 @@ class SessionViewModel @Inject constructor(
             
             addMessage(ChatMessage(
                 type = MessageType.CONTEXT,
-                content = "✅ Session saved with AI Insights",
+                content = context.getString(com.meetingcoach.leadershipconversationcoach.R.string.msg_session_saved),
                 priority = Priority.INFO
             ))
             
@@ -237,7 +237,7 @@ class SessionViewModel @Inject constructor(
             Log.e(TAG, "Failed to save session", e)
             addMessage(ChatMessage(
                 type = MessageType.CONTEXT,
-                content = "⚠️ Failed to save session: ${e.message}",
+                content = context.getString(com.meetingcoach.leadershipconversationcoach.R.string.msg_session_save_failed, e.message),
                 priority = Priority.URGENT
             ))
         }

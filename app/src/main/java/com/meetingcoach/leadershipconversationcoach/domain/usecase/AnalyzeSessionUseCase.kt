@@ -91,6 +91,9 @@ class AnalyzeSessionUseCase @Inject constructor(
                 // Deep Analyst fields
                 // Deep Analyst fields
                 commitments = aiMetrics.commitments,
+                openQuestions = aiMetrics.openQuestions,
+                closedQuestions = aiMetrics.closedQuestions,
+                managerTalkPercentage = aiMetrics.managerTalkPercentage,
                 interruptionCount = aiMetrics.interruptionCount
             )
             Result.Success(finalMetrics)

@@ -75,7 +75,11 @@ data class SessionMetrics(
     val wordingAnalysis: String? = null,
     val improvements: String? = null,
     val aiTranscriptJson: String? = null,
-    val commitments: List<String> = emptyList(), // Deep Insights: Action items/promises
+    // Deep Analyst fields
+    val commitments: List<String> = emptyList(),
+    val openQuestions: List<String> = emptyList(),
+    val closedQuestions: List<String> = emptyList(),
+    val managerTalkPercentage: Int = 0,
     val lastUpdated: Long = System.currentTimeMillis()
 ) {
 
@@ -147,7 +151,6 @@ data class SessionMetrics(
         Pace.VERY_SLOW -> "You're speaking very slow. Speed up to ensure clarity."
         Pace.SLOW -> "Your pace is thoughtful. Ensure you maintain engagement."
         Pace.NORMAL -> "Great pace! You're speaking at a good speed."
-        Pace.FAST -> "Consider slowing down. Pauses show confidence."
         Pace.VERY_FAST -> "You're speaking very fast. Slow down to ensure clarity."
     }
 
@@ -451,7 +454,6 @@ data class SessionMetrics(
             questionCount = questionCount + 1,
             openQuestionCount = if (isOpenEnded) openQuestionCount + 1 else openQuestionCount,
             clarityScore = calculateClarityScore(
-                questionCount + 1,
                 if (isOpenEnded) openQuestionCount + 1 else openQuestionCount
             ),
             lastUpdated = System.currentTimeMillis()
@@ -504,7 +506,7 @@ data class SessionMetrics(
         return minOf((phraseCount * 10), 100)
     }
 
-    private fun calculateClarityScore(totalQuestions: Int, openQuestions: Int): Int {
+    private fun calculateClarityScore(openQuestions: Int): Int {
         // Target: 5 open questions = 100%
         return minOf((openQuestions * 20), 100)
     }

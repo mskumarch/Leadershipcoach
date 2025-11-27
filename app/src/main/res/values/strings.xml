@@ -1,3 +1,62 @@
 <resources>
     <string name="app_name">Leadership Conversation Coach</string>
+
+    <!-- Session Status -->
+    <string name="status_recording">Recording</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_analyzing">Analyzing...</string>
+    <string name="status_stopped">Stopped</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_input_placeholder">Ask your AI coach...</string>
+    <string name="stop_session">Stop Session</string>
+    <string name="session_saved_title">Session Saved</string>
+    <string name="session_saved_message">Your coaching session has been saved successfully.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="done">Done</string>
+
+    <!-- Quick Actions -->
+    <string name="quick_actions_title">💡 Quick Actions</string>
+    <string name="quick_actions_ai_suggested">✨ AI Suggested (Context-Aware)</string>
+    <string name="quick_actions_quick_questions">💬 Quick Questions</string>
+    <string name="quick_actions_section_title">🎯 Quick Actions</string>
+    <string name="action_summarize">Summarize last 10 minutes</string>
+    <string name="action_explain">Explain their last response</string>
+    <string name="action_check_tone">Check my tone</string>
+    <string name="action_what_missed">What did I miss?</string>
+    <string name="action_suggest_question">Suggest next question</string>
+    <string name="action_how_am_i_doing">How am I doing?</string>
+
+    <!-- Nudges -->
+    <string name="urgent_nudge_title">⚠️ URGENT NUDGE</string>
+    <string name="urgent_nudge_done">✓ Done</string>
+    <string name="urgent_nudge_dismiss">⊗ Dismiss</string>
+
+    <!-- Session Modes -->
+    <string name="mode_one_on_one">1:1 Coaching</string>
+    <string name="mode_team_meeting">Team Meeting</string>
+    <string name="mode_difficult_conversation">Difficult Conversation</string>
+    <string name="mode_roleplay">Roleplay</string>
+    <string name="mode_office_politics">Office Politics</string>
+
+    <!-- Permissions -->
+    <string name="permission_mic_required">Microphone permission is required to start a session</string>
+    <string name="permission_denied_title">Permission Denied</string>
+    <string name="permission_denied_message">Please enable microphone access in settings to use the AI Coach.</string>
+
+    <!-- Messages -->
+    <string name="msg_session_saved">✅ Session saved with AI Insights</string>
+    <string name="msg_session_save_failed">⚠️ Failed to save session: %s</string>
+    <string name="msg_thinking">Thinking...</string>
+
+    <!-- Prompts -->
+    <string name="prompt_summarize">Summarize the last 10 minutes of this conversation.</string>
+    <string name="prompt_explain">Analyze the last response and explain the underlying sentiment.</string>
+    <string name="prompt_check_tone">Check my tone in the recent transcripts. Am I speaking too fast or too aggressively?</string>
+    <string name="prompt_what_missed">What cues or important points might I have missed recently?</string>
+    <string name="prompt_suggest_question">Suggest a good follow-up question based on the current context.</string>
+    <string name="prompt_evaluate">Evaluate my performance in this session so far (empathy, listening, clarity).</string>
+
 </resources>

@@ -90,7 +90,7 @@ fun UrgentNudgeCard(
                             fontSize = 14.sp
                         )
                         Text(
-                            text = "URGENT NUDGE",
+                            text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.urgent_nudge_title),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFEF4444), // Red
@@ -132,7 +132,7 @@ fun UrgentNudgeCard(
                         )
                     ) {
                         Text(
-                            text = "✓ Done",
+                            text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.urgent_nudge_done),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF059669) // Darker Green
@@ -150,7 +150,7 @@ fun UrgentNudgeCard(
                         )
                     ) {
                         Text(
-                            text = "Dismiss",
+                            text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.dismiss),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF6B7280) // Gray

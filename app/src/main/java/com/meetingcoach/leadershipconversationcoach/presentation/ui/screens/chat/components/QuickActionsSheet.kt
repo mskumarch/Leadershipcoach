@@ -76,7 +76,7 @@ fun QuickActionsSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "💡 Quick Actions",
+                    text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.quick_actions_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1F2937)
@@ -95,7 +95,7 @@ fun QuickActionsSheet(
 
             // Dynamic Question from Whisperer Agent (Priority)
             if (dynamicQuestion != null) {
-                SectionHeader("✨ AI Suggested (Context-Aware)")
+                SectionHeader(androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.quick_actions_ai_suggested))
                 
                 Surface(
                     color = Color(0xFFF0F9FF), // Light blue highlight
@@ -117,7 +117,7 @@ fun QuickActionsSheet(
 
             // Section 1: AI Suggested Questions
             if (suggestedQuestions.isNotEmpty()) {
-                SectionHeader("💬 Quick Questions")
+                SectionHeader(androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.quick_actions_quick_questions))
 
                 suggestedQuestions.forEach { question ->
                     ActionItem(
@@ -135,11 +135,11 @@ fun QuickActionsSheet(
             }
 
             // Section 2: Quick Actions
-            SectionHeader("🎯 Quick Actions")
+            SectionHeader(androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.quick_actions_section_title))
 
             ActionItem(
                 icon = "📝",
-                text = "Summarize last 10 minutes",
+                text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.action_summarize),
                 onClick = {
                     onActionSelected(ActionCommand.SUMMARIZE_LAST_10_MIN)
                     onDismiss()
@@ -148,7 +148,7 @@ fun QuickActionsSheet(
 
             ActionItem(
                 icon = "💭",
-                text = "Explain their last response",
+                text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.action_explain),
                 onClick = {
                     onActionSelected(ActionCommand.EXPLAIN_RESPONSE)
                     onDismiss()
@@ -157,7 +157,7 @@ fun QuickActionsSheet(
 
             ActionItem(
                 icon = "🎤",
-                text = "Check my tone",
+                text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.action_check_tone),
                 onClick = {
                     onActionSelected(ActionCommand.CHECK_TONE)
                     onDismiss()
@@ -166,7 +166,7 @@ fun QuickActionsSheet(
 
             ActionItem(
                 icon = "❓",
-                text = "What did I miss?",
+                text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.action_what_missed),
                 onClick = {
                     onActionSelected(ActionCommand.WHAT_DID_I_MISS)
                     onDismiss()
@@ -175,7 +175,7 @@ fun QuickActionsSheet(
 
             ActionItem(
                 icon = "🔮",
-                text = "Suggest next question",
+                text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.action_suggest_question),
                 onClick = {
                     onActionSelected(ActionCommand.SUGGEST_NEXT_QUESTION)
                     onDismiss()
@@ -184,7 +184,7 @@ fun QuickActionsSheet(
 
             ActionItem(
                 icon = "📊",
-                text = "How am I doing?",
+                text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.action_how_am_i_doing),
                 onClick = {
                     onActionSelected(ActionCommand.HOW_AM_I_DOING)
                     onDismiss()
@@ -201,7 +201,7 @@ fun QuickActionsSheet(
                     .padding(horizontal = 24.dp)
             ) {
                 Text(
-                    text = "Cancel",
+                    text = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.cancel),
                     fontSize = 16.sp,
                     color = Color(0xFF6B7280)
                 )
