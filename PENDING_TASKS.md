@@ -9,14 +9,19 @@
 The following items were listed in the original plan but were not prioritized during the core refactoring:
 
 1.  **Talk Ratio Gauge**: ✅ **COMPLETED**
-    -   Implemented `TalkRatioGauge.kt` with circular progress and animations.
-    -   Integrated into `ChatScreen`.
-
-2.  **Question Quality Badge**: ✅ **COMPLETED**
+    - [x] **Implement Modern UI/UX Redesign**
+    - [x] Create `PremiumComponents.kt` with glassmorphic elements (Cards, Bubbles, Nav).
+    - [x] Redesign `HomeIdleState` (Command Center).
+    - [x] Redesign `ChatScreen` (Cockpit Layout, Live Transcript).
+    - [x] Implement `GradientBackground` and `StartSessionOrb`.
+2.  **Refine Animations & Micro-interactions**:
+    - [ ] Add entry animations for chat bubbles.
+    - [ ] Add "breathing" animation for the Orb.
+    - [ ] Add transition animations between screens.
+3.  **Question Quality Badge**: ✅ **COMPLETED**
     -   Implemented `QuestionQualityBadge.kt` with scale animation.
     -   Integrated into `ChatScreen`.
-
-3.  **Micro-animations**: ✅ **COMPLETED**
+4.  **Micro-animations**: ✅ **COMPLETED**
     -   Added `animateFloatAsState` to gauges and badges.
 
 ---

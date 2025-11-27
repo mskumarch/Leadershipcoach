@@ -3,6 +3,7 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.components.
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -24,127 +25,83 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PulsingConcentricCircles
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.GradientBackground
 
 @Composable
 fun HomeIdleState(
     onStartSession: () -> Unit
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Background Gradient Blobs
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        AppPalette.Sage600.copy(alpha = 0.1f), // Sage
-                        Color.Transparent
-                    ),
-                    center = Offset(size.width * 0.8f, size.height * 0.2f),
-                    radius = size.width * 0.6f
-                )
-            )
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        AppPalette.Lavender500.copy(alpha = 0.05f), // Lavender
-                        Color.Transparent
-                    ),
-                    center = Offset(size.width * 0.2f, size.height * 0.8f),
-                    radius = size.width * 0.5f
-                )
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+    
+    GradientBackground {
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Hero Icon with Pulse
-            Box(contentAlignment = Alignment.Center) {
-                PulsingConcentricCircles(
-                    size = 140.dp,
-                    centerColor = AppPalette.Sage500,
-                    ringColor = AppPalette.Sage500.copy(alpha = 0.3f)
-                )
-                Text(
-                    text = "🎙️",
-                    fontSize = 48.sp
-                )
+            // Top Right Profile (Mock)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(24.dp)
+                    .size(40.dp)
+                    .background(AppPalette.Stone100, RoundedCornerShape(12.dp))
+                    .border(1.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("👤", fontSize = 20.sp)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "Leadership Coach",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            
-            Text(
-                text = "Master your conversations",
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // Main Action Button (Glassmorphic)
-            Button(
-                onClick = {
-                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                    onStartSession()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                shape = RoundedCornerShape(24.dp),
+            // Center Content
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .shadow(
-                        elevation = 16.dp,
-                        shape = RoundedCornerShape(24.dp),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    )
+                    .align(Alignment.Center)
+                    .padding(bottom = 60.dp), // Offset for bottom nav
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(40.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Mic,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                // Header
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Good Morning,",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = AppPalette.Stone500
                     )
                     Text(
-                        text = "Start New Session",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "Ready to Lead?",
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = AppPalette.Stone900
                     )
                 }
+
+                // The Orb
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StartSessionOrb(
+                    onClick = {
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        onStartSession()
+                    }
+                )
+                
+                // Quick Tips Carousel (Horizontal Scroll)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    QuickTipChip("⚡ Real-time Nudges")
+                    QuickTipChip("📊 Post-Session Analytics")
+                    QuickTipChip("🎭 Roleplay Practice")
+                }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Quick Tips Carousel (Horizontal Scroll)
-            Row(
+            
+            // Bottom Navigation
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
             ) {
-                QuickTipChip("⚡ Real-time Nudges")
-                QuickTipChip("📊 Post-Session Analytics")
-                QuickTipChip("🎭 Roleplay Practice")
-                QuickTipChip("♟️ Office Politics")
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingPillNav()
             }
         }
     }
