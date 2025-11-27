@@ -13,6 +13,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
 /**
  * CoachingEngine - AI-Powered Coaching Logic
  *

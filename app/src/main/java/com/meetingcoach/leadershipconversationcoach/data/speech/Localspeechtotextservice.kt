@@ -15,14 +15,17 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import javax.inject.Inject
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 /**
  * LocalSpeechToTextService - FREE Android Speech Recognition
  *
  * Uses Android's built-in SpeechRecognizer API for real-time speech transcription.
  * This is a FREE service that works offline (on compatible devices like Pixel 9 Pro).
  */
-class LocalSpeechToTextService(
-    private val context: Context
+class LocalSpeechToTextService @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : SpeechToTextService {
 
     private var speechRecognizer: SpeechRecognizer? = null

@@ -10,10 +10,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import javax.inject.Inject
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 /**
  * AudioRecorder - Handles recording session audio for AI analysis
  */
-class AudioRecorder(private val context: Context) {
+class AudioRecorder @Inject constructor(@ApplicationContext private val context: Context) {
 
     private var mediaRecorder: MediaRecorder? = null
     private var currentOutputFile: File? = null
