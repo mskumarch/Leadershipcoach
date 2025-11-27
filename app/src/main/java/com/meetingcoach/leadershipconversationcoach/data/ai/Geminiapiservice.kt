@@ -399,20 +399,65 @@ class GeminiApiService(
             - WORDING: Did they use filler words or power words? (e.g., "Used 'um' frequently", "Strong decisive language")
             - IMPROVEMENTS: List 3 specific actionable improvements.
             
-            Format your response EXACTLY as follows:
-            SCORE_1: [0-100]
-            SCORE_2: [0-100]
-            SCORE_3: [0-100]
-            SUMMARY: [Detailed analysis. Use bullet points for readability.]
-            PACE: [Analysis]
-            WORDING: [Analysis]
-            IMPROVEMENTS: [Point 1 | Point 2 | Point 3]
+            Format your response EXACTLY as valid JSON:
+            {
+              "score_1": [0-100],
+              "score_2": [0-100],
+              "score_3": [0-100],
+              "summary": "Detailed analysis...",
+              "pace_analysis": "Analysis...",
+              "wording_analysis": "Analysis...",
+              "improvements": ["Point 1", "Point 2", "Point 3"],
+              "key_takeaways": ["Takeaway 1", "Takeaway 2"]
+            }
         """.trimIndent()
     }
 
     private fun parseSessionAnalysis(response: String?): SessionAnalysisResult? {
         if (response.isNullOrBlank()) return null
         
+        try {
+            // Clean up JSON string (remove markdown blocks if present)
+            val jsonString = response.trim()
+                .removePrefix("```json")
+                .removePrefix("```")
+                .removeSuffix("```")
+                .trim()
+                
+            val json = org.json.JSONObject(jsonString)
+            
+            val score1 = json.optInt("score_1", 50)
+            val score2 = json.optInt("score_2", 50)
+            val score3 = json.optInt("score_3", 50)
+            val summary = json.optString("summary", "No summary available.")
+            val pace = json.optString("pace_analysis", "No pace analysis.")
+            val wording = json.optString("wording_analysis", "No wording analysis.")
+            
+            // Handle improvements array
+            val improvementsArray = json.optJSONArray("improvements")
+            val improvements = if (improvementsArray != null) {
+                (0 until improvementsArray.length()).joinToString(" | ") { improvementsArray.getString(it) }
+            } else {
+                json.optString("improvements", "No improvements listed.")
+            }
+            
+            // Handle takeaways (optional, can be appended to summary)
+            val takeawaysArray = json.optJSONArray("key_takeaways")
+            val takeaways = if (takeawaysArray != null) {
+                (0 until takeawaysArray.length()).joinToString("\n• ") { takeawaysArray.getString(it) }
+            } else ""
+            
+            val finalSummary = if (takeaways.isNotEmpty()) "$summary\n\nKey Takeaways:\n• $takeaways" else summary
+
+            return SessionAnalysisResult(score1, score2, score3, finalSummary, pace, wording, improvements, null)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing session analysis JSON: ${e.message}", e)
+            // Fallback to old regex parsing if JSON fails
+            return parseSessionAnalysisRegex(response)
+        }
+    }
+
+    private fun parseSessionAnalysisRegex(response: String): SessionAnalysisResult? {
         val score1 = Regex("SCORE_1:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
         val score2 = Regex("SCORE_2:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
         val score3 = Regex("SCORE_3:\\s*(\\d+)").find(response)?.groupValues?.get(1)?.toIntOrNull() ?: 50
@@ -421,17 +466,7 @@ class GeminiApiService(
         val wording = Regex("WORDING:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No wording analysis."
         val improvements = Regex("IMPROVEMENTS:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No improvements listed."
         
-        // Parse JSON Transcript
-        val jsonStart = response.indexOf("TRANSCRIPT_JSON:")
-        val transcriptJson = if (jsonStart != -1) {
-            val jsonContent = response.substring(jsonStart + "TRANSCRIPT_JSON:".length).trim()
-            // Simple cleanup to ensure it looks like JSON (sometimes Gemini adds markdown code blocks)
-            jsonContent.removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
-        } else {
-            null
-        }
-        
-        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, transcriptJson)
+        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, null)
     }
 
     private fun parseCoachingResponse(response: String?): CoachingResponse? {
