@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Divider
+
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,7 +52,6 @@ fun QuickActionsSheet(
     suggestedQuestions: List<String>,
     dynamicQuestion: String? = null,
     onQuestionSelected: (String) -> Unit,
-    onDynamicQuestionRequested: () -> Unit = {},
     onActionSelected: (ActionCommand) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -92,23 +91,28 @@ fun QuickActionsSheet(
                 }
             }
 
-            Divider(color = Color(0xFFE5E7EB))
+            androidx.compose.material3.HorizontalDivider(color = Color(0xFFE5E7EB))
 
             // Dynamic Question from Whisperer Agent (Priority)
             if (dynamicQuestion != null) {
                 SectionHeader("✨ AI Suggested (Context-Aware)")
                 
-                ActionItem(
-                    icon = "🎯",
-                    text = dynamicQuestion,
-                    onClick = {
-                        onQuestionSelected(dynamicQuestion)
-                        onDismiss()
-                    }
-                )
+                Surface(
+                    color = Color(0xFFF0F9FF), // Light blue highlight
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    ActionItem(
+                        icon = "🎯",
+                        text = dynamicQuestion,
+                        onClick = {
+                            onQuestionSelected(dynamicQuestion)
+                            onDismiss()
+                        }
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(8.dp))
-                Divider(color = Color(0xFFE5E7EB))
+                androidx.compose.material3.HorizontalDivider(color = Color(0xFFE5E7EB))
             }
 
             // Section 1: AI Suggested Questions
@@ -127,7 +131,7 @@ fun QuickActionsSheet(
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                Divider(color = Color(0xFFE5E7EB))
+                androidx.compose.material3.HorizontalDivider(color = Color(0xFFE5E7EB))
             }
 
             // Section 2: Quick Actions

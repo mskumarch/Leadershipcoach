@@ -326,9 +326,7 @@ fun ChatScreen(
                         viewModel.addAIResponse(aiResponse)
                         showQuickActions = false
                     },
-                    onDynamicQuestionRequested = {
-                        viewModel.requestContextualQuestion()
-                    },
+
                     onActionSelected = { command ->
                         val prompt = when (command) {
                             ActionCommand.SUMMARIZE_LAST_10_MIN -> "Summarize the last 10 minutes of this conversation."
