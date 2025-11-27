@@ -72,10 +72,21 @@ fun ChatScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Pulsing recording dot
+                        val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                        val alpha by infiniteTransition.animateFloat(
+                            initialValue = 1f,
+                            targetValue = 0.2f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(1000),
+                                repeatMode = RepeatMode.Reverse
+                            ),
+                            label = "alpha"
+                        )
+                        
                         Box(
                             modifier = Modifier
                                 .size(10.dp)
-                                .background(MaterialTheme.colorScheme.error, CircleShape)
+                                .background(MaterialTheme.colorScheme.error.copy(alpha = alpha), CircleShape)
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
