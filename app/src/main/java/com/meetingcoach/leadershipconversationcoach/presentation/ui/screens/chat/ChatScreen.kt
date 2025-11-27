@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.*
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.NotePanel
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.components.SentimentIndicator
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.home.HomeIdleState
@@ -115,12 +117,37 @@ fun ChatScreen(
                 ) {
                     // 1. Metrics HUD (Glassmorphic Top Bar)
                     Box(modifier = Modifier.padding(16.dp)) {
-                        MetricsHUD(
-                            isRecording = !sessionState.isPaused,
-                            duration = sessionState.duration,
-                            talkRatio = sessionState.metrics.talkRatio,
-                            qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100) // Mock score logic
-                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            MetricsHUD(
+                                isRecording = !sessionState.isPaused,
+                                duration = sessionState.duration,
+                                talkRatio = sessionState.metrics.talkRatio,
+                                qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100)
+                            )
+                            
+                            // Live Coaching Controls
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Sentiment (Mocked for now, connect to VM later)
+                                SentimentIndicator(sentiment = "Engaged")
+                                
+                                // Note Panel (Scrollable)
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .horizontalScroll(rememberScrollState())
+                                ) {
+                                    NotePanel(
+                                        onCategorySelected = { category ->
+                                            // TODO: Handle category selection (e.g., filter notes or add tag)
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     // 2. Main Feed (LazyColumn)

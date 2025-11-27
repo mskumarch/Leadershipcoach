@@ -316,3 +316,160 @@ fun ActivityChartCard(timeRange: String) {
         }
     }
 }
+
+@Composable
+fun SpeakingTimeDistributionCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .shadow(8.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = "Speaking Time",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = AppPalette.Stone900
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Mock Data: 45% You, 55% Others
+                Column(modifier = Modifier.weight(0.45f)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                            .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
+                            .background(AppPalette.Sage600)
+                    )
+                    Text("You (45%)", style = MaterialTheme.typography.labelSmall, color = AppPalette.Stone500, modifier = Modifier.padding(top = 4.dp))
+                }
+                Column(modifier = Modifier.weight(0.55f)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                            .clip(RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp))
+                            .background(AppPalette.Lavender500)
+                    )
+                    Text("Others (55%)", style = MaterialTheme.typography.labelSmall, color = AppPalette.Stone500, modifier = Modifier.padding(top = 4.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GoalCompletionCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(160.dp)
+            .shadow(8.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Goal Completion",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Stone900
+                )
+                Text(
+                    text = "85% of set goals achieved",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AppPalette.Stone500
+                )
+            }
+            
+            Box(contentAlignment = Alignment.Center) {
+                Canvas(modifier = Modifier.size(80.dp)) {
+                    drawArc(
+                        color = AppPalette.Stone100,
+                        startAngle = 0f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                    drawArc(
+                        color = AppPalette.Blue500,
+                        startAngle = -90f,
+                        sweepAngle = 360 * 0.85f,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+                Text(
+                    text = "85%",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Blue500
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SentimentTrendCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .shadow(8.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = "Sentiment Trend",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = AppPalette.Stone900
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Mock Trend Line
+            Canvas(modifier = Modifier.fillMaxWidth().height(100.dp)) {
+                val path = androidx.compose.ui.graphics.Path()
+                val width = size.width
+                val height = size.height
+                
+                // Mock points
+                val points = listOf(0.2f, 0.4f, 0.3f, 0.6f, 0.5f, 0.8f, 0.7f)
+                val stepX = width / (points.size - 1)
+                
+                points.forEachIndexed { index, point ->
+                    val x = index * stepX
+                    val y = height - (point * height)
+                    if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    
+                    drawCircle(
+                        color = AppPalette.Sage600,
+                        radius = 4.dp.toPx(),
+                        center = Offset(x, y)
+                    )
+                }
+                
+                drawPath(
+                    path = path,
+                    color = AppPalette.Sage600,
+                    style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                )
+            }
+        }
+    }
+}

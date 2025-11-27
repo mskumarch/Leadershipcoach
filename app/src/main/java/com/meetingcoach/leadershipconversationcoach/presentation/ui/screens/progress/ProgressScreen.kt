@@ -114,7 +114,7 @@ fun ProgressScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Metrics Grid
+            // Key Metrics Grid
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -122,28 +122,55 @@ fun ProgressScreen(
                 MetricCard(
                     title = "Empathy",
                     score = uiState.empathyScore,
-                    color = AppPalette.Sage500, // Sage
+                    color = AppPalette.Sage500,
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
                     title = "Clarity",
                     score = uiState.clarityScore,
-                    color = AppPalette.Blue500, // Blue
+                    color = AppPalette.Blue500,
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
                     title = "Listening",
                     score = uiState.listeningScore,
-                    color = AppPalette.Lavender500, // Lavender
+                    color = AppPalette.Lavender500,
                     modifier = Modifier.weight(1f)
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Master Coach Analytics Section
+            Text(
+                text = "Deep Dive Analytics",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = AppPalette.Stone900,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            SpeakingTimeDistributionCard()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    GoalCompletionCard()
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            SentimentTrendCard()
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Activity Chart
-            // Pass real data if available, otherwise mock
-            ActivityChartCard(timeRange = selectedTimeRange) // Update this component to accept data later
+            ActivityChartCard(timeRange = selectedTimeRange)
         }
         
         Spacer(modifier = Modifier.height(100.dp)) // Bottom padding
