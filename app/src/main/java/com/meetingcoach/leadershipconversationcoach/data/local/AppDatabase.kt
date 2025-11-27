@@ -10,9 +10,10 @@ import androidx.room.RoomDatabase
         SessionEntity::class,
         SessionMessageEntity::class,
         SessionMetricsEntity::class,
-        AchievementEntity::class
+        AchievementEntity::class,
+        PendingAnalysisEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -59,6 +59,16 @@ interface SessionDao {
 
     @Query("UPDATE sessions SET title = :title WHERE id = :sessionId")
     suspend fun updateSessionTitle(sessionId: Long, title: String)
+
+    // Pending Analysis
+    @Insert
+    suspend fun insertPendingAnalysis(pending: PendingAnalysisEntity)
+
+    @Query("SELECT * FROM pending_analysis ORDER BY createdAt ASC")
+    suspend fun getAllPendingAnalysis(): List<PendingAnalysisEntity>
+
+    @Delete
+    suspend fun deletePendingAnalysis(pending: PendingAnalysisEntity)
 }
 
 data class AverageMetricsTuple(

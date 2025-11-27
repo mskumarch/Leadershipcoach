@@ -147,4 +147,22 @@ class SessionRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun queuePendingAnalysis(sessionId: Long, audioFilePath: String, mode: String) = withContext(Dispatchers.IO) {
+        sessionDao.insertPendingAnalysis(
+            com.meetingcoach.leadershipconversationcoach.data.local.PendingAnalysisEntity(
+                sessionId = sessionId,
+                audioFilePath = audioFilePath,
+                sessionMode = mode
+            )
+        )
+    }
+
+    suspend fun getPendingAnalysis() = withContext(Dispatchers.IO) {
+        sessionDao.getAllPendingAnalysis()
+    }
+
+    suspend fun removePendingAnalysis(pending: com.meetingcoach.leadershipconversationcoach.data.local.PendingAnalysisEntity) = withContext(Dispatchers.IO) {
+        sessionDao.deletePendingAnalysis(pending)
+    }
 }

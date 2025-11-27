@@ -75,6 +75,9 @@ class SessionViewModel @Inject constructor(
             gamificationRepository.initializeDefaults()
         }
 
+        // Initialize AudioRecorder
+        audioRecorder = com.meetingcoach.leadershipconversationcoach.data.audio.AudioRecorder(context)
+
         // Observe settings
         viewModelScope.launch {
             userPreferencesRepository.analysisIntervalFlow.collect { interval ->
@@ -137,6 +140,7 @@ class SessionViewModel @Inject constructor(
 
         startTimer()
         startSpeechRecognition()
+        recordedAudioFile = audioRecorder?.startRecording()
         startCoachingEngine(mode)
         
         // Start Foreground Service
@@ -158,6 +162,9 @@ class SessionViewModel @Inject constructor(
         
         // Pause STT
         sttService?.pauseListening()
+        
+        // Pause Audio Recording
+        audioRecorder?.pauseRecording()
         
         // Pause Timer (handled in loop)
     }
@@ -194,6 +201,9 @@ class SessionViewModel @Inject constructor(
             onError = { error -> Log.e(TAG, "STT Error: $error") },
             onAudioLevelChanged = { level -> _audioLevel.value = level }
         )
+        
+        // Resume Audio Recording
+        audioRecorder?.resumeRecording()
     }
 
     fun stopSession() {
@@ -213,7 +223,11 @@ class SessionViewModel @Inject constructor(
         // Stop STT
         sttService?.stopListening()
         sttService?.release()
+        sttService?.release()
         sttService = null
+
+        // Stop Audio Recording
+        recordedAudioFile = audioRecorder?.stopRecording()
 
         // Stop coaching engine but keep reference for analysis
         val engine = coachingEngine
@@ -225,24 +239,32 @@ class SessionViewModel @Inject constructor(
             updateMetrics()
             var metrics = currentState.metrics ?: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
 
-            // Perform AI Analysis (Text Only for now to ensure stability)
+            // Perform AI Analysis
+            var cleanedMessages: List<ChatMessage> = emptyList() // Initialize here for scope
             try {
-                // 1. Clean up Transcript
-                val rawTranscript = currentState.messages
-                    .filter { it.type == MessageType.TRANSCRIPT }
-                    .joinToString("\n") { it.content }
-
-                var cleanedMessages: List<ChatMessage> = emptyList()
+                // 1. Try Audio Analysis first (Higher Fidelity)
+                var aiMetrics: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics? = null
+                val audioFile = recordedAudioFile
                 
-                if (rawTranscript.isNotBlank()) {
-                    val cleanedJson = geminiService.cleanUpTranscript(rawTranscript)
-                    if (cleanedJson != null) {
-                        cleanedMessages = parseAiTranscript(cleanedJson, emptyList())
+                if (audioFile != null && audioFile.exists()) {
+                    try {
+                        aiMetrics = engine?.analyzeAudioSession(audioFile)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Audio analysis failed, falling back to text", e)
                     }
                 }
 
-                // 2. Analyze Session
-                val aiMetrics = engine?.analyzeSession(currentState.messages)
+                // 2. Fallback to Text Analysis if Audio failed or unavailable
+                if (aiMetrics == null) {
+                    // Clean up Transcript (This comment is misleading, it's just getting raw transcript)
+                    val rawTranscript = currentState.messages
+                        .filter { it.type == MessageType.TRANSCRIPT }
+                        .joinToString("\n") { it.content }
+
+                    if (rawTranscript.isNotBlank()) {
+                         aiMetrics = engine?.analyzeSession(currentState.messages)
+                    }
+                }
 
                 if (aiMetrics != null) {
                     // Merge AI metrics with calculated metrics
@@ -257,7 +279,50 @@ class SessionViewModel @Inject constructor(
                         aiTranscriptJson = aiMetrics.aiTranscriptJson
                     )
                     Log.d(TAG, "AI Analysis complete: Empathy=${metrics.empathyScore}")
+                    
+                    // Parse cleaned transcript if available
+                    val json = metrics.aiTranscriptJson
+                    if (!json.isNullOrBlank()) {
+                         cleanedMessages = parseAiTranscript(json, emptyList())
+                    } else {
+                        // Fallback: Try to clean up raw transcript explicitly if audio analysis didn't provide it
+                        val rawTranscript = currentState.messages
+                            .filter { it.type == MessageType.TRANSCRIPT }
+                            .joinToString("\n") { it.content }
+                            
+                        if (rawTranscript.isNotBlank()) {
+                            try {
+                                val cleanedJson = geminiService.cleanUpTranscript(rawTranscript)
+                                if (cleanedJson != null) {
+                                    cleanedMessages = parseAiTranscript(cleanedJson, emptyList())
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Transcript cleanup failed", e)
+                            }
+                        }
+                    }
+                } else {
+                    // Analysis failed (likely network), queue for later
+                    if (audioFile != null && audioFile.exists() && lastSavedSessionId != null) {
+                        sessionRepository.queuePendingAnalysis(
+                            sessionId = lastSavedSessionId!!,
+                            audioFilePath = audioFile.absolutePath,
+                            mode = currentState.mode?.name ?: SessionMode.ONE_ON_ONE.name
+                        )
+                        Log.d(TAG, "Analysis queued for offline processing")
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "AI Analysis failed", e)
+                // Queue for later
+                if (recordedAudioFile != null && recordedAudioFile!!.exists() && lastSavedSessionId != null) {
+                     sessionRepository.queuePendingAnalysis(
+                        sessionId = lastSavedSessionId!!,
+                        audioFilePath = recordedAudioFile!!.absolutePath,
+                        mode = currentState.mode?.name ?: SessionMode.ONE_ON_ONE.name
+                    )
+                }
+            }
                 
                 // 3. Merge Messages (Replace raw transcript with cleaned one)
                 val nonTranscriptMessages = currentState.messages.filter { it.type != MessageType.TRANSCRIPT }
@@ -325,9 +390,7 @@ class SessionViewModel @Inject constructor(
                     addMessage(errorMessage)
                 }
 
-            } catch (e: Exception) {
-                Log.e(TAG, "AI Analysis failed", e)
-            }
+
             
             // Reset Session State for next time
             _sessionState.update { 
@@ -620,6 +683,7 @@ class SessionViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopSession()
+        audioRecorder?.release()
     }
     private fun parseAiTranscript(json: String, originalMessages: List<ChatMessage>): List<ChatMessage> {
         val messages = mutableListOf<ChatMessage>()

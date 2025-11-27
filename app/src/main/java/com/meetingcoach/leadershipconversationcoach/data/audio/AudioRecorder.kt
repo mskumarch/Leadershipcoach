@@ -26,9 +26,14 @@ class AudioRecorder(private val context: Context) {
     fun startRecording(): File? {
         if (isRecording) return currentOutputFile
 
-        val outputDir = context.cacheDir
+        val outputDir = File(context.filesDir, "recordings")
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+        
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val outputFile = File.createTempFile("session_$timestamp", ".m4a", outputDir)
+        val fileName = "session_$timestamp.m4a"
+        val outputFile = File(outputDir, fileName)
 
         mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             MediaRecorder(context)
@@ -77,6 +82,28 @@ class AudioRecorder(private val context: Context) {
         
         Log.d(TAG, "Recording stopped. File saved: ${currentOutputFile?.length()} bytes")
         return currentOutputFile
+    }
+
+    fun pauseRecording() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isRecording) {
+            try {
+                mediaRecorder?.pause()
+                Log.d(TAG, "Recording paused")
+            } catch (e: Exception) {
+                Log.e(TAG, "pause() failed", e)
+            }
+        }
+    }
+
+    fun resumeRecording() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isRecording) {
+            try {
+                mediaRecorder?.resume()
+                Log.d(TAG, "Recording resumed")
+            } catch (e: Exception) {
+                Log.e(TAG, "resume() failed", e)
+            }
+        }
     }
 
     fun release() {
