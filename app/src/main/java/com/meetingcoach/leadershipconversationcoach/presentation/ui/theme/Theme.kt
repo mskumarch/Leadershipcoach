@@ -86,6 +86,7 @@ fun LeadershipConversationCoachTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false, // Disabled by default to enforce brand colors
+    fontScale: Float = 1.0f,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -108,7 +109,7 @@ fun LeadershipConversationCoachTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = AppTypography,
+        typography = AppTypography.scale(fontScale),
         content = content
     )
 }
