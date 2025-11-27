@@ -205,9 +205,13 @@ class CoachingEngine(
                 paceAnalysis = analysis.paceAnalysis,
                 wordingAnalysis = analysis.wordingAnalysis,
                 improvements = analysis.improvements,
-                // We'll store the raw JSON in a temporary field in metrics if needed, 
-                // or handle it in the ViewModel. For now, let's add it to metrics.
-                aiTranscriptJson = analysis.transcriptJson
+                aiTranscriptJson = analysis.transcriptJson,
+                // Deep Insights
+                commitments = analysis.commitments,
+                openQuestionCount = analysis.openQuestions,
+                questionCount = analysis.openQuestions + analysis.closedQuestions,
+                talkRatio = 100 - analysis.managerTalkPercentage, // Flip to show "other" percentage
+                interruptionCount = analysis.interruptionCount
             )
         } else {
             null

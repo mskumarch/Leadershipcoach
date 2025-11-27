@@ -37,7 +37,8 @@ class SessionViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val sessionRepository: SessionRepository,
     private val geminiService: GeminiApiService,
-    private val gamificationRepository: GamificationRepository
+    private val gamificationRepository: GamificationRepository,
+    private val coachingOrchestrator: com.meetingcoach.leadershipconversationcoach.data.ai.CoachingOrchestrator
 ) : ViewModel() {
 
     companion object {
@@ -50,6 +51,11 @@ class SessionViewModel @Inject constructor(
 
     private val _audioLevel = MutableStateFlow(0f)
     val audioLevel: StateFlow<Float> = _audioLevel.asStateFlow()
+
+    // Orchestrator State (GROW, Questions, Nudges)
+    val currentGrowStage: StateFlow<String> = coachingOrchestrator.currentStage
+    val suggestedQuestion: StateFlow<com.meetingcoach.leadershipconversationcoach.data.ai.agents.WhispererResult?> = coachingOrchestrator.suggestedQuestion
+    val activeNudge: StateFlow<com.meetingcoach.leadershipconversationcoach.data.ai.agents.GuardianResult?> = coachingOrchestrator.activeNudge
 
     // Services
     private var sttService: LocalSpeechToTextService? = null
@@ -143,6 +149,11 @@ class SessionViewModel @Inject constructor(
         recordedAudioFile = audioRecorder?.startRecording()
         startCoachingEngine(mode)
         
+        // Start Multi-Agent Orchestrator for 1:1 sessions
+        if (mode == SessionMode.ONE_ON_ONE) {
+            startOrchestrator(mode)
+        }
+        
         // Start Foreground Service
         val serviceIntent = android.content.Intent(context, com.meetingcoach.leadershipconversationcoach.services.SessionService::class.java)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -214,6 +225,9 @@ class SessionViewModel @Inject constructor(
         _sessionState.update { it.copy(isRecording = false) }
 
         timerJob?.cancel()
+        
+        // Stop Orchestrator
+        coachingOrchestrator.stopSession()
         
         // Stop Foreground Service
         val serviceIntent = android.content.Intent(context, com.meetingcoach.leadershipconversationcoach.services.SessionService::class.java)
@@ -685,6 +699,49 @@ class SessionViewModel @Inject constructor(
         stopSession()
         audioRecorder?.release()
     }
+
+    // ============================================================
+    // MULTI-AGENT ORCHESTRATOR
+    // ============================================================
+
+    private fun startOrchestrator(mode: SessionMode) {
+        try {
+            // Create strategy based on session mode
+            val strategy = when (mode) {
+                SessionMode.ONE_ON_ONE -> {
+                    val geminiModel = com.google.ai.client.generativeai.GenerativeModel(
+                        modelName = "gemini-flash-latest",
+                        apiKey = com.meetingcoach.leadershipconversationcoach.BuildConfig.GEMINI_API_KEY
+                    )
+                    com.meetingcoach.leadershipconversationcoach.data.ai.strategies.OneOnOneStrategy(geminiModel)
+                }
+                else -> return // Only 1:1 supported for now
+            }
+
+            // Provide transcript access to orchestrator
+            coachingOrchestrator.setTranscriptProvider {
+                _sessionState.value.messages
+            }
+
+            // Start the orchestrator
+            coachingOrchestrator.startSession(strategy)
+            
+            Log.d(TAG, "Orchestrator started for $mode")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start orchestrator", e)
+        }
+    }
+
+    fun requestContextualQuestion() {
+        viewModelScope.launch {
+            coachingOrchestrator.requestQuestion(_sessionState.value.messages)
+        }
+    }
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    
     private fun parseAiTranscript(json: String, originalMessages: List<ChatMessage>): List<ChatMessage> {
         val messages = mutableListOf<ChatMessage>()
         

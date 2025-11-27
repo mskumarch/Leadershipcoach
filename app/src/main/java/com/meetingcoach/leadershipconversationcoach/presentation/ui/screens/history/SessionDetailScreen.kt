@@ -132,6 +132,22 @@ fun InsightsTab(
             )
         }
 
+        // Deep Insights (if available)
+        if (sessionDetails.metrics != null && 
+            (sessionDetails.metrics.openQuestionCount > 0 || 
+             sessionDetails.metrics.interruptionCount > 0 ||
+             sessionDetails.session.mode == "ONE_ON_ONE")) {
+            item {
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.detail.components.DeepInsightsCard(
+                    commitments = emptyList(), // Will be populated from metrics when available
+                    openQuestions = sessionDetails.metrics.openQuestionCount,
+                    closedQuestions = sessionDetails.metrics.questionCount - sessionDetails.metrics.openQuestionCount,
+                    talkRatio = 100 - sessionDetails.metrics.talkRatioUser,
+                    interruptions = sessionDetails.metrics.interruptionCount
+                )
+            }
+        }
+
         // Summary Section
         item {
             InsightCard(title = "Summary", content = sessionDetails.metrics?.summary)

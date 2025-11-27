@@ -50,7 +50,9 @@ enum class ActionCommand {
 @Composable
 fun QuickActionsSheet(
     suggestedQuestions: List<String>,
+    dynamicQuestion: String? = null,
     onQuestionSelected: (String) -> Unit,
+    onDynamicQuestionRequested: () -> Unit = {},
     onActionSelected: (ActionCommand) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -92,9 +94,26 @@ fun QuickActionsSheet(
 
             Divider(color = Color(0xFFE5E7EB))
 
+            // Dynamic Question from Whisperer Agent (Priority)
+            if (dynamicQuestion != null) {
+                SectionHeader("✨ AI Suggested (Context-Aware)")
+                
+                ActionItem(
+                    icon = "🎯",
+                    text = dynamicQuestion,
+                    onClick = {
+                        onQuestionSelected(dynamicQuestion)
+                        onDismiss()
+                    }
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                Divider(color = Color(0xFFE5E7EB))
+            }
+
             // Section 1: AI Suggested Questions
             if (suggestedQuestions.isNotEmpty()) {
-                SectionHeader("💬 AI Suggested Questions")
+                SectionHeader("💬 Quick Questions")
 
                 suggestedQuestions.forEach { question ->
                     ActionItem(
