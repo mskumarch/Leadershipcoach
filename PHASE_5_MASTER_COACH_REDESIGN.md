@@ -56,7 +56,7 @@ This phase focuses on transforming the app into a high-performance executive coa
 
 ## 7. Next Steps
 - [x] **One-Tap Follow-Up**: Implement AI generation of accountability emails.
-- [ ] **Game Film**: Map audio timestamps to key moments.
+- [x] **Game Film**: Map audio timestamps to key moments (Visual Timeline implemented).
 - [ ] **Testing**: Verify "Master Coach" persona across all screens.
 
 ### Step 1: Live Coach Mode (`ChatScreen.kt`)
