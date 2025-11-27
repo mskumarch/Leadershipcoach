@@ -17,9 +17,8 @@ class OneOnOneStrategy(
     override val whisperer: CoachingAgent<WhispererResult> = WhispererAgent(geminiModel)
     override val guardian: CoachingAgent<GuardianResult> = GuardianAgent(geminiModel)
 
-    // Run Navigator every 60 seconds to track GROW progression
-    override val navigatorIntervalMs: Long = 60_000L
+    // Use research-based intervals from CoachingConstants
+    override val navigatorIntervalMs: Long = com.meetingcoach.leadershipconversationcoach.domain.CoachingConstants.AgentIntervals.NAVIGATOR_INTERVAL_MS
 
-    // Run Guardian every 30 seconds to monitor behavior
-    override val guardianIntervalMs: Long = 30_000L
+    override val guardianIntervalMs: Long = com.meetingcoach.leadershipconversationcoach.domain.CoachingConstants.AgentIntervals.GUARDIAN_INTERVAL_MS
 }

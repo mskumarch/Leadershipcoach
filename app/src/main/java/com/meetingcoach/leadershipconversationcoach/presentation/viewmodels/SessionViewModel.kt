@@ -70,9 +70,6 @@ class SessionViewModel @Inject constructor(
     // Session Data
     private var lastSavedSessionId: Long? = null
 
-    // Settings
-    private var currentAnalysisInterval = 60_000L
-
     init {
         // Initialize Gemini service - REMOVED (Injected)
         // initializeGeminiService()
@@ -87,7 +84,6 @@ class SessionViewModel @Inject constructor(
         // Observe settings
         viewModelScope.launch {
             userPreferencesRepository.analysisIntervalFlow.collect { interval ->
-                currentAnalysisInterval = interval
                 coachingEngine?.let { engine ->
                     val newConfig = engine.getConfig().copy(analysisIntervalMs = interval)
                     engine.updateConfig(newConfig)
@@ -496,9 +492,8 @@ class SessionViewModel @Inject constructor(
         // Create coaching engine
         coachingEngine = CoachingEngine(context, gemini)
 
-        // Apply current settings
-        val config = coachingEngine!!.getConfig().copy(analysisIntervalMs = currentAnalysisInterval)
-        coachingEngine!!.updateConfig(config)
+        // Config will be applied by preferences observer
+        // No need to set analysisIntervalMs here
 
         // Start coaching session
         coachingEngine?.startSession(mode = mode) { nudge ->
@@ -611,6 +606,16 @@ class SessionViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Get suggested questions for a session mode
+     * 
+     * **FALLBACK ONLY**: This method provides static questions as a fallback
+     * when the Whisperer Agent is unavailable. In normal operation, the
+     * Whisperer Agent generates context-aware questions dynamically.
+     * 
+     * @deprecated Use Whisperer Agent for dynamic, context-aware questions
+     */
+    @Deprecated("Use Whisperer Agent for dynamic questions", ReplaceWith("coachingOrchestrator.requestQuestion()"))
     fun getSuggestedQuestions(mode: SessionMode?): List<String> {
         val currentMode = mode ?: SessionMode.ONE_ON_ONE
         return when (currentMode) {
