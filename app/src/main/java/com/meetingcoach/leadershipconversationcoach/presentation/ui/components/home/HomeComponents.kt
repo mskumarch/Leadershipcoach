@@ -95,14 +95,7 @@ fun HomeIdleState(
                 }
             }
             
-            // Bottom Navigation
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 32.dp)
-            ) {
-                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingPillNav()
-            }
+            // Bottom Navigation - Handled by NavigationScreen
         }
     }
 }

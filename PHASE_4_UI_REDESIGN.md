@@ -27,6 +27,11 @@ This phase focused on elevating the app's visual design to a premium, commercial
 *   **HomeIdleState.kt**: Complete rewrite to match the new aesthetic.
 *   **Dependencies**: Added `androidx.compose.material.icons` (already present) and ensured proper imports.
 
+## Refinements (User Feedback)
+*   **Navigation**: Replaced standard Bottom Navigation Bar with functional **Floating Pill Navigation**.
+*   **Visuals**: Fixed "blurry text" issue by removing `blur()` from content containers in glassmorphic components.
+*   **Layout**: Integrated `FloatingPillNav` into the main `NavigationScreen` scaffold.
+
 ## Next Steps
 *   **Animations**: Add entry animations for chat bubbles and screen transitions.
 *   **Roleplay Mode**: Apply the same "Cockpit" design to the Roleplay screen.

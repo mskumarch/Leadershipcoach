@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.CoachBottomNavigationBar
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.ChatScreen
@@ -61,30 +62,7 @@ fun NavigationScreen(
     }
 
     Scaffold(
-        bottomBar = {
-            if (selectedSessionId == null && !showPracticeMode && !showAchievements) {
-                CoachBottomNavigationBar(
-                    currentDestination = when (selectedTab) {
-                        0 -> "chat"
-                        1 -> "transcript"
-                        2 -> "progress"
-                        3 -> "history"
-                        4 -> "settings"
-                        else -> "chat"
-                    },
-                    onNavigate = { destination ->
-                        selectedTab = when (destination) {
-                            "chat" -> 0
-                            "transcript" -> 1
-                            "progress" -> 2
-                            "history" -> 3
-                            "settings" -> 4
-                            else -> 0
-                        }
-                    }
-                )
-            }
-        }
+        // Removed standard bottom bar
     ) { paddingValues ->
         // Full screen box with calm green gradient background
         Box(
@@ -96,47 +74,61 @@ fun NavigationScreen(
                     )
                 )
         ) {
-            if (showPracticeMode) {
-                PracticeModeScreen(
-                    onBackClick = { showPracticeMode = false },
-                    onScenarioClick = { /* TODO: Start Scenario */ }
-                )
-            } else if (showAchievements) {
-                AchievementsScreen(
-                    onBackClick = { showAchievements = false }
-                )
-            } else if (selectedSessionId != null) {
-                SessionDetailScreen(
-                    sessionId = selectedSessionId!!,
-                    onBackClick = { selectedSessionId = null }
-                )
-            } else {
-                when (selectedTab) {
-                    0 -> ChatScreen(
-                        viewModel = viewModel,
-                        modifier = Modifier.padding(paddingValues),
-                        hasRecordAudioPermission = hasRecordAudioPermission,
-                        onNavigateToPractice = { showPracticeMode = true }
+            // Main Content
+            Box(modifier = Modifier.padding(bottom = if (selectedSessionId == null && !showPracticeMode && !showAchievements) 80.dp else 0.dp)) {
+                if (showPracticeMode) {
+                    PracticeModeScreen(
+                        onBackClick = { showPracticeMode = false },
+                        onScenarioClick = { /* TODO: Start Scenario */ }
                     )
-                    1 -> TranscriptScreen(
-                        viewModel = viewModel,
-                        modifier = Modifier.padding(paddingValues)
+                } else if (showAchievements) {
+                    AchievementsScreen(
+                        onBackClick = { showAchievements = false }
                     )
-                    2 -> {
-                        com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
+                } else if (selectedSessionId != null) {
+                    SessionDetailScreen(
+                        sessionId = selectedSessionId!!,
+                        onBackClick = { selectedSessionId = null }
+                    )
+                } else {
+                    when (selectedTab) {
+                        0 -> ChatScreen(
+                            viewModel = viewModel,
                             modifier = Modifier.padding(paddingValues),
-                            onAchievementsClick = { showAchievements = true }
+                            hasRecordAudioPermission = hasRecordAudioPermission,
+                            onNavigateToPractice = { showPracticeMode = true }
+                        )
+                        1 -> TranscriptScreen(
+                            viewModel = viewModel,
+                            modifier = Modifier.padding(paddingValues)
+                        )
+                        2 -> {
+                            com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
+                                modifier = Modifier.padding(paddingValues),
+                                onAchievementsClick = { showAchievements = true }
+                            )
+                        }
+                        3 -> HistoryScreen(
+                            onSessionClick = { sessionId -> selectedSessionId = sessionId },
+                            onStartSession = { selectedTab = 0 },
+                            modifier = Modifier.padding(paddingValues)
+                        )
+                        4 -> SettingsScreen(
+                            modifier = Modifier.padding(paddingValues)
                         )
                     }
-                    3 -> HistoryScreen(
-                        onSessionClick = { sessionId -> selectedSessionId = sessionId },
-                        onStartSession = { selectedTab = 0 },
-                        modifier = Modifier.padding(paddingValues)
-                    )
-                    4 -> SettingsScreen(
-                        modifier = Modifier.padding(paddingValues)
-                    )
                 }
+            }
+
+            // Floating Pill Navigation (Bottom Center)
+            if (selectedSessionId == null && !showPracticeMode && !showAchievements) {
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingPillNav(
+                    currentTab = selectedTab,
+                    onTabSelected = { selectedTab = it },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 24.dp)
+                )
             }
         }
     }
