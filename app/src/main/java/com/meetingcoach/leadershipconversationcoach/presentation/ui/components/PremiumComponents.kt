@@ -1,8 +1,10 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.components
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -515,5 +517,278 @@ fun FloatingEmptyState(
             color = NeutralGray,
             letterSpacing = 0.2.sp
         )
+    }
+}
+
+/**
+ * Mesh Gradient Background
+ */
+@Composable
+fun GradientBackground(
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(AppPalette.Stone50)
+    ) {
+        // Mesh Gradients
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            // Top Left - Sage
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(AppPalette.Sage600.copy(alpha = 0.15f), Color.Transparent),
+                    center = Offset(0f, 0f),
+                    radius = size.width * 0.8f
+                )
+            )
+            // Bottom Right - Lavender
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(AppPalette.Lavender500.copy(alpha = 0.1f), Color.Transparent),
+                    center = Offset(size.width, size.height),
+                    radius = size.width * 0.8f
+                )
+            )
+        }
+        
+        content()
+    }
+}
+
+/**
+ * Start Session Orb - Glowing Pulse Button
+ */
+@Composable
+fun StartSessionOrb(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "orb_pulse")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+    
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow"
+    )
+
+    Box(
+        modifier = modifier
+            .size(160.dp)
+            .scale(scale)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        // Outer Glow
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .blur(32.dp)
+                .background(AppPalette.Sage500.copy(alpha = glowAlpha), CircleShape)
+        )
+        
+        // Main Orb
+        Surface(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            shape = CircleShape,
+            color = AppPalette.Sage600,
+            shadowElevation = 12.dp
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(AppPalette.Sage500, AppPalette.Sage600),
+                            start = Offset(0f, 0f),
+                            end = Offset(0f, Float.POSITIVE_INFINITY)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "START",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
+                    )
+                    Text(
+                        text = "SESSION",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Floating Pill Navigation
+ */
+@Composable
+fun FloatingPillNav(
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .height(64.dp)
+            .width(280.dp),
+        shape = RoundedCornerShape(32.dp),
+        color = NavGlassBase,
+        shadowElevation = 8.dp
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NavIcon(icon = "🏠", isActive = true)
+            NavIcon(icon = "📊", isActive = false)
+            NavIcon(icon = "👤", isActive = false)
+        }
+    }
+}
+
+@Composable
+private fun NavIcon(icon: String, isActive: Boolean) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = icon, fontSize = 24.sp)
+        if (isActive) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .size(4.dp)
+                    .background(AppPalette.Sage600, CircleShape)
+            )
+        }
+    }
+}
+
+/**
+ * Metrics HUD - Top Bar
+ */
+@Composable
+fun MetricsHUD(
+    isRecording: Boolean,
+    duration: String,
+    talkRatio: Int,
+    qualityScore: Int, // 0-100
+    modifier: Modifier = Modifier
+) {
+    GlassmorphicFloatingPanel(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(60.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Live Indicator
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(if (isRecording) RecordingActive else NeutralGray, CircleShape)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = duration,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = DeepCharcoal,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            // Metrics
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                // Mini Talk Ratio
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("🗣️", fontSize = 12.sp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "$talkRatio%",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
+                // Mini Quality
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("✨", fontSize = 12.sp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "$qualityScore",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Streaming Transcript Bubble
+ */
+@Composable
+fun StreamingTranscriptBubble(
+    text: String,
+    isFinal: Boolean,
+    speaker: String,
+    modifier: Modifier = Modifier
+) {
+    val isUser = speaker == "USER" // Simplified check
+    val align = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
+    val bgColor = if (isUser) Color.Transparent else Color.Transparent // Minimalist
+    
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = align
+    ) {
+        Column(
+            horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
+        ) {
+            Text(
+                text = speaker,
+                style = MaterialTheme.typography.labelSmall,
+                color = TextTertiary,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+            
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isFinal) TextPrimary else TextDisabled,
+                fontWeight = if (isFinal) FontWeight.Normal else FontWeight.Light,
+                modifier = Modifier.widthIn(max = 300.dp)
+            )
+        }
     }
 }
