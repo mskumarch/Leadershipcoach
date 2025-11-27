@@ -592,6 +592,124 @@ object CoachingPrompts {
     }
 
     // ============================================================
+    // MASTER COACH ADVANCED ANALYSIS
+    // ============================================================
+
+    /**
+     * Analyze commitment quality (Vague vs Specific)
+     */
+    fun analyzeCommitmentQuality(transcript: String): String {
+        return """
+            Analyze the last statement for commitment quality.
+            
+            STATEMENT: "$transcript"
+            
+            Determine if this is a:
+            1. STRONG COMMITMENT: Specific, measurable, time-bound ("I will send the report by Friday at 5pm")
+            2. VAGUE COMMITMENT: Non-committal, fuzzy ("I'll try to do that", "I'll look into it", "Soon")
+            3. NO COMMITMENT: Not a commitment statement
+            
+            Respond in this EXACT format:
+            TYPE: [STRONG/VAGUE/NONE]
+            ADVICE: [If VAGUE, provide a specific question to lock it in. If STRONG, suggest acknowledging it.]
+            
+            Example:
+            TYPE: VAGUE
+            ADVICE: Ask: "When specifically can you get that done?"
+        """.trimIndent()
+    }
+
+    /**
+     * Detect Growth vs Fixed Mindset language
+     */
+    fun detectMindset(transcript: String): String {
+        return """
+            Analyze this text for Mindset markers (Carol Dweck's model).
+            
+            TEXT: "$transcript"
+            
+            Identify:
+            1. FIXED MINDSET: "I'm not good at this", "This is too hard", "They never listen", "It is what it is"
+            2. GROWTH MINDSET: "I can learn this", "I'll try a different strategy", "Feedback helps me grow"
+            3. NEUTRAL: No clear mindset marker
+            
+            Respond in this EXACT format:
+            MINDSET: [FIXED/GROWTH/NEUTRAL]
+            PHRASE: [The specific phrase identified]
+            SUGGESTION: [If FIXED, suggest a reframe question. If GROWTH, suggest validation.]
+            
+            Example:
+            MINDSET: FIXED
+            PHRASE: "I'm just not a numbers person"
+            SUGGESTION: Reframe: "What specific part of the data feels most challenging to learn?"
+        """.trimIndent()
+    }
+
+    /**
+     * The "Why" Ladder - Suggest deeper inquiry
+     */
+    fun deepenInquiry(lastQuestion: String, context: String): String {
+        return """
+            The user just asked a question. Suggest a follow-up to dig deeper (Root Cause Analysis).
+            
+            LAST QUESTION: "$lastQuestion"
+            CONTEXT: "$context"
+            
+            Suggest a "Why" or "How" question that moves from WHAT happened to WHY it matters or HOW it works.
+            
+            CRITERIA:
+            - Must logically follow the last question
+            - Focus on motivation, beliefs, or systems
+            - Non-judgmental curiosity
+            
+            Respond with ONLY the question.
+        """.trimIndent()
+    }
+
+    /**
+     * Generate "One-Tap Follow-Up" email draft
+     */
+    fun generateFollowUpMessage(
+        summary: String,
+        actionItems: String,
+        decisions: String
+    ): String {
+        return """
+            You are an executive assistant for a leadership coach.
+            Draft a short, professional follow-up email/message for the user to send to their team member after a 1:1 session.
+            
+            SESSION CONTEXT:
+            Summary: "$summary"
+            Decisions Made: "$decisions"
+            Action Items: "$actionItems"
+            
+            FORMAT:
+            Subject: Recap: Our 1:1 & Next Steps
+            
+            Hi [Name],
+            
+            Great connecting today. Here is a quick recap of what we discussed:
+            
+            **Key Decisions:**
+            [Bullet points of decisions]
+            
+            **Action Items:**
+            [Bullet points of action items with owners]
+            
+            Let's pick up on this next time.
+            
+            Thanks,
+            [My Name]
+            
+            CRITERIA:
+            - Professional but warm tone
+            - Extremely concise (no fluff)
+            - Bullet points for readability
+            - Ready to copy/paste
+        """.trimIndent()
+    }
+
+    // ============================================================
     // CONTEXT BUILDERS
     // ============================================================
 

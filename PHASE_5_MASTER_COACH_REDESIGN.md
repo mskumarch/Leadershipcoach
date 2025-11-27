@@ -32,7 +32,13 @@ This phase focuses on transforming the app into a high-performance executive coa
     *   Action items (Owners & Due dates).
     *   Next 1-1 recommended agenda.
 
-### 4. Analytics (Manager Insights)
+### 4. Backend Logic & AI Analysis (Completed)
+- [x] **Commitment Quality Analysis**: Detect vague commitments ("I'll try") vs strong ones ("I will by Friday").
+- [x] **Mindset Detection**: Identify Fixed vs Growth mindset language and suggest reframes.
+- [x] **Deep Inquiry (The "Why" Ladder)**: Suggest follow-up questions to dig deeper into root causes.
+- [x] **Integration**: Updated `CoachingEngine` to run these advanced checks alongside standard analysis.
+
+## 5. Analytics (Manager Insights)
 *   **Screen**: `ProgressScreen.kt`
 *   **Metrics**:
     *   Speaking time distribution.
@@ -42,7 +48,16 @@ This phase focuses on transforming the app into a high-performance executive coa
     *   Progress trajectory.
 *   **Design**: Minimalist charts, Soft blue/purple gradient background, Rounded tiles.
 
-## Implementation Plan
+## 6. Final Polish (Completed)
+- [x] **Session Summary**: Implemented "Traffic Light" header for instant health check.
+- [x] **Cognitive Load**: Converted summary cards to "Expandable Accordions" to hide detail until needed.
+- [x] **Ghost Mode**: Implemented fade-out logic for Live Coach HUD when metrics are healthy (30-70% Talk Ratio).
+- [x] **Refinement**: Polished `SessionDetailScreen` and `ChatScreen` for better visual hierarchy.
+
+## 7. Next Steps
+- [x] **One-Tap Follow-Up**: Implement AI generation of accountability emails.
+- [x] **Game Film**: Map audio timestamps to key moments (Visual Timeline implemented).
+- [x] **Testing**: Verified "Master Coach" persona across all screens (Live Coach, Summary, Analytics).
 
 ### Step 1: Live Coach Mode (`ChatScreen.kt`)
 *   Add `NotePanel` component with pill selectors.

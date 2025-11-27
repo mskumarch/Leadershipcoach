@@ -147,6 +147,55 @@ class GeminiApiService(
     }
 
     /**
+     * Analyze commitment quality
+     */
+    suspend fun analyzeCommitmentQuality(
+        transcript: String
+    ): CommitmentAnalysis? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = CoachingPrompts.analyzeCommitmentQuality(transcript)
+            val response = generativeModel.generateContent(prompt)
+            parseCommitmentAnalysis(response.text)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error analyzing commitment: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
+     * Detect Mindset (Growth vs Fixed)
+     */
+    suspend fun detectMindset(
+        transcript: String
+    ): MindsetAnalysis? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = CoachingPrompts.detectMindset(transcript)
+            val response = generativeModel.generateContent(prompt)
+            parseMindsetAnalysis(response.text)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error detecting mindset: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
+     * Suggest deeper inquiry (The "Why" Ladder)
+     */
+    suspend fun deepenInquiry(
+        lastQuestion: String,
+        context: String
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = CoachingPrompts.deepenInquiry(lastQuestion, context)
+            val response = generativeModel.generateContent(prompt)
+            response.text?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error generating deep inquiry: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Generate session summary at the end
      */
     /**
@@ -162,6 +211,24 @@ class GeminiApiService(
             response.text?.trim()
         } catch (e: Exception) {
             Log.e(TAG, "Error generating summary: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
+     * Generate "One-Tap Follow-Up" email draft
+     */
+    suspend fun generateFollowUpMessage(
+        summary: String,
+        actionItems: String,
+        decisions: String
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = CoachingPrompts.generateFollowUpMessage(summary, actionItems, decisions)
+            val response = generativeModel.generateContent(prompt)
+            response.text?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error generating follow-up: ${e.message}", e)
             null
         }
     }
@@ -527,6 +594,25 @@ class GeminiApiService(
         
         return PersonalityAnalysis(style, confidence, advice)
     }
+
+    private fun parseCommitmentAnalysis(response: String?): CommitmentAnalysis? {
+        if (response.isNullOrBlank()) return null
+        
+        val type = Regex("TYPE:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "NONE"
+        val advice = Regex("ADVICE:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: ""
+        
+        return CommitmentAnalysis(type, advice)
+    }
+
+    private fun parseMindsetAnalysis(response: String?): MindsetAnalysis? {
+        if (response.isNullOrBlank()) return null
+        
+        val mindset = Regex("MINDSET:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "NEUTRAL"
+        val phrase = Regex("PHRASE:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: ""
+        val suggestion = Regex("SUGGESTION:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: ""
+        
+        return MindsetAnalysis(mindset, phrase, suggestion)
+    }
 }
 
 /**
@@ -554,6 +640,17 @@ data class PersonalityAnalysis(
     val style: String,       // DRIVER, ANALYTICAL, AMIABLE, EXPRESSIVE
     val confidence: String,  // High, Medium, Low
     val advice: String       // How to adapt
+)
+
+data class CommitmentAnalysis(
+    val type: String,        // STRONG, VAGUE, NONE
+    val advice: String       // Suggestion to lock it in
+)
+
+data class MindsetAnalysis(
+    val mindset: String,     // FIXED, GROWTH, NEUTRAL
+    val phrase: String,      // The trigger phrase
+    val suggestion: String   // Reframe suggestion
 )
 
 /**

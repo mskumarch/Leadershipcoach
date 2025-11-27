@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -115,8 +116,19 @@ fun ChatScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // 1. Metrics HUD (Glassmorphic Top Bar)
-                    Box(modifier = Modifier.padding(16.dp)) {
+                    // 1. Metrics HUD (Glassmorphic Top Bar) - Ghost Mode Logic
+                    // Calculate alpha based on health: If talk ratio is balanced (30-70), fade out to 0.3f
+                    val isHealthy = sessionState.metrics.talkRatio in 30..70
+                    val hudAlpha by animateFloatAsState(
+                        targetValue = if (isHealthy) 0.3f else 1.0f,
+                        animationSpec = tween(durationMillis = 1000)
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .alpha(hudAlpha)
+                    ) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             MetricsHUD(
                                 isRecording = !sessionState.isPaused,

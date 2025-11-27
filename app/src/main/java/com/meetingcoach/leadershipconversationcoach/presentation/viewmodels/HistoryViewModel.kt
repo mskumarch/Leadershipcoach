@@ -18,12 +18,16 @@ data class HistoryUiState(
     val selectedSession: SessionWithDetails? = null,
     val averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple? = null,
     val searchQuery: String = "",
-    val recentEmpathyScores: List<Int> = emptyList()
+
+    val recentEmpathyScores: List<Int> = emptyList(),
+    val generatedFollowUp: String? = null,
+    val isGeneratingFollowUp: Boolean = false
 )
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val geminiApiService: com.meetingcoach.leadershipconversationcoach.data.ai.GeminiApiService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState())
@@ -110,5 +114,26 @@ class HistoryViewModel @Inject constructor(
                     )
                 }
         }
+    }
+
+    fun generateFollowUpDraft(sessionId: Long) {
+        val session = _uiState.value.selectedSession ?: return
+        val metrics = session.metrics ?: return
+        
+        viewModelScope.launch {
+            _uiState.update { it.copy(isGeneratingFollowUp = true, generatedFollowUp = null) }
+            
+            val summary = metrics.summary ?: "No summary available."
+            val decisions = "See summary for details." // Ideally parse this from summary
+            val actionItems = "See summary for details." // Ideally parse this from summary
+            
+            val draft = geminiApiService.generateFollowUpMessage(summary, actionItems, decisions)
+            
+            _uiState.update { it.copy(isGeneratingFollowUp = false, generatedFollowUp = draft) }
+        }
+    }
+    
+    fun clearFollowUpDraft() {
+        _uiState.update { it.copy(generatedFollowUp = null) }
     }
 }
