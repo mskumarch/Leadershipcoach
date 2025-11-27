@@ -30,6 +30,7 @@ import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.Sess
  */
 import androidx.compose.runtime.mutableStateOf
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Brush
@@ -91,31 +92,33 @@ fun NavigationScreen(
                         onBackClick = { selectedSessionId = null }
                     )
                 } else {
-                    when (selectedTab) {
-                        0 -> ChatScreen(
-                            viewModel = viewModel,
-                            modifier = Modifier.padding(paddingValues),
-                            hasRecordAudioPermission = hasRecordAudioPermission,
-                            onNavigateToPractice = { showPracticeMode = true }
-                        )
-                        1 -> TranscriptScreen(
-                            viewModel = viewModel,
-                            modifier = Modifier.padding(paddingValues)
-                        )
-                        2 -> {
-                            com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
+                    Crossfade(targetState = selectedTab, label = "TabTransition") { tab ->
+                        when (tab) {
+                            0 -> ChatScreen(
+                                viewModel = viewModel,
                                 modifier = Modifier.padding(paddingValues),
-                                onAchievementsClick = { showAchievements = true }
+                                hasRecordAudioPermission = hasRecordAudioPermission,
+                                onNavigateToPractice = { showPracticeMode = true }
+                            )
+                            1 -> TranscriptScreen(
+                                viewModel = viewModel,
+                                modifier = Modifier.padding(paddingValues)
+                            )
+                            2 -> {
+                                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
+                                    modifier = Modifier.padding(paddingValues),
+                                    onAchievementsClick = { showAchievements = true }
+                                )
+                            }
+                            3 -> HistoryScreen(
+                                onSessionClick = { sessionId -> selectedSessionId = sessionId },
+                                onStartSession = { selectedTab = 0 },
+                                modifier = Modifier.padding(paddingValues)
+                            )
+                            4 -> SettingsScreen(
+                                modifier = Modifier.padding(paddingValues)
                             )
                         }
-                        3 -> HistoryScreen(
-                            onSessionClick = { sessionId -> selectedSessionId = sessionId },
-                            onStartSession = { selectedTab = 0 },
-                            modifier = Modifier.padding(paddingValues)
-                        )
-                        4 -> SettingsScreen(
-                            modifier = Modifier.padding(paddingValues)
-                        )
                     }
                 }
             }

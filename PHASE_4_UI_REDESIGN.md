@@ -33,6 +33,6 @@ This phase focused on elevating the app's visual design to a premium, commercial
 *   **Layout**: Integrated `FloatingPillNav` into the main `NavigationScreen` scaffold.
 
 ## Next Steps
-*   **Animations**: Add entry animations for chat bubbles and screen transitions.
+*   **Animations**: Added entry animations for chat bubbles and `Crossfade` for screen transitions.
+*   **Settings**: Redesigned the Settings screen using the new `GlassSurface` components.
 *   **Roleplay Mode**: Apply the same "Cockpit" design to the Roleplay screen.
-*   **Settings**: Redesign the Settings screen using the new `GlassSurface` components.
