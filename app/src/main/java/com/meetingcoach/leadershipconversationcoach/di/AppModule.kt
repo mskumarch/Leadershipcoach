@@ -42,4 +42,13 @@ object AppModule {
             apiKey = com.meetingcoach.leadershipconversationcoach.BuildConfig.GEMINI_API_KEY
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideCoachingEngine(
+        @ApplicationContext context: Context,
+        geminiService: com.meetingcoach.leadershipconversationcoach.data.ai.GeminiApiService
+    ): com.meetingcoach.leadershipconversationcoach.data.ai.CoachingEngine {
+        return com.meetingcoach.leadershipconversationcoach.data.ai.CoachingEngine(context, geminiService)
+    }
 }
