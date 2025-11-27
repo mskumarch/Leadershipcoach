@@ -87,6 +87,10 @@ class SessionRepository @Inject constructor(
         return sessionDao.getAllSessions()
     }
 
+    fun searchSessions(query: String): Flow<List<SessionEntity>> {
+        return sessionDao.searchSessions(query)
+    }
+
     suspend fun getAllSessions(): Result<List<SessionEntity>> = withContext(Dispatchers.IO) {
         try {
             val sessions = sessionDao.getAllSessionsList()

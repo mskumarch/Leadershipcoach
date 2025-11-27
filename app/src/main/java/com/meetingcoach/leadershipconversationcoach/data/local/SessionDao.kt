@@ -17,6 +17,9 @@ interface SessionDao {
     @Query("SELECT * FROM sessions ORDER BY createdAt DESC")
     fun getAllSessions(): Flow<List<SessionEntity>>
 
+    @Query("SELECT * FROM sessions WHERE title LIKE '%' || :query || '%' OR mode LIKE '%' || :query || '%' ORDER BY createdAt DESC")
+    fun searchSessions(query: String): Flow<List<SessionEntity>>
+
     @Query("SELECT * FROM sessions ORDER BY createdAt DESC")
     suspend fun getAllSessionsList(): List<SessionEntity>
 

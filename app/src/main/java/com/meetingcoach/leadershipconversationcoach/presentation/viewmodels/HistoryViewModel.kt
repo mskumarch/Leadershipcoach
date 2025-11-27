@@ -6,9 +6,8 @@ import com.meetingcoach.leadershipconversationcoach.data.local.SessionEntity
 import com.meetingcoach.leadershipconversationcoach.data.repository.SessionRepository
 import com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,7 +16,9 @@ data class HistoryUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val selectedSession: SessionWithDetails? = null,
-    val averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple? = null
+    val averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple? = null,
+    val searchQuery: String = "",
+    val recentEmpathyScores: List<Int> = emptyList()
 )
 
 @HiltViewModel
@@ -28,21 +29,48 @@ class HistoryViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HistoryUiState())
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+
     init {
         loadSessions()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun loadSessions() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-
-            sessionRepository.getAllSessionsFlow().collect { sessions ->
-                _uiState.value = _uiState.value.copy(
-                    sessions = sessions.sortedByDescending { it.createdAt },
-                    isLoading = false
-                )
-            }
+            _searchQuery
+                .flatMapLatest { query ->
+                    if (query.isBlank()) {
+                        sessionRepository.getAllSessionsFlow()
+                    } else {
+                        sessionRepository.searchSessions(query)
+                    }
+                }
+                .collect { sessions ->
+                    // Load metrics for trends (this is a bit inefficient, ideally we'd have a joined query)
+                    // For now, we'll just fetch all metrics and map them
+                    val metricsResult = sessionRepository.getAllMetrics()
+                    val metrics = metricsResult.getOrNull() ?: emptyList()
+                    
+                    // Map metrics to sessions to get chronological order
+                    val scores = sessions.mapNotNull { session ->
+                        metrics.find { it.sessionId == session.id }?.empathyScore
+                    }.take(10).reversed() // Take last 10, chronological
+                    
+                    _uiState.update { 
+                        it.copy(
+                            sessions = sessions.sortedByDescending { session -> session.createdAt },
+                            recentEmpathyScores = scores,
+                            isLoading = false
+                        ) 
+                    }
+                }
         }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+        _uiState.update { it.copy(searchQuery = query) }
     }
 
     fun loadSessionDetails(sessionId: Long) {
