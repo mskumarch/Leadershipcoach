@@ -147,7 +147,7 @@ fun GlassmorphicFloatingPanel(
                     color = Color(0x66FFFFFF), // 40% white
                     shape = RoundedCornerShape(20.dp)
                 )
-                .blur(20.dp)
+                // Removed blur from content container to fix "completely blur" issue
                 .drawBehind {
                     // Layered shadow
                     drawRect(
@@ -187,7 +187,7 @@ fun ToneCheckCard(
                     color = GlassBorderLight,
                     shape = RoundedCornerShape(16.dp)
                 )
-                .blur(10.dp)
+                // Removed blur
                 .drawBehind {
                     // Layered shadow
                     drawRect(
@@ -314,7 +314,7 @@ fun TranscriptCard(
                     color = sentiment.color,
                     shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)
                 )
-                .blur(8.dp)
+                // Removed blur
                 .drawBehind {
                     // Layered shadow
                     drawRect(
@@ -649,13 +649,15 @@ fun StartSessionOrb(
  */
 @Composable
 fun FloatingPillNav(
+    currentTab: Int,
+    onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
         modifier = modifier
-            .height(64.dp)
-            .width(280.dp),
-        shape = RoundedCornerShape(32.dp),
+            .height(72.dp)
+            .width(340.dp),
+        shape = RoundedCornerShape(36.dp),
         color = NavGlassBase,
         shadowElevation = 8.dp
     ) {
@@ -664,20 +666,34 @@ fun FloatingPillNav(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NavIcon(icon = "🏠", isActive = true)
-            NavIcon(icon = "📊", isActive = false)
-            NavIcon(icon = "👤", isActive = false)
+            NavIcon(icon = "🏠", label = "Home", isActive = currentTab == 0, onClick = { onTabSelected(0) })
+            NavIcon(icon = "📝", label = "Live", isActive = currentTab == 1, onClick = { onTabSelected(1) })
+            NavIcon(icon = "📊", label = "Stats", isActive = currentTab == 2, onClick = { onTabSelected(2) })
+            NavIcon(icon = "📜", label = "History", isActive = currentTab == 3, onClick = { onTabSelected(3) })
+            NavIcon(icon = "⚙️", label = "Settings", isActive = currentTab == 4, onClick = { onTabSelected(4) })
         }
     }
 }
 
 @Composable
-private fun NavIcon(icon: String, isActive: Boolean) {
+private fun NavIcon(
+    icon: String, 
+    label: String,
+    isActive: Boolean, 
+    onClick: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(8.dp)
     ) {
-        Text(text = icon, fontSize = 24.sp)
+        Text(
+            text = icon, 
+            fontSize = 24.sp,
+            color = if (isActive) AppPalette.Sage600 else AppPalette.Stone500
+        )
         if (isActive) {
             Box(
                 modifier = Modifier
@@ -688,6 +704,8 @@ private fun NavIcon(icon: String, isActive: Boolean) {
         }
     }
 }
+
+
 
 /**
  * Metrics HUD - Top Bar
