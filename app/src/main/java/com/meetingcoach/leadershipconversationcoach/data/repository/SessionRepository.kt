@@ -30,6 +30,7 @@ class SessionRepository @Inject constructor(
         startedAt: Instant,
         endedAt: Instant,
         durationSeconds: Int,
+        title: String? = null,
         messages: List<ChatMessage>,
         metrics: SessionMetrics
     ): Result<Long> = withContext(Dispatchers.IO) {
@@ -38,6 +39,7 @@ class SessionRepository @Inject constructor(
                 startedAt = startedAt.toEpochMilli(),
                 endedAt = endedAt.toEpochMilli(),
                 mode = mode.name,
+                title = title,
                 durationSeconds = durationSeconds
             )
 
@@ -129,6 +131,14 @@ class SessionRepository @Inject constructor(
         try {
             val averages = sessionDao.getAverageMetrics()
             Result.success(averages)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    suspend fun updateSessionTitle(sessionId: Long, title: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            sessionDao.updateSessionTitle(sessionId, title)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

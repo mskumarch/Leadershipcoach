@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
         SessionMetricsEntity::class,
         AchievementEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

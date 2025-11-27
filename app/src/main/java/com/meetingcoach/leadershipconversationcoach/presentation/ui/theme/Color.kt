@@ -23,6 +23,7 @@ object AppPalette {
     val Stone900 = Color(0xFF1C1917) // Primary Text (Warm Black)
     val Stone700 = Color(0xFF44403C) // Secondary Text
     val Stone500 = Color(0xFF78716C) // Disabled / Hint
+    val Stone300 = Color(0xFFD6D3D1) // Medium Stone
     val Stone100 = Color(0xFFF5F5F4) // Surface Variant / Borders
     val Stone50 = Color(0xFFFAFAF9)  // Background Alternative (Warm Off-White)
     val White = Color(0xFFFFFFFF)    // Pure White

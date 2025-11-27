@@ -32,6 +32,7 @@ class LocalSpeechToTextService(
     // Callbacks
     private var onTranscriptCallback: ((TranscriptChunk) -> Unit)? = null
     private var onErrorCallback: ((String) -> Unit)? = null
+    private var onAudioLevelCallback: ((Float) -> Unit)? = null
 
     // Auto-restart management
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
@@ -70,7 +71,8 @@ class LocalSpeechToTextService(
 
     override fun startListening(
         onTranscriptReceived: (TranscriptChunk) -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        onAudioLevelChanged: ((Float) -> Unit)?
     ) {
 
         if (!isAvailable()) {
@@ -81,6 +83,7 @@ class LocalSpeechToTextService(
         // Store callbacks
         onTranscriptCallback = onTranscriptReceived
         onErrorCallback = onError
+        onAudioLevelCallback = onAudioLevelChanged
 
         // Mark session start time
         if (sessionStartTime == 0L) {
@@ -133,13 +136,15 @@ class LocalSpeechToTextService(
 
     override fun resumeListening(
         onTranscriptReceived: (TranscriptChunk) -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        onAudioLevelChanged: ((Float) -> Unit)?
     ) {
         if (isCurrentlyListening) return
 
         // Update callbacks
         onTranscriptCallback = onTranscriptReceived
         onErrorCallback = onError
+        onAudioLevelCallback = onAudioLevelChanged
 
         // Resume listening
         shouldContinueListening = true
@@ -168,8 +173,10 @@ class LocalSpeechToTextService(
         }
 
         speechRecognizer = null
+        speechRecognizer = null
         onTranscriptCallback = null
         onErrorCallback = null
+        onAudioLevelCallback = null
     }
 
     // ============================================================
@@ -234,6 +241,9 @@ class LocalSpeechToTextService(
 
             override fun onRmsChanged(rmsdB: Float) {
                 // Audio level changed (useful for UI visualization)
+                // Normalize roughly from -2..10 range to 0..1
+                val normalized = ((rmsdB + 2f) / 12f).coerceIn(0f, 1f)
+                onAudioLevelCallback?.invoke(normalized)
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {
