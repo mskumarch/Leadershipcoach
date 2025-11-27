@@ -123,7 +123,18 @@ fun InsightsTab(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Scorecard Section
+        // 1. Session Summary (The "Executive Brief")
+        item {
+            MasterCoachCard(title = "Session Summary", icon = "📝") {
+                Text(
+                    text = sessionDetails.metrics?.summary ?: "No summary available yet.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        // 2. Scorecard (Quantitative)
         item {
             ScorecardSection(
                 metrics = sessionDetails.metrics, 
@@ -132,40 +143,125 @@ fun InsightsTab(
             )
         }
 
-        // Deep Insights (if available)
-        if (sessionDetails.metrics != null && 
-            (sessionDetails.metrics.openQuestionCount > 0 || 
-             sessionDetails.metrics.interruptionCount > 0 ||
-             sessionDetails.session.mode == "ONE_ON_ONE")) {
-            item {
-                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.detail.components.DeepInsightsCard(
-                    commitments = emptyList(), // Will be populated from metrics when available
-                    openQuestions = sessionDetails.metrics.openQuestionCount,
-                    closedQuestions = sessionDetails.metrics.questionCount - sessionDetails.metrics.openQuestionCount,
-                    talkRatio = 100 - sessionDetails.metrics.talkRatioUser,
-                    interruptions = sessionDetails.metrics.interruptionCount
-                )
+        // 3. Strengths & Improvements (The "Feedback Loop")
+        item {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
+                    MasterCoachCard(title = "Strengths", icon = "💪", color = MaterialTheme.colorScheme.primaryContainer) {
+                        // Mock data or parse from metrics
+                        BulletPoint("Clear communication")
+                        BulletPoint("Empathetic listening")
+                    }
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    MasterCoachCard(title = "Improvements", icon = "📈", color = MaterialTheme.colorScheme.tertiaryContainer) {
+                        Text(
+                            text = sessionDetails.metrics?.improvements ?: "None identified.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
             }
         }
 
-        // Summary Section
+        // 4. Decisions & Action Items (The "Accountability")
         item {
-            InsightCard(title = "Summary", content = sessionDetails.metrics?.summary)
+            MasterCoachCard(title = "Action Plan", icon = "✅") {
+                Text(
+                    text = "Decisions Made:",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                BulletPoint("Schedule follow-up with team")
+                BulletPoint("Review project timeline")
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Text(
+                    text = "Action Items:",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                ActionItemRow("Send email update", "You", "Tomorrow")
+                ActionItemRow("Prepare slide deck", "Mentee", "Fri")
+            }
         }
-        
-        // Pace Analysis
+
+        // 5. Next Agenda (The "Forward Look")
         item {
-            InsightCard(title = "Speaking Pace", content = sessionDetails.metrics?.paceAnalysis)
+            MasterCoachCard(title = "Next Session Agenda", icon = "📅") {
+                BulletPoint("Review progress on action items")
+                BulletPoint("Deep dive into 'Strategic Thinking'")
+                BulletPoint("Feedback on recent presentation")
+            }
         }
-        
-        // Wording Analysis
-        item {
-            InsightCard(title = "Wording Style", content = sessionDetails.metrics?.wordingAnalysis)
+    }
+}
+
+@Composable
+fun MasterCoachCard(
+    title: String,
+    icon: String,
+    color: Color = MaterialTheme.colorScheme.surface,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = color),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
+                Text(text = icon, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(end = 8.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            content()
         }
-        
-        // Improvements
-        item {
-            InsightCard(title = "Places to Improve", content = sessionDetails.metrics?.improvements, isHighlight = true)
+    }
+}
+
+@Composable
+fun BulletPoint(text: String) {
+    Row(modifier = Modifier.padding(bottom = 4.dp)) {
+        Text(text = "•", modifier = Modifier.padding(end = 8.dp), color = MaterialTheme.colorScheme.primary)
+        Text(text = text, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+fun ActionItemRow(task: String, owner: String, due: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+            Checkbox(checked = false, onCheckedChange = {}, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = task, style = MaterialTheme.typography.bodyMedium)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = RoundedCornerShape(4.dp),
+                modifier = Modifier.padding(end = 4.dp)
+            ) {
+                Text(
+                    text = owner,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+            Text(text = due, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
         }
     }
 }
