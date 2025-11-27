@@ -12,6 +12,9 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.*
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -130,10 +133,9 @@ fun HistoryScreen(
                         SwipeToDismissBox(
                             state = dismissState,
                             backgroundContent = {
-                                val color = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                                    MaterialTheme.colorScheme.errorContainer
-                                } else {
-                                    Color.Transparent
+                                val color = when (dismissState.dismissDirection) {
+                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                                    else -> Color.Transparent
                                 }
                                 
                                 Box(
@@ -144,7 +146,7 @@ fun HistoryScreen(
                                     contentAlignment = Alignment.CenterEnd
                                 ) {
                                     Icon(
-                                        imageVector = androidx.compose.material.icons.Icons.Default.Delete,
+                                        imageVector = Icons.Default.Delete,
                                         contentDescription = "Delete",
                                         tint = MaterialTheme.colorScheme.onErrorContainer
                                     )
@@ -242,7 +244,7 @@ fun EmptyHistoryState(onStartSession: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Mic,
+                    imageVector = Icons.Default.Mic,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
