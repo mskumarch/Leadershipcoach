@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.DismissValue
 import androidx.compose.material.DismissDirection
@@ -93,13 +95,47 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item {
-                    Text(
-                        text = "History",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            text = "History",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+
+                        // Search Bar
+                        OutlinedTextField(
+                            value = uiState.searchQuery,
+                            onValueChange = { viewModel.onSearchQueryChanged(it) },
+                            placeholder = { Text("Search sessions...") },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                            trailingIcon = if (uiState.searchQuery.isNotEmpty()) {
+                                {
+                                    IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear")
+                                    }
+                                }
+                            } else null,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                            ),
+                            singleLine = true
+                        )
+
+                        // Trend Chart (Only show if we have data and no active search)
+                        if (uiState.recentEmpathyScores.size >= 2 && uiState.searchQuery.isEmpty()) {
+                            com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.TrendChart(
+                                dataPoints = uiState.recentEmpathyScores,
+                                title = "Empathy Trend (Last 10 Sessions)",
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
 
                 groupedSessions.forEach { (dateHeader, sessions) ->

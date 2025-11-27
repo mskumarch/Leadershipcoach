@@ -127,10 +127,12 @@ fun SessionCard(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = mode.getDisplayName(),
+                                text = session.title ?: mode.getDisplayName(),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1F2937)
+                                color = Color(0xFF1F2937),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
 
                             Text(

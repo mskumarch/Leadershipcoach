@@ -17,6 +17,9 @@ interface SessionDao {
     @Query("SELECT * FROM sessions ORDER BY createdAt DESC")
     fun getAllSessions(): Flow<List<SessionEntity>>
 
+    @Query("SELECT * FROM sessions WHERE title LIKE '%' || :query || '%' OR mode LIKE '%' || :query || '%' ORDER BY createdAt DESC")
+    fun searchSessions(query: String): Flow<List<SessionEntity>>
+
     @Query("SELECT * FROM sessions ORDER BY createdAt DESC")
     suspend fun getAllSessionsList(): List<SessionEntity>
 
@@ -56,6 +59,16 @@ interface SessionDao {
 
     @Query("UPDATE sessions SET title = :title WHERE id = :sessionId")
     suspend fun updateSessionTitle(sessionId: Long, title: String)
+
+    // Pending Analysis
+    @Insert
+    suspend fun insertPendingAnalysis(pending: PendingAnalysisEntity)
+
+    @Query("SELECT * FROM pending_analysis ORDER BY createdAt ASC")
+    suspend fun getAllPendingAnalysis(): List<PendingAnalysisEntity>
+
+    @Delete
+    suspend fun deletePendingAnalysis(pending: PendingAnalysisEntity)
 }
 
 data class AverageMetricsTuple(

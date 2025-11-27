@@ -87,6 +87,10 @@ class SessionRepository @Inject constructor(
         return sessionDao.getAllSessions()
     }
 
+    fun searchSessions(query: String): Flow<List<SessionEntity>> {
+        return sessionDao.searchSessions(query)
+    }
+
     suspend fun getAllSessions(): Result<List<SessionEntity>> = withContext(Dispatchers.IO) {
         try {
             val sessions = sessionDao.getAllSessionsList()
@@ -142,5 +146,23 @@ class SessionRepository @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    suspend fun queuePendingAnalysis(sessionId: Long, audioFilePath: String, mode: String) = withContext(Dispatchers.IO) {
+        sessionDao.insertPendingAnalysis(
+            com.meetingcoach.leadershipconversationcoach.data.local.PendingAnalysisEntity(
+                sessionId = sessionId,
+                audioFilePath = audioFilePath,
+                sessionMode = mode
+            )
+        )
+    }
+
+    suspend fun getPendingAnalysis() = withContext(Dispatchers.IO) {
+        sessionDao.getAllPendingAnalysis()
+    }
+
+    suspend fun removePendingAnalysis(pending: com.meetingcoach.leadershipconversationcoach.data.local.PendingAnalysisEntity) = withContext(Dispatchers.IO) {
+        sessionDao.deletePendingAnalysis(pending)
     }
 }
