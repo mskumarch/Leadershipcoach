@@ -11,17 +11,20 @@ import androidx.compose.ui.graphics.Color
  */
 
 object AppPalette {
-    // Brand Colors
-    val Teal600 = Color(0xFF0D9488) // Primary Brand Color
-    val Teal700 = Color(0xFF0F766E) // Darker Teal for states
-    val Teal100 = Color(0xFFCCFBF1) // Light Teal for backgrounds
+    // Brand Colors - Modern Sage & Lavender
+    val Sage600 = Color(0xFF4A7A68) // Primary Brand Color (Deep Sage)
+    val Sage500 = Color(0xFF5B9A8B) // Primary Light
+    val Sage100 = Color(0xFFE8F3EF) // Light Sage Background
 
-    // Neutral Colors (Slate)
-    val Slate900 = Color(0xFF0F172A) // Primary Text
-    val Slate700 = Color(0xFF334155) // Secondary Text
-    val Slate500 = Color(0xFF64748B) // Disabled / Hint
-    val Slate100 = Color(0xFFF1F5F9) // Surface Variant / Borders
-    val Slate50 = Color(0xFFF8FAFC)  // Background Alternative
+    val Lavender500 = Color(0xFF8B80F9) // Modern Lavender (Secondary)
+    val Lavender100 = Color(0xFFF3F0FF) // Light Lavender
+
+    // Neutral Colors (Warm Sand/Stone)
+    val Stone900 = Color(0xFF1C1917) // Primary Text (Warm Black)
+    val Stone700 = Color(0xFF44403C) // Secondary Text
+    val Stone500 = Color(0xFF78716C) // Disabled / Hint
+    val Stone100 = Color(0xFFF5F5F4) // Surface Variant / Borders
+    val Stone50 = Color(0xFFFAFAF9)  // Background Alternative (Warm Off-White)
     val White = Color(0xFFFFFFFF)    // Pure White
 
     // Semantic Colors
@@ -36,20 +39,20 @@ object AppPalette {
 // ============================================================
 
 // Primary Theme Aliases
-val SageGreen = AppPalette.Teal600
-val WarmTaupe = AppPalette.Slate100
+val SageGreen = AppPalette.Sage600
+val WarmTaupe = AppPalette.Stone100
 val SoftCream = AppPalette.White
-val DeepCharcoal = AppPalette.Slate900
+val DeepCharcoal = AppPalette.Stone900
 
-val Primary = AppPalette.Teal600
-val Secondary = AppPalette.Slate700
+val Primary = AppPalette.Sage600
+val Secondary = AppPalette.Stone700
 
-// Dark Mode (Mapped to Slate for now, can be expanded)
-val DarkSageGreen = AppPalette.Teal700
-val DarkWarmTaupe = Color(0xFF1E293B)
-val DarkBackground = Color(0xFF0F172A)
+// Dark Mode (Mapped to Stone/Warm Dark)
+val DarkSageGreen = AppPalette.Sage600
+val DarkWarmTaupe = Color(0xFF292524) // Stone 800
+val DarkBackground = Color(0xFF1C1917) // Stone 900
 val DarkTextPrimary = AppPalette.White
-val DarkTextSecondary = AppPalette.Slate500
+val DarkTextSecondary = AppPalette.Stone500
 
 // Accents
 val ActiveBlue = AppPalette.Blue500
@@ -62,27 +65,27 @@ val WarningYellow = AppPalette.Amber500
 val Success = SuccessGreen
 val Warning = WarningYellow
 val Info = ActiveBlue
-val NeutralGray = AppPalette.Slate500
+val NeutralGray = AppPalette.Stone500
 
 // Glassmorphism & Shadows
 val GlassWhite = AppPalette.White.copy(alpha = 0.95f)
-val GlassTaupe = AppPalette.Slate100.copy(alpha = 0.9f)
+val GlassTaupe = AppPalette.Stone100.copy(alpha = 0.9f)
 val GlassBorderLight = Color(0xFFFFFFFF).copy(alpha = 0.6f)
 val NavGlassBase = AppPalette.White.copy(alpha = 0.9f)
-val NavGlassTint = AppPalette.Teal100.copy(alpha = 0.1f)
+val NavGlassTint = AppPalette.Sage100.copy(alpha = 0.3f)
 val NavGlassHighlight = Color.White.copy(alpha = 0.5f)
 
 val ShadowLight = Color(0x1A000000)
 val ShadowMedium = Color(0x26000000)
 val ShadowStrong = Color(0x33000000)
-val ShadowSage = AppPalette.Teal600.copy(alpha = 0.2f)
-val ShadowBlue = AppPalette.Blue500.copy(alpha = 0.2f)
+val ShadowSage = AppPalette.Sage600.copy(alpha = 0.2f)
+val ShadowBlue = AppPalette.Lavender500.copy(alpha = 0.2f)
 
-// Glossy / Premium Tokens (Restored for compatibility)
-val GlossyPrimaryStart = AppPalette.Teal600
-val GlossyPrimaryEnd = AppPalette.Teal700
-val GlossySecondaryStart = AppPalette.Slate700
-val GlossySecondaryEnd = AppPalette.Slate900
+// Glossy / Premium Tokens
+val GlossyPrimaryStart = AppPalette.Sage500
+val GlossyPrimaryEnd = AppPalette.Sage600
+val GlossySecondaryStart = AppPalette.Lavender500
+val GlossySecondaryEnd = Color(0xFF7C3AED) // Violet 600
 val GlossyHighlight = Color.White.copy(alpha = 0.3f)
 val GlossyShadow = Color.Black.copy(alpha = 0.2f)
 
@@ -90,19 +93,19 @@ val GlossyShadow = Color.Black.copy(alpha = 0.2f)
 val UserBubbleBackground = ActiveBlue
 val DarkUserBubbleBackground = ActiveBlue
 
-val AIBubbleBackground = AppPalette.Slate100
-val AIBubbleText = AppPalette.Slate900
+val AIBubbleBackground = AppPalette.Stone100
+val AIBubbleText = AppPalette.Stone900
 
 // Recording & Accents
 val AccentCoral = AppPalette.Red500
-val AccentLavender = AppPalette.Blue500
-val AccentMint = AppPalette.Teal100
+val AccentLavender = AppPalette.Lavender500
+val AccentMint = AppPalette.Sage100
 val RecordingActive = AppPalette.Red500
 val RecordingPulse = AppPalette.Red500.copy(alpha = 0.5f)
 val RecordingWave = AppPalette.Red500.copy(alpha = 0.2f)
 val GradientCoralRose = listOf(AppPalette.Red500, AppPalette.Amber500)
-val CalmGreenStart = Color(0xFFE6FFFA) // Teal 50
-val CalmGreenEnd = Color(0xFFCCFBF1)   // Teal 100
+val CalmGreenStart = Color(0xFFF2FBF9) // Very Light Sage
+val CalmGreenEnd = AppPalette.Sage100
 
 // Effects
 val InnerGlowLight = Color.White.copy(alpha = 0.2f)
@@ -110,9 +113,9 @@ val ShadowSubtle = Color.Black.copy(alpha = 0.05f)
 val ShadowColor = Color.Black.copy(alpha = 0.1f)
 
 // Text & Surface Tokens
-val TextPrimary = AppPalette.Slate900
-val TextTertiary = AppPalette.Slate500
-val TextDisabled = AppPalette.Slate500.copy(alpha = 0.5f)
-val SurfaceVariant = AppPalette.Slate100
-val BorderLight = AppPalette.Slate100
-val BorderMedium = AppPalette.Slate500
+val TextPrimary = AppPalette.Stone900
+val TextTertiary = AppPalette.Stone500
+val TextDisabled = AppPalette.Stone500.copy(alpha = 0.5f)
+val SurfaceVariant = AppPalette.Stone100
+val BorderLight = AppPalette.Stone100
+val BorderMedium = AppPalette.Stone500

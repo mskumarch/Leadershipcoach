@@ -37,9 +37,9 @@ fun Modifier.shimmerEffect(
     )
 
     val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.6f),
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.6f),
+        com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone100.copy(alpha = 0.6f),
+        com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone50.copy(alpha = 0.2f),
+        com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone100.copy(alpha = 0.6f),
     )
 
     val brush = Brush.linearGradient(

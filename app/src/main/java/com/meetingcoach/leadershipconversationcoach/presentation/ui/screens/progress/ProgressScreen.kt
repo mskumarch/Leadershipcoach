@@ -50,8 +50,8 @@ fun ProgressScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFF8FAFC), // Slate 50
-                        Color(0xFFF1F5F9)  // Slate 100
+                        AppPalette.Stone50, // Stone 50
+                        AppPalette.Stone100  // Stone 100
                     )
                 )
             )
@@ -69,13 +69,13 @@ fun ProgressScreen(
                     text = "Your Growth",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = AppPalette.Slate900,
+                    color = AppPalette.Stone900,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
                     text = "Track your leadership journey",
                     fontSize = 16.sp,
-                    color = AppPalette.Slate500
+                    color = AppPalette.Stone500
                 )
             }
             // Achievements Button
@@ -122,19 +122,19 @@ fun ProgressScreen(
                 MetricCard(
                     title = "Empathy",
                     score = uiState.empathyScore,
-                    color = Color(0xFF10B981), // Emerald
+                    color = AppPalette.Sage500, // Sage
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
                     title = "Clarity",
                     score = uiState.clarityScore,
-                    color = Color(0xFF3B82F6), // Blue
+                    color = AppPalette.Blue500, // Blue
                     modifier = Modifier.weight(1f)
                 )
                 MetricCard(
                     title = "Listening",
                     score = uiState.listeningScore,
-                    color = Color(0xFF8B5CF6), // Violet
+                    color = AppPalette.Lavender500, // Lavender
                     modifier = Modifier.weight(1f)
                 )
             }

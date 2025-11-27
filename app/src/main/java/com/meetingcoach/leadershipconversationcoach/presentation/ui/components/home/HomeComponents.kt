@@ -35,7 +35,7 @@ fun HomeIdleState(
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        Color(0xFF0D9488).copy(alpha = 0.1f), // Teal
+                        AppPalette.Sage600.copy(alpha = 0.1f), // Sage
                         Color.Transparent
                     ),
                     center = Offset(size.width * 0.8f, size.height * 0.2f),
@@ -45,7 +45,7 @@ fun HomeIdleState(
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(
-                        Color(0xFF8B5CF6).copy(alpha = 0.05f), // Violet
+                        AppPalette.Lavender500.copy(alpha = 0.05f), // Lavender
                         Color.Transparent
                     ),
                     center = Offset(size.width * 0.2f, size.height * 0.8f),

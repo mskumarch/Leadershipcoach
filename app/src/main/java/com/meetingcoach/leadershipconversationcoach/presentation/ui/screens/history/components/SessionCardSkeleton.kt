@@ -20,7 +20,7 @@ fun SessionCardSkeleton(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.White)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(

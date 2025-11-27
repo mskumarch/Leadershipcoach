@@ -304,7 +304,7 @@ fun TranscriptCard(
             modifier = Modifier
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xF2FFFFFF), Color(0xE6F7F8F6))
+                        colors = listOf(Color(0xF2FFFFFF), AppPalette.Stone50)
                     )
                 )
                 .border(
@@ -410,7 +410,7 @@ fun SettingsCard(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
-        color = Color(0xE6C6A884), // 90% taupe
+        color = AppPalette.Stone100.copy(alpha = 0.9f), // 90% Stone
         shadowElevation = 0.dp
     ) {
         Box(

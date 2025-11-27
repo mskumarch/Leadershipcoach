@@ -48,13 +48,13 @@ fun TimeRangeSelector(
                     .weight(1f)
                     .fillMaxHeight()
                     .clip(CircleShape)
-                    .background(if (isSelected) AppPalette.Teal600 else Color.Transparent)
+                    .background(if (isSelected) AppPalette.Sage600 else Color.Transparent)
                     .clickable { onRangeSelected(range) },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = range,
-                    color = if (isSelected) Color.White else AppPalette.Slate500,
+                    color = if (isSelected) Color.White else AppPalette.Stone500,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                 )
             }
@@ -68,7 +68,7 @@ fun HeroScoreCard(score: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .height(220.dp)
-            .shadow(16.dp, RoundedCornerShape(32.dp), spotColor = AppPalette.Teal600.copy(alpha = 0.2f)),
+            .shadow(16.dp, RoundedCornerShape(32.dp), spotColor = AppPalette.Sage600.copy(alpha = 0.2f)),
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
@@ -81,7 +81,7 @@ fun HeroScoreCard(score: Int) {
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                AppPalette.Teal100.copy(alpha = 0.5f),
+                                AppPalette.Sage100.copy(alpha = 0.5f),
                                 Color.Transparent
                             )
                         ),
@@ -101,21 +101,21 @@ fun HeroScoreCard(score: Int) {
                         text = "Overall\nScore",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = AppPalette.Slate900,
+                        color = AppPalette.Stone900,
                         lineHeight = 32.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Top 10% of leaders",
                         fontSize = 14.sp,
-                        color = AppPalette.Teal600,
+                        color = AppPalette.Sage600,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = { /* TODO */ },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = AppPalette.Slate900
+                            containerColor = AppPalette.Stone900
                         ),
                         shape = RoundedCornerShape(16.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
@@ -134,7 +134,7 @@ fun HeroScoreCard(score: Int) {
                     Canvas(modifier = Modifier.size(140.dp)) {
                         // Background Circle
                         drawArc(
-                            color = AppPalette.Slate100,
+                            color = AppPalette.Stone100,
                             startAngle = 0f,
                             sweepAngle = 360f,
                             useCenter = false,
@@ -144,9 +144,9 @@ fun HeroScoreCard(score: Int) {
                         drawArc(
                             brush = Brush.sweepGradient(
                                 colors = listOf(
-                                    AppPalette.Teal600,
-                                    Color(0xFF34D399), // Light Emerald
-                                    AppPalette.Teal600
+                                    AppPalette.Sage600,
+                                    AppPalette.Sage500, // Light Sage
+                                    AppPalette.Sage600
                                 )
                             ),
                             startAngle = -90f,
@@ -160,12 +160,12 @@ fun HeroScoreCard(score: Int) {
                             text = "$score",
                             fontSize = 36.sp,
                             fontWeight = FontWeight.Bold,
-                            color = AppPalette.Slate900
+                            color = AppPalette.Stone900
                         )
                         Text(
                             text = "/100",
                             fontSize = 12.sp,
-                            color = AppPalette.Slate500
+                            color = AppPalette.Stone500
                         )
                     }
                 }
@@ -216,14 +216,14 @@ fun MetricCard(
                 Text(
                     text = title,
                     fontSize = 14.sp,
-                    color = AppPalette.Slate500,
+                    color = AppPalette.Stone500,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = "$score%",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AppPalette.Slate900
+                    color = AppPalette.Stone900
                 )
             }
         }
@@ -249,12 +249,12 @@ fun ActivityChartCard(timeRange: String) {
                 text = "Activity",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = AppPalette.Slate900
+                color = AppPalette.Stone900
             )
             Text(
                 text = "Sessions per day",
                 fontSize = 14.sp,
-                color = AppPalette.Slate500
+                color = AppPalette.Stone500
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -288,8 +288,8 @@ fun ActivityChartCard(timeRange: String) {
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                AppPalette.Teal600,
-                                                AppPalette.Teal100
+                                                AppPalette.Sage600,
+                                                AppPalette.Sage100
                                             )
                                         )
                                     )
@@ -307,7 +307,7 @@ fun ActivityChartCard(timeRange: String) {
                                     else -> ""
                                 },
                                 fontSize = 12.sp,
-                                color = AppPalette.Slate500
+                                color = AppPalette.Stone500
                             )
                         }
                     }
