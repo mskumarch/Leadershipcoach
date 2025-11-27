@@ -36,6 +36,6 @@ Implement a "Daily Wisdom" page to drive daily engagement and continuous learnin
 
 ## 6. Progress
 - [x] **Daily Wisdom**: Implemented RSS Engine, Wisdom Screen, and AI Summarization.
-- [x] **Refinements**: Added Social Sharing and Home Screen Teaser.
+- [x] **Refinements**: Added Social Sharing, Home Screen Teaser, Manual Refresh, and Full Screen Detail View.
 - [ ] **Immersive Practice**: Pending.
 - [ ] **Personalization**: Pending.

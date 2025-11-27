@@ -2,12 +2,18 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.wis
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +38,12 @@ fun WisdomScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    Column(
+    // Handle Back Press to close detail view
+    BackHandler(enabled = uiState.selectedArticle != null) {
+        viewModel.clearSelection()
+    }
+
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(
@@ -40,29 +51,94 @@ fun WisdomScreen(
                     colors = listOf(AppPalette.Stone50, AppPalette.Stone100)
                 )
             )
-            .padding(16.dp)
     ) {
-        Text(
-            text = "Daily Wisdom",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = AppPalette.Stone900,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = "Curated insights for your growth",
-            fontSize = 16.sp,
-            color = AppPalette.Stone500,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+        if (uiState.selectedArticle != null) {
+            WisdomDetailView(
+                article = uiState.selectedArticle!!,
+                summary = uiState.articleSummary,
+                isSummarizing = uiState.isSummarizing,
+                onBack = { viewModel.clearSelection() },
+                onSummarize = { viewModel.summarizeArticle(uiState.selectedArticle!!) },
+                onReadFull = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uiState.selectedArticle!!.link))
+                    context.startActivity(intent)
+                },
+                onShare = {
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, "💡 Leadership Insight:\n\n${uiState.articleSummary ?: uiState.selectedArticle!!.title}\n\nRead more: ${uiState.selectedArticle!!.link}")
+                    }
+                    context.startActivity(Intent.createChooser(shareIntent, "Share Insight"))
+                }
+            )
+        } else {
+            WisdomList(
+                uiState = uiState,
+                onRefresh = { viewModel.loadArticles() },
+                onSelectArticle = { viewModel.selectArticle(it) },
+                onReadArticle = { article ->
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(article.link))
+                    context.startActivity(intent)
+                },
+                onShareArticle = { article ->
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, "💡 Daily Leadership Tip: ${article.title}\n\nRead more: ${article.link}")
+                    }
+                    context.startActivity(Intent.createChooser(shareIntent, "Share Insight"))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun WisdomList(
+    uiState: com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.WisdomUiState,
+    onRefresh: () -> Unit,
+    onSelectArticle: (RssItem) -> Unit,
+    onReadArticle: (RssItem) -> Unit,
+    onShareArticle: (RssItem) -> Unit
+) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        // Header Row
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Daily Wisdom",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = AppPalette.Stone900
+                )
+                Text(
+                    text = "Curated insights for your growth",
+                    fontSize = 16.sp,
+                    color = AppPalette.Stone500
+                )
+            }
+            IconButton(onClick = onRefresh) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh Feed",
+                    tint = AppPalette.Sage600,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
 
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = AppPalette.Sage600)
             }
         } else if (uiState.error != null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                Text(text = uiState.error, color = MaterialTheme.colorScheme.error)
             }
         } else {
             LazyColumn(
@@ -74,19 +150,9 @@ fun WisdomScreen(
                     item {
                         HeroWisdomCard(
                             article = uiState.articles.first(),
-                            onReadClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uiState.articles.first().link))
-                                context.startActivity(intent)
-                            },
-                            onSummarizeClick = { viewModel.selectArticle(uiState.articles.first()) },
-                            onShareClick = {
-                                val shareIntent = Intent().apply {
-                                    action = Intent.ACTION_SEND
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, "💡 Daily Leadership Tip: ${uiState.articles.first().title}\n\nRead more: ${uiState.articles.first().link}")
-                                }
-                                context.startActivity(Intent.createChooser(shareIntent, "Share Insight"))
-                            }
+                            onReadClick = { onReadArticle(uiState.articles.first()) },
+                            onSummarizeClick = { onSelectArticle(uiState.articles.first()) },
+                            onShareClick = { onShareArticle(uiState.articles.first()) }
                         )
                     }
                 }
@@ -95,75 +161,164 @@ fun WisdomScreen(
                 items(uiState.articles.drop(1)) { article ->
                     WisdomFeedItem(
                         article = article,
-                        onClick = { viewModel.selectArticle(article) }
+                        onClick = { onSelectArticle(article) }
                     )
                 }
             }
         }
     }
+}
 
-    // Article Detail/Summary Sheet
-    if (uiState.selectedArticle != null) {
-        val article = uiState.selectedArticle!!
-        
-        AlertDialog(
-            onDismissRequest = { viewModel.clearSelection() },
-            title = { Text(text = "Insight Summary") },
-            text = {
-                Column {
-                    Text(text = article.title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    if (uiState.isSummarizing) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                        Text("Gemini is reading...", modifier = Modifier.align(Alignment.CenterHorizontally))
-                    } else if (uiState.articleSummary != null) {
-                        Text(text = uiState.articleSummary!!, style = MaterialTheme.typography.bodyMedium)
+@Composable
+fun WisdomDetailView(
+    article: RssItem,
+    summary: String?,
+    isSummarizing: Boolean,
+    onBack: () -> Unit,
+    onSummarize: () -> Unit,
+    onReadFull: () -> Unit,
+    onShare: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Top Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = AppPalette.Stone900)
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Insight Detail",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = AppPalette.Stone900
+            )
+        }
+
+        Column(modifier = Modifier.padding(24.dp)) {
+            // Meta
+            Text(
+                text = article.source.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = AppPalette.Sage600,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Title
+            Text(
+                text = article.title,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = AppPalette.Stone900
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // AI Summary Section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = AppPalette.Stone50),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, AppPalette.Stone300)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("✨", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "AI EXECUTIVE SUMMARY",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = AppPalette.Lavender500
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (isSummarizing) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = AppPalette.Lavender500
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Analyzing article...", color = AppPalette.Stone500)
+                        }
+                    } else if (summary != null) {
+                        Text(
+                            text = summary,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = AppPalette.Stone900,
+                            lineHeight = 24.sp
+                        )
                     } else {
-                        Text(text = article.description, maxLines = 5, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            text = "Get the key takeaways without reading the whole article.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = AppPalette.Stone500
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
-                            onClick = { viewModel.summarizeArticle(article) },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Lavender500)
+                            onClick = onSummarize,
+                            colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Lavender500),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("✨ Summarize with AI")
+                            Text("Generate Summary")
                         }
                     }
-                }
-            },
-            confirmButton = {
-                Row {
-                    // Share Button
-                    TextButton(
-                        onClick = {
-                            val shareIntent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, "💡 Leadership Insight:\n\n${uiState.articleSummary ?: article.title}\n\nRead more: ${article.link}")
-                            }
-                            context.startActivity(Intent.createChooser(shareIntent, "Share Insight"))
-                        }
-                    ) {
-                        Text("Share")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(article.link))
-                            context.startActivity(intent)
-                        }
-                    ) {
-                        Text("Read Full Article")
-                    }
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.clearSelection() }) {
-                    Text("Close")
                 }
             }
-        )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Original Snippet
+            Text(
+                text = "Original Snippet",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = AppPalette.Stone900
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = article.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = AppPalette.Stone700,
+                lineHeight = 24.sp
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Actions
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = onReadFull,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Sage600)
+                ) {
+                    Text("Read Full Article")
+                }
+                OutlinedButton(
+                    onClick = onShare,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AppPalette.Sage600)
+                ) {
+                    Text("Share")
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(100.dp)) // Bottom padding
+        }
     }
 }
 
