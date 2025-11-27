@@ -30,10 +30,12 @@ import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.Hist
 @Composable
 fun HistoryScreen(
     onSessionClick: (Long) -> Unit,
+    onStartSession: () -> Unit,
     viewModel: HistoryViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     
     // Group sessions by date
     val groupedSessions = remember(uiState.sessions) {
@@ -76,7 +78,7 @@ fun HistoryScreen(
                 }
             }
         } else if (uiState.sessions.isEmpty()) {
-            EmptyHistoryState()
+            EmptyHistoryState(onStartSession)
         } else {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
@@ -114,6 +116,7 @@ fun HistoryScreen(
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = {
                                 if (it == SwipeToDismissBoxValue.EndToStart) {
+                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                                     viewModel.deleteSession(session.id)
                                     true
                                 } else {
@@ -165,7 +168,7 @@ fun HistoryScreen(
 }
 
 @Composable
-fun EmptyHistoryState() {
+fun EmptyHistoryState(onStartSession: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -215,5 +218,38 @@ fun EmptyHistoryState() {
             textAlign = TextAlign.Center,
             lineHeight = 24.sp
         )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = onStartSession,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .height(56.dp)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(24.dp),
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Mic,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "Start New Session",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }

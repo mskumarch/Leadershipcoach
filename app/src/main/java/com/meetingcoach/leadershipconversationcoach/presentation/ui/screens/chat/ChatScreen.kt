@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.*
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.home.HomeIdleState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.domain.models.MessageType
@@ -48,7 +50,9 @@ fun ChatScreen(
     val sessionState by viewModel.sessionState.collectAsState()
     var inputText by remember { mutableStateOf("") }
     var showSessionModeModal by remember { mutableStateOf(false) }
+    var showSessionModeModal by remember { mutableStateOf(false) }
     var showQuickActions by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
 
     Box(
         modifier = modifier
@@ -160,12 +164,18 @@ fun ChatScreen(
 
                                         // AI response bubble
                                         MessageType.AI_RESPONSE -> {
-                                            GlassmorphicAICard {
-                                                Text(
-                                                    text = message.content,
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
+                                            if (message.content == "Thinking...") {
+                                                GlassmorphicAICard {
+                                                    TypingIndicator()
+                                                }
+                                            } else {
+                                                GlassmorphicAICard {
+                                                    Text(
+                                                        text = message.content,
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                }
                                             }
                                         }
                                         else -> {}
@@ -204,6 +214,7 @@ fun ChatScreen(
                                 onValueChange = { inputText = it },
                                 onSend = {
                                     if (inputText.isNotBlank()) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                         viewModel.addUserMessage(inputText)
                                         val aiResponse = viewModel.getAIResponse(inputText)
                                         viewModel.addAIResponse(aiResponse)
@@ -217,7 +228,10 @@ fun ChatScreen(
 
                 // Floating Stop Button - Centered above input
                 FloatingActionButton(
-                    onClick = { viewModel.stopSession() },
+                    onClick = { 
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.stopSession() 
+                    },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 100.dp), // Aligned with Menu FAB
@@ -292,6 +306,7 @@ fun ChatScreen(
                     if (mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.ROLEPLAY) {
                         onNavigateToPractice()
                     } else {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         viewModel.startSession(mode, hasRecordAudioPermission)
                     }
                     showSessionModeModal = false

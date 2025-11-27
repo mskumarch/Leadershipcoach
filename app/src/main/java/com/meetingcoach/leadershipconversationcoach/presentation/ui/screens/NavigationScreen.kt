@@ -130,6 +130,7 @@ fun NavigationScreen(
                     }
                     3 -> HistoryScreen(
                         onSessionClick = { sessionId -> selectedSessionId = sessionId },
+                        onStartSession = { selectedTab = 0 },
                         modifier = Modifier.padding(paddingValues)
                     )
                     4 -> SettingsScreen(
