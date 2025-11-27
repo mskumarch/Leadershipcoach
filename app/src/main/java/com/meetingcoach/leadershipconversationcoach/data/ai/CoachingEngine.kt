@@ -319,7 +319,67 @@ class CoachingEngine(
         
         // Check Personality (every 2 minutes)
         checkPersonality()
+        
+        // Master Coach Advanced Checks
+        checkAdvancedPatterns()
     }
+
+    private suspend fun checkAdvancedPatterns() {
+        val transcript = getConversationContext()
+        if (transcript.isBlank()) return
+
+        // 1. Check Commitment Quality (if "I will" or "I'll" detected recently)
+        val lastUserChunk = recentTranscripts.lastOrNull { it.isFromUser() }?.text ?: ""
+        if (lastUserChunk.contains("I will", ignoreCase = true) || lastUserChunk.contains("I'll", ignoreCase = true)) {
+            val analysis = geminiService.analyzeCommitmentQuality(lastUserChunk)
+            if (analysis != null && analysis.type == "VAGUE") {
+                val nudge = ChatMessage(
+                    type = MessageType.IMPORTANT_PROMPT,
+                    content = "Vague commitment detected. ${analysis.advice}",
+                    priority = Priority.IMPORTANT
+                )
+                if (!isDuplicateNudge(nudge.content)) {
+                    onNudgeGenerated?.invoke(nudge)
+                    nudgeHistory.add(nudge.content)
+                }
+            }
+        }
+
+        // 2. Check Mindset (Fixed vs Growth) - every 3 mins or so
+        if (System.currentTimeMillis() - lastMindsetCheckTime > 180_000L) {
+            val analysis = geminiService.detectMindset(transcript)
+            if (analysis != null && analysis.mindset == "FIXED") {
+                lastMindsetCheckTime = System.currentTimeMillis()
+                val nudge = ChatMessage(
+                    type = MessageType.HELPFUL_TIP,
+                    content = "Fixed mindset detected: \"${analysis.phrase}\". Try: ${analysis.suggestion}",
+                    priority = Priority.HELPFUL
+                )
+                if (!isDuplicateNudge(nudge.content)) {
+                    onNudgeGenerated?.invoke(nudge)
+                    nudgeHistory.add(nudge.content)
+                }
+            }
+        }
+        
+        // 3. Deep Inquiry (if user just asked a question)
+        if (lastUserChunk.endsWith("?")) {
+            val deepQuestion = geminiService.deepenInquiry(lastUserChunk, transcript)
+            if (deepQuestion != null) {
+                val nudge = ChatMessage(
+                    type = MessageType.HELPFUL_TIP,
+                    content = "Dig deeper: \"$deepQuestion\"",
+                    priority = Priority.HELPFUL
+                )
+                if (!isDuplicateNudge(nudge.content)) {
+                    onNudgeGenerated?.invoke(nudge)
+                    nudgeHistory.add(nudge.content)
+                }
+            }
+        }
+    }
+
+    private var lastMindsetCheckTime: Long = 0L
 
     private var lastPersonalityCheckTime: Long = 0L
 
