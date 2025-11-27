@@ -6,9 +6,8 @@ To make the app feel like a premium, paid product, focus on these "delight" deta
 *   ✅ **Pulsing Recording Indicator**: Added a breathing animation to the red dot during recording.
 *   ✅ **Formatted Summaries**: Auto-formatting bullet points in insights.
 
-## 2. Loading States (Next)
-*   **Skeleton/Shimmer Loading**: Replace `CircularProgressIndicator` with a "Shimmer" effect (gray pulsing boxes) that mimics the layout of the content. This makes the app feel faster.
-    *   *Where*: History Screen, Insights Tab.
+## 2. Loading States (Implemented)
+*   ✅ **Skeleton/Shimmer Loading**: Replaced `CircularProgressIndicator` with a "Shimmer" effect (gray pulsing boxes) in the History Screen. This makes the app feel faster.
 
 ## 3. Empty States
 *   **Call to Action**: Don't just say "No Sessions". Add a big "Start Session" button directly in the empty state.
