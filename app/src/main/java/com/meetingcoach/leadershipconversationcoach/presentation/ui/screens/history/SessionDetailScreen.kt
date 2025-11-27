@@ -202,16 +202,7 @@ fun InsightsTab(
             }
         }
 
-        // 2. Game Film (Timeline Analysis)
-        item {
-            ExpandableMasterCoachCard(title = "Game Film", icon = "🎬", defaultExpanded = true) {
-                GameFilmTimeline(
-                    durationSeconds = sessionDetails.session.durationSeconds,
-                    messages = sessionDetails.messages,
-                    startedAt = sessionDetails.session.startedAt
-                )
-            }
-        }
+
 
         // 3. Session Summary (The "Executive Brief") - Expandable
         item {
