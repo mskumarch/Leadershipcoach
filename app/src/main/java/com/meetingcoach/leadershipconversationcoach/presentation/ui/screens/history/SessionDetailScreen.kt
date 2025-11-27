@@ -117,13 +117,67 @@ fun SessionDetailScreen(
             }
         }
     }
+
+
+    // Follow-Up Dialog
+    if (uiState.generatedFollowUp != null) {
+        FollowUpDialog(
+            content = uiState.generatedFollowUp!!,
+            onDismiss = { viewModel.clearFollowUpDraft() },
+            onCopy = { 
+                // Copy to clipboard logic would go here
+                viewModel.clearFollowUpDraft()
+            }
+        )
+    }
+}
+
+@Composable
+fun FollowUpDialog(
+    content: String,
+    onDismiss: () -> Unit,
+    onCopy: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("One-Tap Follow-Up") },
+        text = {
+            Column {
+                Text("Ready to send to your team member:", style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = content,
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onCopy) {
+                Text("Copy to Clipboard")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
 
 @Composable
 fun InsightsTab(
     sessionDetails: com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails,
-    averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple?
+    averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple?,
+    viewModel: HistoryViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -203,6 +257,24 @@ fun InsightsTab(
                 )
                 ActionItemRow("Send email update", "You", "Tomorrow")
                 ActionItemRow("Prepare slide deck", "Mentee", "Fri")
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // One-Tap Follow-Up Button
+                Button(
+                    onClick = { viewModel.generateFollowUpDraft(sessionDetails.session.id) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    enabled = !uiState.isGeneratingFollowUp
+                ) {
+                    if (uiState.isGeneratingFollowUp) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Drafting...")
+                    } else {
+                        Text("✉️ Draft Follow-Up Email")
+                    }
+                }
             }
         }
 

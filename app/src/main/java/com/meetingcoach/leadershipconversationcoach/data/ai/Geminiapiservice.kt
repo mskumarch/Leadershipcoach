@@ -216,6 +216,24 @@ class GeminiApiService(
     }
 
     /**
+     * Generate "One-Tap Follow-Up" email draft
+     */
+    suspend fun generateFollowUpMessage(
+        summary: String,
+        actionItems: String,
+        decisions: String
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = CoachingPrompts.generateFollowUpMessage(summary, actionItems, decisions)
+            val response = generativeModel.generateContent(prompt)
+            response.text?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error generating follow-up: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Deep analysis of the session using AUDIO (for Speaker ID and Tone)
      */
     suspend fun analyzeAudioSession(

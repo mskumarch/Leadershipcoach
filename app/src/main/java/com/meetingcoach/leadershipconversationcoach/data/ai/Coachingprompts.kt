@@ -666,6 +666,49 @@ object CoachingPrompts {
         """.trimIndent()
     }
 
+    /**
+     * Generate "One-Tap Follow-Up" email draft
+     */
+    fun generateFollowUpMessage(
+        summary: String,
+        actionItems: String,
+        decisions: String
+    ): String {
+        return """
+            You are an executive assistant for a leadership coach.
+            Draft a short, professional follow-up email/message for the user to send to their team member after a 1:1 session.
+            
+            SESSION CONTEXT:
+            Summary: "$summary"
+            Decisions Made: "$decisions"
+            Action Items: "$actionItems"
+            
+            FORMAT:
+            Subject: Recap: Our 1:1 & Next Steps
+            
+            Hi [Name],
+            
+            Great connecting today. Here is a quick recap of what we discussed:
+            
+            **Key Decisions:**
+            [Bullet points of decisions]
+            
+            **Action Items:**
+            [Bullet points of action items with owners]
+            
+            Let's pick up on this next time.
+            
+            Thanks,
+            [My Name]
+            
+            CRITERIA:
+            - Professional but warm tone
+            - Extremely concise (no fluff)
+            - Bullet points for readability
+            - Ready to copy/paste
+        """.trimIndent()
+    }
+
     // ============================================================
     // CONTEXT BUILDERS
     // ============================================================
