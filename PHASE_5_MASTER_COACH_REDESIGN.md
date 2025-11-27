@@ -48,11 +48,16 @@ This phase focuses on transforming the app into a high-performance executive coa
     *   Progress trajectory.
 *   **Design**: Minimalist charts, Soft blue/purple gradient background, Rounded tiles.
 
-## 6. Final Polish
-- [ ] **Review**: Ensure all new features work seamlessly together.
-- [ ] **Testing**: Verify "Master Coach" persona across all screens.
+## 6. Final Polish (Completed)
+- [x] **Session Summary**: Implemented "Traffic Light" header for instant health check.
+- [x] **Cognitive Load**: Converted summary cards to "Expandable Accordions" to hide detail until needed.
+- [x] **Ghost Mode**: Implemented fade-out logic for Live Coach HUD when metrics are healthy (30-70% Talk Ratio).
+- [x] **Refinement**: Polished `SessionDetailScreen` and `ChatScreen` for better visual hierarchy.
 
-## 7. Implementation Plan
+## 7. Next Steps
+- [ ] **One-Tap Follow-Up**: Implement AI generation of accountability emails.
+- [ ] **Game Film**: Map audio timestamps to key moments.
+- [ ] **Testing**: Verify "Master Coach" persona across all screens.
 
 ### Step 1: Live Coach Mode (`ChatScreen.kt`)
 *   Add `NotePanel` component with pill selectors.

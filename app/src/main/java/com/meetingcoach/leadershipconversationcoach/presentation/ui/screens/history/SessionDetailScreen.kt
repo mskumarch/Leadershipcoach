@@ -3,12 +3,15 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.his
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +31,10 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meetingcoach.leadershipconversationcoach.data.local.SessionMessageEntity
 import com.meetingcoach.leadershipconversationcoach.data.local.SessionMetricsEntity
@@ -123,9 +130,14 @@ fun InsightsTab(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Session Summary (The "Executive Brief")
+        // 1. Session Health Header (Traffic Light)
         item {
-            MasterCoachCard(title = "Session Summary", icon = "📝") {
+            SessionHealthHeader(metrics = sessionDetails.metrics)
+        }
+
+        // 2. Session Summary (The "Executive Brief") - Expandable
+        item {
+            ExpandableMasterCoachCard(title = "Session Summary", icon = "📝", defaultExpanded = false) {
                 Text(
                     text = sessionDetails.metrics?.summary ?: "No summary available yet.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -134,27 +146,32 @@ fun InsightsTab(
             }
         }
 
-        // 2. Scorecard (Quantitative)
+        // 3. Scorecard (Quantitative) - Expandable
         item {
-            ScorecardSection(
-                metrics = sessionDetails.metrics, 
-                sessionMode = sessionDetails.session.mode,
-                averageMetrics = averageMetrics
-            )
+            ExpandableMasterCoachCard(title = "Performance Scorecard", icon = "📊", defaultExpanded = false) {
+                ScorecardSection(
+                    metrics = sessionDetails.metrics, 
+                    sessionMode = sessionDetails.session.mode,
+                    averageMetrics = averageMetrics,
+                    isEmbedded = true
+                )
+            }
         }
 
-        // 3. Strengths & Improvements (The "Feedback Loop")
+        // 4. Strengths & Improvements (The "Feedback Loop") - Expandable
         item {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Column(modifier = Modifier.weight(1f)) {
-                    MasterCoachCard(title = "Strengths", icon = "💪", color = MaterialTheme.colorScheme.primaryContainer) {
+            ExpandableMasterCoachCard(title = "Feedback Loop", icon = "🔄", defaultExpanded = false) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Strengths", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.height(8.dp))
                         // Mock data or parse from metrics
                         BulletPoint("Clear communication")
                         BulletPoint("Empathetic listening")
                     }
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    MasterCoachCard(title = "Improvements", icon = "📈", color = MaterialTheme.colorScheme.tertiaryContainer) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Improvements", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.tertiary)
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = sessionDetails.metrics?.improvements ?: "None identified.",
                             style = MaterialTheme.typography.bodySmall
@@ -164,7 +181,7 @@ fun InsightsTab(
             }
         }
 
-        // 4. Decisions & Action Items (The "Accountability")
+        // 5. Decisions & Action Items (The "Accountability") - Always Expanded
         item {
             MasterCoachCard(title = "Action Plan", icon = "✅") {
                 Text(
@@ -189,12 +206,100 @@ fun InsightsTab(
             }
         }
 
-        // 5. Next Agenda (The "Forward Look")
+        // 6. Next Agenda (The "Forward Look") - Expandable
         item {
-            MasterCoachCard(title = "Next Session Agenda", icon = "📅") {
+            ExpandableMasterCoachCard(title = "Next Session Agenda", icon = "📅", defaultExpanded = false) {
                 BulletPoint("Review progress on action items")
                 BulletPoint("Deep dive into 'Strategic Thinking'")
                 BulletPoint("Feedback on recent presentation")
+            }
+        }
+    }
+}
+
+@Composable
+fun SessionHealthHeader(metrics: SessionMetricsEntity?) {
+    val healthStatus = when {
+        metrics == null -> Triple("Analyzing...", Color.Gray, "Waiting for data...")
+        metrics.empathyScore > 70 && metrics.clarityScore > 70 -> Triple("Clarity Mode", Color(0xFF4CAF50), "High alignment & clarity detected.")
+        metrics.empathyScore < 50 || metrics.interruptionCount > 5 -> Triple("Intervention Mode", Color(0xFFE57373), "Tension or disengagement detected.")
+        else -> Triple("Calibration Mode", Color(0xFFFFB74D), "Good progress, but expectations vague.")
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = healthStatus.second.copy(alpha = 0.1f)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, healthStatus.second.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .background(healthStatus.second, androidx.compose.foundation.shape.CircleShape)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = healthStatus.first,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = healthStatus.second
+                )
+                Text(
+                    text = healthStatus.third,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ExpandableMasterCoachCard(
+    title: String,
+    icon: String,
+    defaultExpanded: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    var expanded by remember { mutableStateOf(defaultExpanded) }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+            ) {
+                Text(text = icon, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(end = 8.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            androidx.compose.animation.AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    content()
+                }
             }
         }
     }
@@ -434,7 +539,8 @@ fun ChatHistoryItem(message: SessionMessageEntity) {
 fun ScorecardSection(
     metrics: SessionMetricsEntity?, 
     sessionMode: String = "ONE_ON_ONE",
-    averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple? = null
+    averageMetrics: com.meetingcoach.leadershipconversationcoach.data.local.AverageMetricsTuple? = null,
+    isEmbedded: Boolean = false
 ) {
     val labels = when (sessionMode) {
         "TEAM_MEETING" -> Triple("Alignment", "Participation", "Clarity")
@@ -442,17 +548,22 @@ fun ScorecardSection(
         else -> Triple("Empathy", "Clarity", "Listening")
     }
 
+    val containerColor = if (isEmbedded) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant
+    
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth()
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        modifier = Modifier.fillMaxWidth(),
+        elevation = if (isEmbedded) CardDefaults.cardElevation(defaultElevation = 0.dp) else CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Performance Scorecard",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = if (isEmbedded) Modifier else Modifier.padding(16.dp)) {
+            if (!isEmbedded) {
+                Text(
+                    text = "Performance Scorecard",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             if (metrics != null) {
                 MetricRow(labels.first, metrics.empathyScore, averageMetrics?.avgEmpathy)
