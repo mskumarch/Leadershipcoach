@@ -4,6 +4,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -93,6 +94,12 @@ fun HomeIdleState(
                     QuickTipChip("📊 Post-Session Analytics")
                     QuickTipChip("🎭 Roleplay Practice")
                 }
+                
+                // Daily Tip Teaser
+                DailyTipTeaser(
+                    tip = "When delegating, define the 'What' and 'When,' but let them define the 'How'.",
+                    onClick = { /* TODO: Navigate to Wisdom Tab */ }
+                )
             }
             
             // Bottom Navigation - Handled by NavigationScreen
@@ -116,5 +123,40 @@ fun QuickTipChip(text: String) {
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+@Composable
+fun DailyTipTeaser(tip: String, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.8f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("💡", fontSize = 24.sp)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = "DAILY TIP",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = AppPalette.Sage600,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = tip,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AppPalette.Stone900,
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }

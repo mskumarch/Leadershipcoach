@@ -234,6 +234,23 @@ class GeminiApiService(
     }
 
     /**
+     * Summarize article content
+     */
+    suspend fun summarizeArticle(
+        title: String,
+        content: String
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = CoachingPrompts.summarizeArticle(title, content)
+            val response = generativeModel.generateContent(prompt)
+            response.text?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error summarizing article: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Deep analysis of the session using AUDIO (for Speaker ID and Tone)
      */
     suspend fun analyzeAudioSession(
