@@ -343,18 +343,20 @@ class GeminiApiService(
             - WORDING: Filler words vs Power words?
             - IMPROVEMENTS: 3 actionable tips.
             
-            Format your response EXACTLY as follows:
-            SCORE_1: [0-100]
-            SCORE_2: [0-100]
-            SCORE_3: [0-100]
-            SUMMARY: [Detailed analysis of tone and dynamics]
-            PACE: [Analysis]
-            WORDING: [Analysis]
-            IMPROVEMENTS: [Point 1 | Point 2 | Point 3]
-            TRANSCRIPT_JSON:
-            [
-              {"speaker": "Speaker 1", "text": "..."}
-            ]
+            Format your response EXACTLY as valid JSON:
+            {
+              "score_1": [0-100],
+              "score_2": [0-100],
+              "score_3": [0-100],
+              "summary": "Detailed analysis of tone and dynamics...",
+              "pace_analysis": "Analysis...",
+              "wording_analysis": "Analysis...",
+              "improvements": ["Point 1", "Point 2", "Point 3"],
+              "transcript": [
+                {"speaker": "Speaker 1", "text": "..."},
+                {"speaker": "Speaker 2", "text": "..."}
+              ]
+            }
         """.trimIndent()
     }
 
@@ -449,7 +451,11 @@ class GeminiApiService(
             
             val finalSummary = if (takeaways.isNotEmpty()) "$summary\n\nKey Takeaways:\n• $takeaways" else summary
 
-            return SessionAnalysisResult(score1, score2, score3, finalSummary, pace, wording, improvements, null)
+            // Handle transcript array
+            val transcriptArray = json.optJSONArray("transcript")
+            val transcriptJson = transcriptArray?.toString()
+
+            return SessionAnalysisResult(score1, score2, score3, finalSummary, pace, wording, improvements, transcriptJson)
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing session analysis JSON: ${e.message}", e)
             // Fallback to old regex parsing if JSON fails
