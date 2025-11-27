@@ -656,7 +656,7 @@ fun FloatingPillNav(
     Surface(
         modifier = modifier
             .height(72.dp)
-            .width(340.dp),
+            .width(380.dp), // Increased width for 6 items
         shape = RoundedCornerShape(36.dp),
         color = NavGlassBase,
         shadowElevation = 8.dp
@@ -667,6 +667,7 @@ fun FloatingPillNav(
             verticalAlignment = Alignment.CenterVertically
         ) {
             NavIcon(icon = "🏠", label = "Home", isActive = currentTab == 0, onClick = { onTabSelected(0) })
+            NavIcon(icon = "💡", label = "Wisdom", isActive = currentTab == 5, onClick = { onTabSelected(5) }) // New Wisdom Tab
             NavIcon(icon = "📝", label = "Live", isActive = currentTab == 1, onClick = { onTabSelected(1) })
             NavIcon(icon = "📊", label = "Stats", isActive = currentTab == 2, onClick = { onTabSelected(2) })
             NavIcon(icon = "📜", label = "History", isActive = currentTab == 3, onClick = { onTabSelected(3) })

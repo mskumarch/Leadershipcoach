@@ -709,6 +709,29 @@ object CoachingPrompts {
         """.trimIndent()
     }
 
+    /**
+     * Summarize an article into a "Golden Nugget"
+     */
+    fun summarizeArticle(title: String, content: String): String {
+        return """
+            Summarize this leadership article into a single "Golden Nugget" (one actionable sentence) and 3 key takeaways.
+            
+            Article: "$title"
+            Content Snippet: "$content"
+            
+            Format:
+            NUGGET: [One sentence]
+            TAKEAWAYS:
+            - [Point 1]
+            - [Point 2]
+            - [Point 3]
+            
+            CRITERIA:
+            - Focus on actionable advice for managers
+            - Keep it concise
+        """.trimIndent()
+    }
+
     // ============================================================
     // CONTEXT BUILDERS
     // ============================================================

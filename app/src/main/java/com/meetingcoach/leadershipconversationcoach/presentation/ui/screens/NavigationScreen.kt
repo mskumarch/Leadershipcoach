@@ -38,6 +38,7 @@ import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.CalmGr
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.CalmGreenEnd
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.practice.PracticeModeScreen
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.wisdom.WisdomScreen
 
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.gamification.AchievementsScreen
 
@@ -116,6 +117,9 @@ fun NavigationScreen(
                                 modifier = Modifier.padding(paddingValues)
                             )
                             4 -> SettingsScreen(
+                                modifier = Modifier.padding(paddingValues)
+                            )
+                            5 -> WisdomScreen(
                                 modifier = Modifier.padding(paddingValues)
                             )
                         }
