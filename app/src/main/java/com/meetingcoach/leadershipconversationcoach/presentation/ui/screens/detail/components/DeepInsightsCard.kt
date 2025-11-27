@@ -61,7 +61,7 @@ fun DeepInsightsCard(
             color = when {
                 talkRatio in 60..70 -> AppPalette.Sage600
                 talkRatio in 40..80 -> AppPalette.Stone500
-                else -> AppPalette.Stone400
+                else -> AppPalette.Stone500
             }
         )
 
@@ -77,7 +77,7 @@ fun DeepInsightsCard(
             color = when {
                 interruptions == 0 -> AppPalette.Sage600
                 interruptions <= 2 -> AppPalette.Stone500
-                else -> AppPalette.Stone400
+                else -> AppPalette.Stone500
             }
         )
 
@@ -122,7 +122,7 @@ fun DeepInsightsCard(
                         Text(
                             text = commitment,
                             fontSize = 13.sp,
-                            color = AppPalette.Stone800,
+                            color = AppPalette.Stone900,
                             lineHeight = 18.sp,
                             modifier = Modifier.weight(1f)
                         )

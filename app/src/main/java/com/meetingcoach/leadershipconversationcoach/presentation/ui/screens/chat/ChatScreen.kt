@@ -70,12 +70,31 @@ fun ChatScreen(
 
     var showQuickActions by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
+    val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
+
+    // Show Guardian nudges as snackbar
+    LaunchedEffect(activeNudge) {
+        activeNudge?.let { nudge ->
+            snackbarHostState.showSnackbar(
+                message = nudge.message,
+                duration = androidx.compose.material3.SnackbarDuration.Short
+            )
+        }
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        // Snackbar for Guardian nudges
+        androidx.compose.material3.SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 80.dp)
+        )
+        
         if (sessionState.isRecording) {
             // ============================================================
             // RECORDING STATE
