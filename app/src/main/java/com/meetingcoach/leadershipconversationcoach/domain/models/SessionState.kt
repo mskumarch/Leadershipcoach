@@ -16,6 +16,7 @@ package com.meetingcoach.leadershipconversationcoach.domain.models
 data class SessionState(
     // Session status
     val isRecording: Boolean = false,
+    val isPaused: Boolean = false,
     val mode: SessionMode? = null,
     val startTime: Long? = null,
     val duration: String = "00:00",

@@ -12,6 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,8 +50,19 @@ fun ChatScreen(
     onNavigateToPractice: () -> Unit
 ) {
     val sessionState by viewModel.sessionState.collectAsState()
+    val audioLevel by viewModel.audioLevel.collectAsState()
     var inputText by remember { mutableStateOf("") }
     var showSessionModeModal by remember { mutableStateOf(false) }
+    var showSaveDialog by remember { mutableStateOf(false) }
+    var wasRecording by remember { mutableStateOf(false) }
+
+    LaunchedEffect(sessionState.isRecording) {
+        if (wasRecording && !sessionState.isRecording) {
+            // Session just stopped
+            showSaveDialog = true
+        }
+        wasRecording = sessionState.isRecording
+    }
 
     var showQuickActions by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
@@ -75,28 +88,20 @@ fun ChatScreen(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Pulsing recording dot
-                        val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-                        val alpha by infiniteTransition.animateFloat(
-                            initialValue = 1f,
-                            targetValue = 0.2f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(1000),
-                                repeatMode = RepeatMode.Reverse
-                            ),
-                            label = "alpha"
-                        )
-                        
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .background(MaterialTheme.colorScheme.error.copy(alpha = alpha), CircleShape)
+                        // Pulsing recording dot with live amplitude
+                        PulsingConcentricCircles(
+                            modifier = Modifier.size(24.dp),
+                            isActive = sessionState.isRecording && !sessionState.isPaused,
+                            amplitude = audioLevel,
+                            size = 24.dp,
+                            centerColor = if (sessionState.isPaused) AppPalette.Stone500 else MaterialTheme.colorScheme.error,
+                            ringColor = if (sessionState.isPaused) AppPalette.Stone300 else MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
 
                         Text(
-                            text = "Recording",
+                            text = if (sessionState.isPaused) "Paused" else "Recording",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onBackground
@@ -226,25 +231,50 @@ fun ChatScreen(
                     }
                 }
 
-                // Floating Stop Button - Centered above input
-                FloatingActionButton(
-                    onClick = { 
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        viewModel.stopSession() 
-                    },
+                // Floating Controls - Centered above input
+                Row(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 100.dp), // Aligned with Menu FAB
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
+                        .padding(bottom = 100.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    // Pause/Resume Button
+                    SmallFloatingActionButton(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            if (sessionState.isPaused) {
+                                viewModel.resumeSession()
+                            } else {
+                                viewModel.pauseSession()
+                            }
+                        },
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ) {
-                        Icon(Icons.Default.Stop, contentDescription = "Stop")
-                        Text("Stop Session", fontWeight = FontWeight.Bold)
+                        Icon(
+                            imageVector = if (sessionState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                            contentDescription = if (sessionState.isPaused) "Resume" else "Pause"
+                        )
+                    }
+
+                    // Stop Button
+                    FloatingActionButton(
+                        onClick = { 
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            viewModel.stopSession() 
+                        },
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(Icons.Default.Stop, contentDescription = "Stop")
+                            Text("Stop Session", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -312,6 +342,45 @@ fun ChatScreen(
                     showSessionModeModal = false
                 },
                 onDismiss = { showSessionModeModal = false }
+            )
+        }
+
+        // Save Session Title Dialog
+        if (showSaveDialog) {
+            var titleInput by remember { mutableStateOf("") }
+            AlertDialog(
+                onDismissRequest = { showSaveDialog = false },
+                title = { Text("Save Session") },
+                text = {
+                    Column {
+                        Text("Add a title to this session to find it easily later.")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        OutlinedTextField(
+                            value = titleInput,
+                            onValueChange = { titleInput = it },
+                            label = { Text("Session Title") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            if (titleInput.isNotBlank()) {
+                                viewModel.updateLastSessionTitle(titleInput)
+                            }
+                            showSaveDialog = false
+                        }
+                    ) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showSaveDialog = false }) {
+                        Text("Skip")
+                    }
+                }
             )
         }
     }

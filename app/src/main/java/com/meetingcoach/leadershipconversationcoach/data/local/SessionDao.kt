@@ -53,6 +53,9 @@ interface SessionDao {
             deleteSession(session)
         }
     }
+
+    @Query("UPDATE sessions SET title = :title WHERE id = :sessionId")
+    suspend fun updateSessionTitle(sessionId: Long, title: String)
 }
 
 data class AverageMetricsTuple(

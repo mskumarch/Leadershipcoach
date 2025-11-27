@@ -49,7 +49,8 @@ class CloudSpeechToTextService(
 
     override fun startListening(
         onTranscriptReceived: (TranscriptChunk) -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        onAudioLevelChanged: ((Float) -> Unit)?
     ) {
         // TODO: Implement Google Cloud STT streaming recognition
         onError("Google Cloud STT not yet implemented. Use Android STT instead.")
@@ -84,10 +85,11 @@ class CloudSpeechToTextService(
 
     override fun resumeListening(
         onTranscriptReceived: (TranscriptChunk) -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        onAudioLevelChanged: ((Float) -> Unit)?
     ) {
         // TODO: Resume streaming
-        startListening(onTranscriptReceived, onError)
+        startListening(onTranscriptReceived, onError, onAudioLevelChanged)
     }
 
     override fun isListening(): Boolean = isCurrentlyListening

@@ -48,6 +48,9 @@ class SessionViewModel @Inject constructor(
     private val _sessionState = MutableStateFlow(SessionState())
     val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
 
+    private val _audioLevel = MutableStateFlow(0f)
+    val audioLevel: StateFlow<Float> = _audioLevel.asStateFlow()
+
     // Services
     private var sttService: LocalSpeechToTextService? = null
     // private var geminiService: GeminiApiService? = null // Removed, using injected instance
@@ -57,6 +60,9 @@ class SessionViewModel @Inject constructor(
 
     // Timer
     private var timerJob: Job? = null
+    
+    // Session Data
+    private var lastSavedSessionId: Long? = null
 
     // Settings
     private var currentAnalysisInterval = 60_000L
@@ -140,6 +146,54 @@ class SessionViewModel @Inject constructor(
         } else {
             context.startService(serviceIntent)
         }
+    }
+
+
+
+    fun pauseSession() {
+        val currentState = _sessionState.value
+        if (!currentState.isRecording || currentState.isPaused) return
+
+        _sessionState.update { it.copy(isPaused = true) }
+        
+        // Pause STT
+        sttService?.pauseListening()
+        
+        // Pause Timer (handled in loop)
+    }
+
+    fun resumeSession() {
+        val currentState = _sessionState.value
+        if (!currentState.isRecording || !currentState.isPaused) return
+
+        // Adjust start time to account for pause duration
+        // This is a simplification; for precision, we should track total pause time
+        // But for now, we'll just let the timer loop resume
+        
+        _sessionState.update { it.copy(isPaused = false) }
+        
+        // Resume STT
+        sttService?.resumeListening(
+            onTranscriptReceived = { chunk ->
+                // Same logic as startListening
+                if (!chunk.isPartial) {
+                    val message = ChatMessage(
+                        type = MessageType.TRANSCRIPT,
+                        content = chunk.text,
+                        speaker = chunk.speaker,
+                        metadata = com.meetingcoach.leadershipconversationcoach.domain.models.MessageMetadata(
+                            emotion = chunk.emotion,
+                            confidence = chunk.confidence
+                        )
+                    )
+                    addMessage(message)
+                    coachingEngine?.addTranscript(chunk)
+                    updateMetrics()
+                }
+            },
+            onError = { error -> Log.e(TAG, "STT Error: $error") },
+            onAudioLevelChanged = { level -> _audioLevel.value = level }
+        )
     }
 
     fun stopSession() {
@@ -231,6 +285,7 @@ class SessionViewModel @Inject constructor(
                         metrics = metrics
                     )
                     val sessionId = result.getOrThrow()
+                    lastSavedSessionId = sessionId
                     Log.d(TAG, "Session saved successfully")
                     
                     // Notify UI
@@ -286,6 +341,13 @@ class SessionViewModel @Inject constructor(
         }
     }
 
+    fun updateLastSessionTitle(title: String) {
+        val sessionId = lastSavedSessionId ?: return
+        viewModelScope.launch {
+            sessionRepository.updateSessionTitle(sessionId, title)
+        }
+    }
+
     // ============================================================
     // SPEECH-TO-TEXT
     // ============================================================
@@ -324,6 +386,9 @@ class SessionViewModel @Inject constructor(
             },
             onError = { error ->
                 Log.e(TAG, "STT Error: $error")
+            },
+            onAudioLevelChanged = { level ->
+                _audioLevel.value = level
             }
         )
 
@@ -516,14 +581,34 @@ class SessionViewModel @Inject constructor(
 
     private fun startTimer() {
         timerJob = viewModelScope.launch {
+            var pausedDuration = 0L
+            var lastPauseTime = 0L
+            
             while (true) {
                 delay(1000)
-                val elapsed = System.currentTimeMillis() - (_sessionState.value.startTime ?: 0)
-                val minutes = (elapsed / 60000).toInt()
-                val seconds = ((elapsed % 60000) / 1000).toInt()
-                val duration = String.format("%02d:%02d", minutes, seconds)
+                
+                val currentState = _sessionState.value
+                
+                if (currentState.isPaused) {
+                    if (lastPauseTime == 0L) {
+                        lastPauseTime = System.currentTimeMillis()
+                    }
+                    continue
+                } else {
+                    if (lastPauseTime != 0L) {
+                        pausedDuration += (System.currentTimeMillis() - lastPauseTime)
+                        lastPauseTime = 0L
+                    }
+                }
+                
+                if (currentState.isRecording) {
+                    val elapsed = System.currentTimeMillis() - (currentState.startTime ?: 0) - pausedDuration
+                    val minutes = (elapsed / 60000).toInt()
+                    val seconds = ((elapsed % 60000) / 1000).toInt()
+                    val duration = String.format("%02d:%02d", minutes, seconds)
 
-                _sessionState.update { it.copy(duration = duration) }
+                    _sessionState.update { it.copy(duration = duration) }
+                }
             }
         }
     }

@@ -36,41 +36,34 @@ import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPal
 fun PulsingConcentricCircles(
     modifier: Modifier = Modifier,
     isActive: Boolean = true,
-    centerColor: Color = AppPalette.Lavender500, // Lavender
+    amplitude: Float = 0f,
+    centerColor: Color = AppPalette.Lavender500,
     ringColor: Color = AppPalette.Lavender500.copy(alpha = 0.3f),
     size: Dp = 200.dp
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     
-    val scale1 by infiniteTransition.animateFloat(
+    // Base pulse animation
+    val baseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
-        targetValue = 1.4f,
+        targetValue = 1.1f,
         animationSpec = infiniteRepeatable(
             animation = tween(2000, easing = EaseInOut),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "scale1"
+        label = "baseScale"
     )
+
+    // Dynamic scale based on amplitude (boosted for visibility)
+    val dynamicScale = 1f + (amplitude * 0.5f)
     
-    val scale2 by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale2"
-    )
+    // Combine base pulse with dynamic amplitude
+    // If amplitude is present, it dominates. If silent, gentle pulse remains.
+    val effectiveScale = if (amplitude > 0.05f) dynamicScale else baseScale
     
-    val scale3 by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale3"
-    )
+    val scale1 = effectiveScale
+    val scale2 = effectiveScale * 1.2f
+    val scale3 = effectiveScale * 1.4f
     
     Box(
         modifier = modifier.size(size),

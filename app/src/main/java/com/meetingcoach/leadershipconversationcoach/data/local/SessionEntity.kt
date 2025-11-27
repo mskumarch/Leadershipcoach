@@ -11,6 +11,7 @@ data class SessionEntity(
     val startedAt: Long,
     val endedAt: Long,
     val mode: String,
+    val title: String? = null,
     val durationSeconds: Int,
     val createdAt: Long = System.currentTimeMillis()
 )

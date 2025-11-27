@@ -34,7 +34,8 @@ interface SpeechToTextService {
      */
     fun startListening(
         onTranscriptReceived: (TranscriptChunk) -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        onAudioLevelChanged: ((Float) -> Unit)? = null
     )
 
     /**
@@ -68,9 +69,10 @@ interface SpeechToTextService {
      */
     fun resumeListening(
         onTranscriptReceived: (TranscriptChunk) -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        onAudioLevelChanged: ((Float) -> Unit)? = null
     ) {
-        startListening(onTranscriptReceived, onError)
+        startListening(onTranscriptReceived, onError, onAudioLevelChanged)
     }
 
     /**
