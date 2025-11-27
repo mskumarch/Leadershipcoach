@@ -332,6 +332,7 @@ class GeminiApiService(
             1. SPEAKER ID: Identify different speakers (Speaker 1, Speaker 2, etc.).
             2. TONE ANALYSIS: Listen for hesitation, confidence, sarcasm, or tension.
             3. TRANSCRIPT: Generate a high-quality transcript with speaker labels.
+            4. DEEP INSIGHTS: Extract commitments, analyze questions, and detect patterns.
             
             Analyze the following metrics (0-100):
             1. Empathy
@@ -343,6 +344,12 @@ class GeminiApiService(
             - WORDING: Filler words vs Power words?
             - IMPROVEMENTS: 3 actionable tips.
             
+            DEEP INSIGHTS:
+            - COMMITMENTS: Extract any promises or action items mentioned (e.g., "I will send the report by Friday")
+            - QUESTIONS: Count open-ended vs closed questions asked by the manager
+            - TALK RATIO: Estimate percentage of time each speaker talked
+            - INTERRUPTIONS: Did the manager interrupt? How many times?
+            
             Format your response EXACTLY as valid JSON:
             {
               "score_1": [0-100],
@@ -352,6 +359,11 @@ class GeminiApiService(
               "pace_analysis": "Analysis...",
               "wording_analysis": "Analysis...",
               "improvements": ["Point 1", "Point 2", "Point 3"],
+              "commitments": ["Commitment 1", "Commitment 2"],
+              "open_questions": 5,
+              "closed_questions": 3,
+              "manager_talk_percentage": 40,
+              "interruption_count": 2,
               "transcript": [
                 {"speaker": "Speaker 1", "text": "..."},
                 {"speaker": "Speaker 2", "text": "..."}
@@ -455,7 +467,21 @@ class GeminiApiService(
             val transcriptArray = json.optJSONArray("transcript")
             val transcriptJson = transcriptArray?.toString()
 
-            return SessionAnalysisResult(score1, score2, score3, finalSummary, pace, wording, improvements, transcriptJson)
+            // Deep Insights
+            val commitmentsArray = json.optJSONArray("commitments")
+            val commitments = if (commitmentsArray != null) {
+                (0 until commitmentsArray.length()).map { commitmentsArray.getString(it) }
+            } else emptyList()
+
+            val openQuestions = json.optInt("open_questions", 0)
+            val closedQuestions = json.optInt("closed_questions", 0)
+            val managerTalkPercentage = json.optInt("manager_talk_percentage", 50)
+            val interruptionCount = json.optInt("interruption_count", 0)
+
+            return SessionAnalysisResult(
+                score1, score2, score3, finalSummary, pace, wording, improvements, transcriptJson,
+                commitments, openQuestions, closedQuestions, managerTalkPercentage, interruptionCount
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing session analysis JSON: ${e.message}", e)
             // Fallback to old regex parsing if JSON fails
@@ -548,5 +574,11 @@ data class SessionAnalysisResult(
     val paceAnalysis: String,
     val wordingAnalysis: String,
     val improvements: String,
-    val transcriptJson: String? = null
+    val transcriptJson: String? = null,
+    // Deep Insights
+    val commitments: List<String> = emptyList(),
+    val openQuestions: Int = 0,
+    val closedQuestions: Int = 0,
+    val managerTalkPercentage: Int = 50,
+    val interruptionCount: Int = 0
 )

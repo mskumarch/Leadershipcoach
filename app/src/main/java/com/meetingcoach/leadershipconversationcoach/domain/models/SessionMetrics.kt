@@ -75,6 +75,7 @@ data class SessionMetrics(
     val wordingAnalysis: String? = null,
     val improvements: String? = null,
     val aiTranscriptJson: String? = null,
+    val commitments: List<String> = emptyList(), // Deep Insights: Action items/promises
     val lastUpdated: Long = System.currentTimeMillis()
 ) {
 
