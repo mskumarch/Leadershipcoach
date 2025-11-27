@@ -50,7 +50,7 @@ fun ChatScreen(
     val sessionState by viewModel.sessionState.collectAsState()
     var inputText by remember { mutableStateOf("") }
     var showSessionModeModal by remember { mutableStateOf(false) }
-    var showSessionModeModal by remember { mutableStateOf(false) }
+
     var showQuickActions by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
 
