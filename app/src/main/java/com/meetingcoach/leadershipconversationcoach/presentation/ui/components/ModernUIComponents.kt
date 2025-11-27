@@ -36,7 +36,6 @@ import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPal
 fun PulsingConcentricCircles(
     modifier: Modifier = Modifier,
     isActive: Boolean = true,
-
     centerColor: Color = AppPalette.Lavender500, // Lavender
     ringColor: Color = AppPalette.Lavender500.copy(alpha = 0.3f),
     size: Dp = 200.dp
