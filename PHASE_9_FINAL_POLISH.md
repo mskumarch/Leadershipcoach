@@ -45,10 +45,9 @@ Address the specific design critique to elevate the app to a 10/10 premium stand
 - [x] **Coaching Style**: Convert to Dropdown. (Completed)
 
 ### E. 💡 Session Insights
-- [ ] **Headers**: Increase font weight (+100) for "Performance Scorecard" and "Feedback Loop".
-- [ ] **Action Plan Button**: Add slight shadow or gloss.
-- [ ] **Spacing**: Add `10dp` spacing between sections.
-
+- [x] **Headers**: Increase font weight (+100) for "Performance Scorecard" and "Feedback Loop". (Completed)
+- [x] **Spacing**: Add `8dp` extra margin between sections (Total 24dp). (Completed)
+- [x] **Cards**: Ensure all insight cards use the new `PremiumCard` style (white bg, soft shadow). (Completed - Already using PremiumCard)
 ### F. 🏠 Home Landing Screen
 - [ ] **Start Button**: Add depth shadow (`0dp 8dp 20dp rgba(0,0,0,0.12)`).
 - [ ] **Icons**: Ensure starter icons match the new outlined style.

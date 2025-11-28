@@ -180,10 +180,7 @@ fun HeroScoreCard(score: Int) {
         }
     }
 }
-            }
-        }
-    }
-}
+
 
 @Composable
 fun MetricCard(
