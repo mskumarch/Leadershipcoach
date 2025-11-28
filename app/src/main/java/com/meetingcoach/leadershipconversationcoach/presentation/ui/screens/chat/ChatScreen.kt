@@ -70,10 +70,11 @@ fun ChatScreen(
     // Auto-scroll state
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     
-    // Scroll to bottom on new message
-    LaunchedEffect(sessionState.messages.size) {
-        if (sessionState.messages.isNotEmpty()) {
-            listState.animateScrollToItem(sessionState.messages.size - 1)
+    // Scroll to bottom on new message or partial transcript
+    LaunchedEffect(sessionState.messages.size, sessionState.partialTranscript) {
+        val totalItems = sessionState.messages.size + if (sessionState.partialTranscript.isNotEmpty()) 1 else 0
+        if (totalItems > 0) {
+            listState.animateScrollToItem(totalItems - 1)
         }
     }
 
