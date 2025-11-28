@@ -206,32 +206,86 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = DeepCharcoal,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
                 
-                val styles = listOf("EMPATHETIC" to "Empathetic Friend", "EXECUTIVE" to "Executive Coach", "SOCRATIC" to "Socratic Mentor")
+                val styles = listOf(
+                    "EMPATHETIC" to "🤗 Empathetic Friend", 
+                    "EXECUTIVE" to "👔 Executive Coach", 
+                    "SOCRATIC" to "🤔 Socratic Mentor"
+                )
                 
-                styles.forEach { (key, label) ->
-                    Row(
+                var styleExpanded by remember { mutableStateOf(false) }
+                val selectedStyle = styles.find { it.first == coachingStyle } ?: styles[0]
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(
+                            elevation = 2.dp,
+                            shape = RoundedCornerShape(16.dp),
+                            spotColor = AppPalette.Sage500.copy(alpha = 0.1f)
+                        )
+                ) {
+                    OutlinedButton(
+                        onClick = { styleExpanded = true },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = DeepCharcoal
+                        ),
+                        border = null
                     ) {
-                        RadioButton(
-                            selected = coachingStyle == key,
-                            onClick = { viewModel.setCoachingStyle(key) },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = AppPalette.Sage600,
-                                unselectedColor = AppPalette.Stone500
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = selectedStyle.second,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
                             )
-                        )
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = DeepCharcoal,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Expand",
+                                tint = AppPalette.Sage600
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = styleExpanded,
+                        onDismissRequest = { styleExpanded = false },
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                    ) {
+                        styles.forEach { (key, label) ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = label,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = if (key == coachingStyle) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (key == coachingStyle) AppPalette.Sage600 else DeepCharcoal
+                                    )
+                                },
+                                onClick = {
+                                    viewModel.setCoachingStyle(key)
+                                    styleExpanded = false
+                                },
+                                modifier = Modifier.background(
+                                    if (key == coachingStyle) AppPalette.Sage100.copy(alpha = 0.5f) else Color.Transparent
+                                )
+                            )
+                        }
                     }
                 }
             }

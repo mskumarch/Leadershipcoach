@@ -52,7 +52,13 @@ fun SessionCard(
     )
 
     com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(22.dp),
+                spotColor = Color.Black.copy(alpha = 0.05f)
+            ),
         onClick = onClick
     ) {
         Box(
@@ -93,6 +99,7 @@ fun SessionCard(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Modern Avatar
                         Box(
                             modifier = Modifier
                                 .size(56.dp)
@@ -108,8 +115,10 @@ fun SessionCard(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = mode.getIcon(),
-                                fontSize = 28.sp
+                                text = (session.title?.take(1) ?: mode.getDisplayName().take(1)).uppercase(),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF4DB6AC)
                             )
                         }
 
@@ -137,7 +146,9 @@ fun SessionCard(
                         imageVector = Icons.Default.ArrowForward,
                         contentDescription = "View details",
                         tint = Color(0xFF9575CD),
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier
+                            .size(24.dp)
+                            .offset(y = (-4).dp) // Raise arrow by 4dp
                     )
                 }
 
