@@ -28,6 +28,7 @@ data class SessionState(
     val metrics: SessionMetrics = SessionMetrics(),
 
     // UI state
+    val partialTranscript: String = "",
     val isProcessing: Boolean = false,
     val error: String? = null
 )
