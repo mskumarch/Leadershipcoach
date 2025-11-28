@@ -34,7 +34,8 @@ class SessionViewModel @Inject constructor(
     private val gamificationRepository: GamificationRepository,
     private val coachingOrchestrator: CoachingOrchestrator,
     private val sessionManager: SessionManager,
-    private val analyzeSessionUseCase: AnalyzeSessionUseCase
+    private val analyzeSessionUseCase: AnalyzeSessionUseCase,
+    private val analyzeDynamicsUseCase: com.meetingcoach.leadershipconversationcoach.domain.usecase.AnalyzeDynamicsUseCase
 ) : ViewModel() {
 
     companion object {
@@ -44,6 +45,10 @@ class SessionViewModel @Inject constructor(
     // State
     private val _sessionState = MutableStateFlow(SessionState())
     val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
+
+    // Dynamics Analysis State
+    private val _dynamicsAnalysis = MutableStateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.DynamicsAnalysis?>(null)
+    val dynamicsAnalysis: StateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.DynamicsAnalysis?> = _dynamicsAnalysis.asStateFlow()
 
     // Audio level from SessionManager
     val audioLevel: StateFlow<Float> = sessionManager.audioLevel
@@ -79,6 +84,21 @@ class SessionViewModel @Inject constructor(
                     )
                     addMessage(message)
                     updateMetrics()
+
+                    // Trigger Dynamics Analysis if in DYNAMICS mode
+                    if (_sessionState.value.mode == SessionMode.DYNAMICS) {
+                        val analysis = analyzeDynamicsUseCase(chunk.text)
+                        _dynamicsAnalysis.value = analysis
+                        
+                        // If there is strategic advice, show it as a nudge
+                        analysis.strategicAdvice?.let { advice ->
+                             addMessage(ChatMessage(
+                                type = MessageType.URGENT_NUDGE,
+                                content = advice,
+                                priority = Priority.URGENT
+                            ))
+                        }
+                    }
                 }
             }
         }
