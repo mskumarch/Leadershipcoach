@@ -37,7 +37,7 @@ object CoachingPrompts {
             SessionMode.TEAM_MEETING -> "Provide 3 tips for better team facilitation."
             SessionMode.DIFFICULT_CONVERSATION -> "Provide 3 tips for conflict resolution."
             SessionMode.ROLEPLAY -> "Provide 3 tips for mastering this roleplay scenario."
-            SessionMode.OFFICE_POLITICS -> "Provide 3 tips for navigating office politics and power dynamics."
+            SessionMode.DYNAMICS -> "Provide 3 tips for navigating office politics and power dynamics."
         }
     }
 
@@ -226,7 +226,7 @@ object CoachingPrompts {
             SessionMode.TEAM_MEETING -> "Focus on inclusion, clarity of direction, and time management. Identify if the user is dominating or facilitating."
             SessionMode.DIFFICULT_CONVERSATION -> "Focus on de-escalation, clear boundaries, and staying calm. Identify emotional triggers."
             SessionMode.ROLEPLAY -> "Focus on staying in character, responding naturally, and achieving the scenario goal."
-            SessionMode.OFFICE_POLITICS -> "Focus on power dynamics, hidden agendas, and strategic communication. Identify influence opportunities."
+            SessionMode.DYNAMICS -> "Focus on power dynamics, hidden agendas, and strategic communication. Identify influence opportunities."
         }
     }
 
