@@ -70,11 +70,8 @@ fun NavigationScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(CalmGreenStart, CalmGreenEnd)
-                    )
-                )
+                .background(androidx.compose.ui.graphics.Color.White)
+
         ) {
             // Main Content
             Box(modifier = Modifier.padding(bottom = if (selectedSessionId == null && !showPracticeMode && !showAchievements) 80.dp else 0.dp)) {
