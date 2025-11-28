@@ -295,7 +295,7 @@ private fun getCoachingTips(mode: SessionMode): List<CoachingTip> {
                 category = "LEARNING"
             )
         )
-        SessionMode.OFFICE_POLITICS -> listOf(
+        SessionMode.DYNAMICS -> listOf(
             CoachingTip(
                 icon = "♟️",
                 title = "Map the players",

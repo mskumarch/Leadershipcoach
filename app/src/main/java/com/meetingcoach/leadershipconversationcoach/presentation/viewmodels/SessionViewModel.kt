@@ -365,7 +365,7 @@ class SessionViewModel @Inject constructor(
                 "What was the outcome?",
                 "Give me some feedback on my response."
             )
-            SessionMode.OFFICE_POLITICS -> listOf(
+            SessionMode.DYNAMICS -> listOf(
                 "Who are the key stakeholders here?",
                 "What is the underlying motivation?",
                 "How does this align with our goals?",
