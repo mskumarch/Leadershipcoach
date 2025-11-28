@@ -64,6 +64,7 @@ fun ChatScreen(
     
     var inputText by remember { mutableStateOf("") }
     var showSessionModeModal by remember { mutableStateOf(false) }
+    var showStakeholderDialog by remember { mutableStateOf(false) }
     var showSaveDialog by remember { mutableStateOf(false) }
     var wasRecording by remember { mutableStateOf(false) }
 
@@ -375,13 +376,37 @@ fun ChatScreen(
                 onModeSelected = { mode: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode ->
                     if (mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.ROLEPLAY) {
                         onNavigateToPractice()
+                        showSessionModeModal = false
+                    } else if (mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.DYNAMICS) {
+                        // Show Stakeholder Selector for Dynamics Mode
+                        showSessionModeModal = false
+                        showStakeholderDialog = true
                     } else {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         viewModel.startSession(mode, hasRecordAudioPermission)
+                        showSessionModeModal = false
                     }
-                    showSessionModeModal = false
                 },
                 onDismiss = { showSessionModeModal = false }
+            )
+        }
+
+        // Stakeholder Selector Dialog
+        if (showStakeholderDialog) {
+            val stakeholders by viewModel.stakeholders.collectAsState()
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.dynamics.StakeholderSelectorDialog(
+                stakeholders = stakeholders,
+                onStakeholderSelected = { stakeholder ->
+                    viewModel.setSelectedStakeholder(stakeholder)
+                    viewModel.startSession(com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.DYNAMICS, hasRecordAudioPermission)
+                    showStakeholderDialog = false
+                },
+                onSkip = {
+                    viewModel.setSelectedStakeholder(null)
+                    viewModel.startSession(com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.DYNAMICS, hasRecordAudioPermission)
+                    showStakeholderDialog = false
+                },
+                onDismiss = { showStakeholderDialog = false }
             )
         }
 

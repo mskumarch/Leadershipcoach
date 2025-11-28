@@ -11,14 +11,17 @@ import androidx.room.RoomDatabase
         SessionMessageEntity::class,
         SessionMetricsEntity::class,
         AchievementEntity::class,
-        PendingAnalysisEntity::class
+        PendingAnalysisEntity::class,
+        StakeholderEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
+@androidx.room.TypeConverters(StakeholderConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun sessionDao(): SessionDao
     abstract fun achievementDao(): AchievementDao
+    abstract fun stakeholderDao(): StakeholderDao
 
     companion object {
         @Volatile

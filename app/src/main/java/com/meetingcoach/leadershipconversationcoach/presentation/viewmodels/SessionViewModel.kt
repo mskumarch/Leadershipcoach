@@ -35,7 +35,8 @@ class SessionViewModel @Inject constructor(
     private val coachingOrchestrator: CoachingOrchestrator,
     private val sessionManager: SessionManager,
     private val analyzeSessionUseCase: AnalyzeSessionUseCase,
-    private val analyzeDynamicsUseCase: com.meetingcoach.leadershipconversationcoach.domain.usecase.AnalyzeDynamicsUseCase
+    private val analyzeDynamicsUseCase: com.meetingcoach.leadershipconversationcoach.domain.usecase.AnalyzeDynamicsUseCase,
+    private val stakeholderRepository: com.meetingcoach.leadershipconversationcoach.data.repository.StakeholderRepository
 ) : ViewModel() {
 
     companion object {
@@ -49,6 +50,13 @@ class SessionViewModel @Inject constructor(
     // Dynamics Analysis State
     private val _dynamicsAnalysis = MutableStateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.DynamicsAnalysis?>(null)
     val dynamicsAnalysis: StateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.DynamicsAnalysis?> = _dynamicsAnalysis.asStateFlow()
+
+    // Stakeholders State
+    private val _stakeholders = MutableStateFlow<List<com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder>>(emptyList())
+    val stakeholders: StateFlow<List<com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder>> = _stakeholders.asStateFlow()
+
+    private val _selectedStakeholder = MutableStateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder?>(null)
+    val selectedStakeholder: StateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder?> = _selectedStakeholder.asStateFlow()
 
     // Audio level from SessionManager
     val audioLevel: StateFlow<Float> = sessionManager.audioLevel
@@ -108,6 +116,48 @@ class SessionViewModel @Inject constructor(
                 addMessage(nudge)
             }
         }
+
+        loadStakeholders()
+    }
+
+    private fun loadStakeholders() {
+        viewModelScope.launch {
+            stakeholderRepository.getAllStakeholders().collect { list ->
+                if (list.isEmpty()) {
+                    seedStakeholders()
+                } else {
+                    _stakeholders.value = list
+                }
+            }
+        }
+    }
+
+    private suspend fun seedStakeholders() {
+        val defaultStakeholders = listOf(
+            com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder(
+                name = "Sarah (CFO)",
+                role = "Chief Financial Officer",
+                relationship = "Peer",
+                tendencies = listOf(
+                    com.meetingcoach.leadershipconversationcoach.domain.models.BehavioralTendency("Deflection", "High", "Ask for specific numbers."),
+                    com.meetingcoach.leadershipconversationcoach.domain.models.BehavioralTendency("Risk Aversion", "Medium", "Highlight ROI and safety.")
+                )
+            ),
+            com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder(
+                name = "John (Eng Lead)",
+                role = "Engineering Manager",
+                relationship = "Direct Report",
+                tendencies = listOf(
+                    com.meetingcoach.leadershipconversationcoach.domain.models.BehavioralTendency("Vague Commitment", "High", "Anchor dates and owners."),
+                    com.meetingcoach.leadershipconversationcoach.domain.models.BehavioralTendency("Technical Detail", "High", "Keep it high level.")
+                )
+            )
+        )
+        defaultStakeholders.forEach { stakeholderRepository.addStakeholder(it) }
+    }
+
+    fun setSelectedStakeholder(stakeholder: com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder?) {
+        _selectedStakeholder.value = stakeholder
     }
 
     // ============================================================
