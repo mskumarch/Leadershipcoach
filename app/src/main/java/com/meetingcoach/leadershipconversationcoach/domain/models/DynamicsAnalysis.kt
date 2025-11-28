@@ -16,6 +16,7 @@ data class DynamicsAnalysis(
 data class DynamicsSignal(
     val type: SignalType,
     val description: String,
+    val suggestedResponse: String? = null,
     val confidence: Float, // 0.0 - 1.0
     val timestamp: Long = System.currentTimeMillis()
 )

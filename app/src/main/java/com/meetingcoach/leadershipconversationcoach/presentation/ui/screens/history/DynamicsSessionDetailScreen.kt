@@ -1,14 +1,19 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -18,41 +23,84 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
+import kotlinx.coroutines.launch
 
 /**
  * DynamicsSessionDetailScreen
  * "The Shadow Report" - Specialized insights for Dynamics Mode sessions.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DynamicsSessionDetailScreen(
     sessionDetails: SessionWithDetails,
     onBackClick: () -> Unit
 ) {
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val scope = rememberCoroutineScope()
+    val tabs = listOf("Analysis", "Transcript", "Coaching")
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { 
-                    Column {
-                        Text("Strategic Analysis", fontWeight = FontWeight.Bold)
-                        Text(
-                            "Dynamics Mode", 
-                            style = MaterialTheme.typography.labelSmall, 
-                            color = AppPalette.Sage400
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF1E293B), // Slate 800
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+            Column {
+                TopAppBar(
+                    title = { 
+                        Column {
+                            Text("Strategic Analysis", fontWeight = FontWeight.Bold)
+                            Text(
+                                "Dynamics Mode", 
+                                style = MaterialTheme.typography.labelSmall, 
+                                color = AppPalette.Sage400
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color(0xFF1E293B), // Slate 800
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
+                    )
                 )
-            )
+                
+                Surface(
+                    shadowElevation = 4.dp,
+                    color = Color(0xFF1E293B) // Slate 800
+                ) {
+                    TabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                        containerColor = Color(0xFF1E293B),
+                        contentColor = AppPalette.Sage400,
+                        indicator = { tabPositions ->
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                height = 3.dp,
+                                color = AppPalette.Sage400
+                            )
+                        }
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = pagerState.currentPage == index,
+                                onClick = { 
+                                    scope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
+                                text = { 
+                                    Text(
+                                        text = title,
+                                        fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (pagerState.currentPage == index) Color.White else Color.Gray
+                                    ) 
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
     ) { padding ->
         Box(
@@ -68,27 +116,80 @@ fun DynamicsSessionDetailScreen(
                 )
                 .padding(padding)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                // 1. Power Dynamics Score (Summary)
-                item {
-                    PowerDynamicsScoreCard(score = 85) // Mock score for now
-                }
-
-                // 2. Alignment Map (Timeline)
-                item {
-                    AlignmentMapCard()
-                }
-
-                // 3. Subtext Decoder (The "Meat")
-                item {
-                    SubtextDecoderSection()
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                when (page) {
+                    0 -> DynamicsAnalysisTab(sessionDetails)
+                    1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
+                    2 -> CoachingTab(sessionDetails.messages)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun DynamicsAnalysisTab(sessionDetails: SessionWithDetails) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // 1. Power Dynamics Score (Summary)
+        item {
+            PowerDynamicsScoreCard(score = 85) // Mock score for now
+        }
+
+        // 2. Alignment Map (Timeline)
+        item {
+            AlignmentMapCard()
+        }
+
+        // 3. Subtext Decoder (The "Meat")
+        item {
+            SubtextDecoderSection()
+        }
+        
+        // 4. Next Meeting Strategy
+        item {
+            NextMeetingStrategyCard()
+        }
+    }
+}
+
+@Composable
+fun NextMeetingStrategyCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2D3748)), // Darker Slate
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = "Next Meeting Strategy",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            StrategyItem("Build Rapport", "Start with a personal check-in to lower their defenses.")
+            StrategyItem("Push for Specifics", "Don't accept 'we'll see'. Ask 'When exactly?'")
+            StrategyItem("Leverage Allies", "Mention support from the Engineering team to validate your point.")
+        }
+    }
+}
+
+@Composable
+fun StrategyItem(title: String, description: String) {
+    Row(modifier = Modifier.padding(bottom = 12.dp)) {
+        Text(text = "👉", modifier = Modifier.padding(end = 8.dp))
+        Column {
+            Text(text = title, fontWeight = FontWeight.Bold, color = AppPalette.Sage400)
+            Text(text = description, style = MaterialTheme.typography.bodyMedium, color = Color.LightGray)
         }
     }
 }
