@@ -58,6 +58,16 @@ We will leverage the existing **Glass/Sage** system but introduce a **"Strategic
 ---
 
 ## 🚀 Next Steps (Immediate)
-1.  **Define the Data Model**: Update `SessionType` to include `DYNAMICS`.
-2.  **Prototype the "Radar" Screen**: Build the UI for the new recording state.
-3.  **Test the "Decoder" Prompt**: Manually test AI prompts with sample "political" transcripts to see if it catches the subtext.
+1.  **Phase 3: The "Shadow Report"**:
+    *   Create `DynamicsSessionDetailScreen` to visualize the analysis post-session.
+    *   Implement "Subtext Decoder" list (showing the detected signals in the transcript).
+    *   Add "Power Dynamics Score" to the summary.
+
+## ✅ Completed
+*   **Phase 1: The "Real-Time Decoder" Foundation**:
+    *   Added `DYNAMICS` session mode.
+    *   Created `DynamicsRecordingScreen` with Radar UI.
+    *   Implemented `AnalyzeDynamicsUseCase` ("The Brain").
+*   **Phase 2: Strategic Nudges**:
+    *   Implemented real-time detection of Deflection, Vague Commitments, and Resistance.
+    *   Connected analysis to the UI (Alignment Meter & Nudges).

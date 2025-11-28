@@ -40,6 +40,7 @@ fun DynamicsRecordingScreen(
 ) {
     val sessionState by viewModel.sessionState.collectAsState()
     val audioLevel by viewModel.audioLevel.collectAsState()
+    val dynamicsAnalysis by viewModel.dynamicsAnalysis.collectAsState()
     
     // Strategic Background (Darker Sage/Slate)
     Box(
@@ -134,11 +135,39 @@ fun DynamicsRecordingScreen(
         
         // Alignment Meter (Bottom Left)
         AlignmentMeter(
-            alignmentScore = 75, // Mock score for now
+            alignmentScore = dynamicsAnalysis?.alignmentScore ?: 50,
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(bottom = 48.dp, start = 24.dp)
         )
+
+        // Strategic Advice Overlay (if urgent)
+        dynamicsAnalysis?.strategicAdvice?.let { advice ->
+            Card(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 100.dp, start = 24.dp, end = 24.dp)
+                    .fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = AppPalette.Sage900.copy(alpha = 0.9f)),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "♟️",
+                        fontSize = 24.sp,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                    Text(
+                        text = advice,
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -199,16 +228,18 @@ fun RadarView(isActive: Boolean) {
                 end = Offset(endX, endY),
                 strokeWidth = 2.dp.toPx()
             )
-            
-            // Sweep Gradient (Sector)
-            // This is complex to draw perfectly with standard Canvas without Path, 
-            // so we'll stick to the line for now or use a rotating gradient circle.
         }
     }
 }
 
 @Composable
 fun AlignmentMeter(alignmentScore: Int, modifier: Modifier = Modifier) {
+    val color = when {
+        alignmentScore >= 75 -> AppPalette.Sage400 // Green/Good
+        alignmentScore >= 40 -> Color(0xFFFBBF24)  // Yellow/Warning
+        else -> AppPalette.Red500                  // Red/Danger
+    }
+
     Column(modifier = modifier) {
         Text(
             text = "ALIGNMENT",
@@ -221,8 +252,23 @@ fun AlignmentMeter(alignmentScore: Int, modifier: Modifier = Modifier) {
             Text(
                 text = "$alignmentScore%",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
+                color = color,
                 fontWeight = FontWeight.Bold
+            )
+        }
+        
+        // Simple Bar
+        Box(
+            modifier = Modifier
+                .width(100.dp)
+                .height(4.dp)
+                .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(2.dp))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(alignmentScore / 100f)
+                    .height(4.dp)
+                    .background(color, RoundedCornerShape(2.dp))
             )
         }
     }
