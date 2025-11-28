@@ -173,13 +173,42 @@ fun DynamicsRecordingScreen(
             }
         }
         
-        // Alignment Meter (Bottom Left)
-        AlignmentMeter(
-            alignmentScore = dynamicsAnalysis?.alignmentScore ?: 100,
+        // Transcript Feed (Bottom Overlay)
+    val lastTranscript = sessionState.messages.lastOrNull { it.type == com.meetingcoach.leadershipconversationcoach.domain.models.MessageType.TRANSCRIPT }?.content
+    val currentText = if (sessionState.partialTranscript.isNotEmpty()) sessionState.partialTranscript else lastTranscript
+
+    if (!currentText.isNullOrEmpty()) {
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(bottom = 48.dp, start = 24.dp)
-        )
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 120.dp, start = 16.dp, end = 16.dp)
+                .fillMaxWidth()
+                .heightIn(max = 100.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f))
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+        ) {
+            Text(
+                text = currentText,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                modifier = Modifier.padding(16.dp),
+                maxLines = 3,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+        }
+    }
+
+    // Alignment Meter (Bottom Left)
+    AlignmentMeter(
+        alignmentScore = dynamicsAnalysis?.alignmentScore ?: 100, // Use live data, default to 100
+        modifier = Modifier
+            .align(Alignment.BottomStart)
+            .padding(bottom = 48.dp, start = 24.dp)
+    )
 
         // Live Subtext Decoder (Signals List)
         if (!dynamicsAnalysis?.detectedSignals.isNullOrEmpty()) {

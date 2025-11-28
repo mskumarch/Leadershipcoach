@@ -49,8 +49,8 @@ class LocalSpeechToTextService @Inject constructor(
     // Throttling variables
     private var lastFinalResultTime = 0L
     private var lastPartialResultTime = 0L
-    private val MIN_TIME_BETWEEN_FINALS = 1500L // 1.5 seconds between final results
-    private val MIN_TIME_BETWEEN_PARTIALS = 500L // 0.5 seconds between partial updates
+    private val MIN_TIME_BETWEEN_FINALS = 1000L // 1.0 seconds between final results
+    private val MIN_TIME_BETWEEN_PARTIALS = 50L // 50ms (very responsive)
 
     companion object {
         private const val TAG = "LocalSTT"
