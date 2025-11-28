@@ -51,26 +51,16 @@ fun SessionCard(
         label = "shimmer"
     )
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(20.dp),
-                spotColor = Color.Black.copy(alpha = 0.1f)
-            ),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent // We'll use Box background for gradient
-        )
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
+        modifier = modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
         Box(
             modifier = Modifier.background(
                 brush = Brush.linearGradient(
                     colors = listOf(
                         Color.White,
-                        Color(0xFFF8FAFC) // Very subtle slate gradient
+                        Color(0xFFF8FAFC)
                     )
                 )
             )

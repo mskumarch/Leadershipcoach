@@ -1,0 +1,37 @@
+package com.meetingcoach.leadershipconversationcoach.presentation.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+
+object PremiumStyles {
+    val StandardCardRadius = 22.dp
+    val PagePadding = 20.dp
+    val SectionSpacing = 24.dp
+    
+    val TopFadeGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFE7F3ED), // Light Sage Fade
+            Color(0xFFFFFFFF)  // White
+        ),
+        startY = 0f,
+        endY = 600f // Adjust fade height as needed
+    )
+}
+
+@Composable
+fun StandardBackground(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(PremiumStyles.TopFadeGradient)
+    ) {
+        content()
+    }
+}

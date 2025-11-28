@@ -16,6 +16,7 @@ data class ProgressUiState(
     val clarityScore: Int = 0,
     val listeningScore: Int = 0,
     val weeklyActivity: List<Int> = List(7) { 0 }, // Mon-Sun
+    val averageTalkRatio: Int = 0,
     val isLoading: Boolean = false
 )
 
@@ -46,7 +47,9 @@ class ProgressViewModel @Inject constructor(
                     val avgEmpathy = metrics.map { it.empathyScore }.average().toInt()
                     val avgClarity = metrics.map { it.clarityScore }.average().toInt()
                     val avgListening = metrics.map { it.listeningScore }.average().toInt()
+
                     val overall = (avgEmpathy + avgClarity + avgListening) / 3
+                    val avgTalkRatio = metrics.map { it.talkRatioUser }.average().toInt()
 
                     // Calculate Weekly Activity
                     // This is a simplified implementation. In a real app, use Calendar/LocalDate.
@@ -72,6 +75,7 @@ class ProgressViewModel @Inject constructor(
                         clarityScore = avgClarity,
                         listeningScore = avgListening,
                         weeklyActivity = activity,
+                        averageTalkRatio = avgTalkRatio,
                         isLoading = false
                     )
                 } else {

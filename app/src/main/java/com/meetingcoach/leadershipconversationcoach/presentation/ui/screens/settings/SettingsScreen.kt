@@ -7,6 +7,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.SmartToy
+import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,7 +38,7 @@ fun SettingsScreen(
     val hapticEnabled by viewModel.hapticEnabled.collectAsState()
     val dailyNudgeTime by viewModel.dailyNudgeTime.collectAsState()
 
-    GradientBackground(modifier = modifier) {
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -59,21 +64,23 @@ fun SettingsScreen(
             // AI Coaching Section
             SectionHeader(
                 title = "AI Coaching",
-                icon = "🤖"
+                icon = androidx.compose.material.icons.Icons.Rounded.SmartToy
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             // Modern Card with Dropdown
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
+            // Modern Card with Dropdown
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 8.dp)
                 ) {
-                    Text(
-                        text = "⏱️",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(end = 8.dp)
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Rounded.Timer,
+                        contentDescription = null,
+                        tint = AppPalette.Sage600,
+                        modifier = Modifier.padding(end = 8.dp).size(24.dp)
                     )
                     Text(
                         text = "Analysis Frequency",
@@ -102,12 +109,12 @@ fun SettingsScreen(
             // Appearance Section
             SectionHeader(
                 title = "Appearance",
-                icon = "🎨"
+                icon = androidx.compose.material.icons.Icons.Rounded.Palette
             )
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Text Size",
                     style = MaterialTheme.typography.titleMedium,
@@ -151,12 +158,12 @@ fun SettingsScreen(
             // Preferences Section
             SectionHeader(
                 title = "Preferences",
-                icon = "⚙️"
+                icon = androidx.compose.material.icons.Icons.Rounded.Settings
             )
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            SettingsCard(modifier = Modifier.fillMaxWidth()) {
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(modifier = Modifier.fillMaxWidth()) {
                 // Haptic Feedback Toggle
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -242,16 +249,17 @@ fun SettingsScreen(
 @Composable
 private fun SectionHeader(
     title: String,
-    icon: String
+    icon: androidx.compose.ui.graphics.vector.ImageVector
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(bottom = 4.dp)
     ) {
-        Text(
-            text = icon,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(end = 8.dp)
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = AppPalette.Sage600,
+            modifier = Modifier.padding(end = 8.dp).size(24.dp)
         )
         Text(
             text = title,
@@ -294,7 +302,7 @@ private fun AnalysisIntervalDropdown(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.White.copy(alpha = 0.5f),
+                containerColor = Color.White,
                 contentColor = DeepCharcoal
             ),
             border = null
@@ -365,7 +373,7 @@ private fun AnalysisIntervalDropdown(
 
 @Composable
 private fun InfoCard() {
-    SettingsCard(
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Box(
@@ -387,10 +395,11 @@ private fun InfoCard() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 8.dp)
                 ) {
-                    Text(
-                        text = "💡",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(end = 8.dp)
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Rounded.Lightbulb,
+                        contentDescription = null,
+                        tint = AppPalette.Sage600,
+                        modifier = Modifier.padding(end = 8.dp).size(24.dp)
                     )
                     Text(
                         text = "Pro Tip",

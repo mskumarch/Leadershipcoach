@@ -14,6 +14,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Loop
+import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -102,19 +108,23 @@ fun SessionDetailScreen(
             }
         }
     ) { padding ->
-        if (sessionDetails == null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.padding(padding)
-            ) { page ->
-                when (page) {
-                    0 -> InsightsTab(sessionDetails, averageMetrics)
-                    1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
-                    2 -> CoachingTab(sessionDetails.messages)
+        com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(
+            modifier = Modifier.padding(padding)
+        ) {
+            if (sessionDetails == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> InsightsTab(sessionDetails, averageMetrics)
+                        1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
+                        2 -> CoachingTab(sessionDetails.messages)
+                    }
                 }
             }
         }
@@ -193,7 +203,7 @@ fun InsightsTab(
 
         // 2. Game Film (Timeline Analysis)
         item {
-            ExpandableMasterCoachCard(title = "Game Film", icon = "🎬", defaultExpanded = true) {
+            ExpandableMasterCoachCard(title = "Game Film", icon = androidx.compose.material.icons.Icons.Rounded.Movie, defaultExpanded = true) {
                 GameFilmTimeline(
                     durationSeconds = sessionDetails.session.durationSeconds,
                     messages = sessionDetails.messages,
@@ -206,7 +216,7 @@ fun InsightsTab(
 
         // 3. Session Summary (The "Executive Brief") - Expandable
         item {
-            ExpandableMasterCoachCard(title = "Session Summary", icon = "📝", defaultExpanded = false) {
+            ExpandableMasterCoachCard(title = "Session Summary", icon = androidx.compose.material.icons.Icons.Rounded.Description, defaultExpanded = false) {
                 Text(
                     text = sessionDetails.metrics?.summary ?: "No summary available yet.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -217,7 +227,7 @@ fun InsightsTab(
 
         // 3. Scorecard (Quantitative) - Expandable
         item {
-            ExpandableMasterCoachCard(title = "Performance Scorecard", icon = "📊", defaultExpanded = false) {
+            ExpandableMasterCoachCard(title = "Performance Scorecard", icon = androidx.compose.material.icons.Icons.Rounded.BarChart, defaultExpanded = false) {
                 ScorecardSection(
                     metrics = sessionDetails.metrics, 
                     sessionMode = sessionDetails.session.mode,
@@ -229,7 +239,7 @@ fun InsightsTab(
 
         // 4. Strengths & Improvements (The "Feedback Loop") - Expandable
         item {
-            ExpandableMasterCoachCard(title = "Feedback Loop", icon = "🔄", defaultExpanded = false) {
+            ExpandableMasterCoachCard(title = "Feedback Loop", icon = androidx.compose.material.icons.Icons.Rounded.Loop, defaultExpanded = false) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Strengths", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
@@ -252,7 +262,7 @@ fun InsightsTab(
 
         // 5. Decisions & Action Items (The "Accountability") - Always Expanded
         item {
-            MasterCoachCard(title = "Action Plan", icon = "✅") {
+            MasterCoachCard(title = "Action Plan", icon = androidx.compose.material.icons.Icons.Rounded.CheckCircle) {
                 Text(
                     text = "Decisions Made:",
                     style = MaterialTheme.typography.titleSmall,
@@ -295,7 +305,7 @@ fun InsightsTab(
 
         // 6. Next Agenda (The "Forward Look") - Expandable
         item {
-            ExpandableMasterCoachCard(title = "Next Session Agenda", icon = "📅", defaultExpanded = false) {
+            ExpandableMasterCoachCard(title = "Next Session Agenda", icon = androidx.compose.material.icons.Icons.Rounded.CalendarToday, defaultExpanded = false) {
                 BulletPoint("Review progress on action items")
                 BulletPoint("Deep dive into 'Strategic Thinking'")
                 BulletPoint("Feedback on recent presentation")
@@ -313,34 +323,35 @@ fun SessionHealthHeader(metrics: SessionMetricsEntity?) {
         else -> Triple("Calibration Mode", Color(0xFFFFB74D), "Good progress, but expectations vague.")
     }
 
-    Card(
-        colors = CardDefaults.cardColors(containerColor = healthStatus.second.copy(alpha = 0.1f)),
-        border = androidx.compose.foundation.BorderStroke(1.dp, healthStatus.second.copy(alpha = 0.5f)),
-        shape = RoundedCornerShape(16.dp),
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier.background(healthStatus.second.copy(alpha = 0.1f))
         ) {
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .background(healthStatus.second, androidx.compose.foundation.shape.CircleShape)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = healthStatus.first,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = healthStatus.second
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(healthStatus.second, androidx.compose.foundation.shape.CircleShape)
                 )
-                Text(
-                    text = healthStatus.third,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = healthStatus.first,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = healthStatus.second
+                    )
+                    Text(
+                        text = healthStatus.third,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -349,16 +360,13 @@ fun SessionHealthHeader(metrics: SessionMetricsEntity?) {
 @Composable
 fun ExpandableMasterCoachCard(
     title: String,
-    icon: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     defaultExpanded: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
     var expanded by remember { mutableStateOf(defaultExpanded) }
 
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(20.dp),
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -368,7 +376,12 @@ fun ExpandableMasterCoachCard(
                     .fillMaxWidth()
                     .clickable { expanded = !expanded }
             ) {
-                Text(text = icon, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(end = 8.dp))
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 8.dp).size(24.dp)
+                )
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -395,19 +408,21 @@ fun ExpandableMasterCoachCard(
 @Composable
 fun MasterCoachCard(
     title: String,
-    icon: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     color: Color = MaterialTheme.colorScheme.surface,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = color),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(20.dp),
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
-                Text(text = icon, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(end = 8.dp))
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 8.dp).size(24.dp)
+                )
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -460,13 +475,14 @@ fun ActionItemRow(task: String, owner: String, due: String) {
 
 @Composable
 fun InsightCard(title: String, content: String?, isHighlight: Boolean = false) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = if (isHighlight) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
         modifier = Modifier.fillMaxWidth()
     ) {
+        Box(
+            modifier = Modifier.background(
+                if (isHighlight) MaterialTheme.colorScheme.tertiaryContainer else Color.Transparent
+            )
+        ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = title,
@@ -478,8 +494,8 @@ fun InsightCard(title: String, content: String?, isHighlight: Boolean = false) {
             Text(
                 text = content ?: "Analysis not available.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isHighlight) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
         }
     }
 }
@@ -763,11 +779,12 @@ fun ScorecardSection(
 
     val containerColor = if (isEmbedded) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant
     
-    Card(
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        modifier = Modifier.fillMaxWidth(),
-        elevation = if (isEmbedded) CardDefaults.cardElevation(defaultElevation = 0.dp) else CardDefaults.cardElevation(defaultElevation = 1.dp)
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
+        Box(
+            modifier = Modifier.background(containerColor)
+        ) {
         Column(modifier = if (isEmbedded) Modifier else Modifier.padding(16.dp)) {
             if (!isEmbedded) {
                 Text(
@@ -786,9 +803,8 @@ fun ScorecardSection(
                 Divider()
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("Talk Ratio: ${metrics.talkRatioUser}% You / ${100 - metrics.talkRatioUser}% Others")
-            } else {
-                Text("No metrics available for this session.")
             }
+        }
         }
     }
 }

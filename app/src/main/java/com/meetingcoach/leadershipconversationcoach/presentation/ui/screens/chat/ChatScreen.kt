@@ -99,7 +99,7 @@ fun ChatScreen(
         }
     }
 
-    GradientBackground(modifier = modifier) {
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(modifier = modifier) {
         // Snackbar for Guardian nudges
         androidx.compose.material3.SnackbarHost(
             hostState = snackbarHostState,
@@ -153,7 +153,7 @@ fun ChatScreen(
                                         .horizontalScroll(rememberScrollState())
                                 ) {
                                     NotePanel(
-                                        onCategorySelected = { category ->
+                                        onCategorySelected = { category: String ->
                                             // TODO: Handle category selection (e.g., filter notes or add tag)
                                         }
                                     )
@@ -172,7 +172,7 @@ fun ChatScreen(
                         contentPadding = PaddingValues(bottom = 120.dp, top = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(sessionState.messages) { message ->
+                        items(sessionState.messages) { message: com.meetingcoach.leadershipconversationcoach.domain.models.ChatMessage ->
                             when (message.type) {
                                 // LIVE TRANSCRIPT
                                 MessageType.TRANSCRIPT -> {
@@ -332,13 +332,13 @@ fun ChatScreen(
                     QuickActionsSheet(
                         suggestedQuestions = viewModel.getSuggestedQuestions(sessionState.mode),
                         dynamicQuestion = suggestedQuestion?.suggestedQuestion,
-                        onQuestionSelected = { question ->
+                        onQuestionSelected = { question: String ->
                             viewModel.addUserMessage(question)
                             val aiResponse = viewModel.getAIResponse(question)
                             viewModel.addAIResponse(aiResponse)
                             showQuickActions = false
                         },
-                        onActionSelected = { command ->
+                        onActionSelected = { command: ActionCommand ->
                             val prompt = when (command) {
                                 ActionCommand.SUMMARIZE_LAST_10_MIN -> promptSummarize
                                 ActionCommand.EXPLAIN_RESPONSE -> promptExplain
@@ -346,6 +346,7 @@ fun ChatScreen(
                                 ActionCommand.WHAT_DID_I_MISS -> promptWhatMissed
                                 ActionCommand.SUGGEST_NEXT_QUESTION -> promptSuggestQuestion
                                 ActionCommand.HOW_AM_I_DOING -> promptEvaluate
+                                else -> ""
                             }
                             viewModel.getAIResponse(prompt)
                             showQuickActions = false
@@ -364,7 +365,7 @@ fun ChatScreen(
         // Session Mode Modal
         if (showSessionModeModal) {
             SessionModeModal(
-                onModeSelected = { mode ->
+                onModeSelected = { mode: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode ->
                     if (mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.ROLEPLAY) {
                         onNavigateToPractice()
                     } else {

@@ -44,20 +44,15 @@ fun ProgressScreen(
         viewModel.loadProgressData()
     }
 
-    Column(
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(
         modifier = modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        AppPalette.Stone50, // Stone 50
-                        AppPalette.Stone100  // Stone 100
-                    )
-                )
-            )
-            .verticalScroll(scrollState)
-            .padding(24.dp)
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(24.dp)
+        ) {
         // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -150,22 +145,11 @@ fun ProgressScreen(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            SpeakingTimeDistributionCard()
+            SpeakingTimeDistributionCard(userTalkRatio = uiState.averageTalkRatio)
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    GoalCompletionCard()
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            SentimentTrendCard()
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -174,6 +158,7 @@ fun ProgressScreen(
         }
         
         Spacer(modifier = Modifier.height(100.dp)) // Bottom padding
+        }
     }
 }
 
