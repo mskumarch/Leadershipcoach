@@ -23,43 +23,59 @@ import androidx.core.view.WindowCompat
  */
 
 private val LightColorScheme = lightColorScheme(
-    // Primary - Modern Sage
-    primary = AppPalette.Sage600,
+    // ======================================================
+    // 1. PRIMARY COLORS (Exact from mock)
+    // ======================================================
+    primary = AppPalette.Sage700,              // active buttons, score ring
     onPrimary = AppPalette.White,
-    primaryContainer = AppPalette.Sage100,
-    onPrimaryContainer = AppPalette.Sage600,
+    primaryContainer = AppPalette.Sage100,     // soft mint card tint
+    onPrimaryContainer = AppPalette.Sage900,
 
-    // Secondary - Lavender
+    // ======================================================
+    // 2. SECONDARY (lavender highlights)
+    // ======================================================
     secondary = AppPalette.Lavender500,
     onSecondary = AppPalette.White,
     secondaryContainer = AppPalette.Lavender100,
-    onSecondaryContainer = AppPalette.Stone900,
+    onSecondaryContainer = AppPalette.Sage900,
 
-    // Tertiary - Stone/Neutral
+    // ======================================================
+    // 3. TERTIARY / NEUTRALS (text + subtle icons)
+    // ======================================================
     tertiary = AppPalette.Stone500,
     onTertiary = AppPalette.White,
     tertiaryContainer = AppPalette.Stone100,
     onTertiaryContainer = AppPalette.Stone900,
 
-    // Background & Surface
-    background = AppPalette.Stone50,
-    onBackground = AppPalette.Stone900,
-    surface = AppPalette.White,
-    onSurface = AppPalette.Stone900,
-    surfaceVariant = AppPalette.Stone100,
-    onSurfaceVariant = AppPalette.Stone700,
+    // ======================================================
+    // 4. BACKGROUND & SURFACE (Exact from mock)
+    // ======================================================
+    background = AppPalette.Sage50,       // gradient top color
+    onBackground = AppPalette.Sage900,
 
-    // Error
+    surface = AppPalette.White,           // cards look pure white
+    onSurface = AppPalette.Sage900,
+
+    surfaceVariant = AppPalette.Sage100,  // card tint (mint-cream)
+    onSurfaceVariant = AppPalette.Sage700,
+
+    // ======================================================
+    // 5. ERROR
+    // ======================================================
     error = AppPalette.Red500,
     onError = AppPalette.White,
-    errorContainer = AppPalette.Red500.copy(alpha = 0.1f),
+    errorContainer = AppPalette.Red500.copy(alpha = 0.10f),
     onErrorContainer = AppPalette.Red500,
 
-    outline = AppPalette.Stone500,
-    outlineVariant = AppPalette.Stone100
+    // ======================================================
+    // 6. OUTLINES
+    // ======================================================
+    outline = AppPalette.Stone300,
+    outlineVariant = AppPalette.Sage100,
 )
 
 private val DarkColorScheme = darkColorScheme(
+
     primary = AppPalette.Sage500,
     onPrimary = AppPalette.White,
     primaryContainer = AppPalette.Sage600,
@@ -72,8 +88,10 @@ private val DarkColorScheme = darkColorScheme(
 
     background = DarkBackground,
     onBackground = AppPalette.White,
+
     surface = DarkBackground,
     onSurface = AppPalette.White,
+
     surfaceVariant = AppPalette.Stone700,
     onSurfaceVariant = AppPalette.Stone100,
 
@@ -84,15 +102,15 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun LeadershipConversationCoachTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false, // Disabled by default to enforce brand colors
+    dynamicColor: Boolean = false, // brand-enforced colors
     fontScale: Float = 1.0f,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context) 
+            else dynamicLightColorScheme(context)
         }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
@@ -102,8 +120,9 @@ fun LeadershipConversationCoachTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = Color.Transparent.toArgb() // Transparent for edge-to-edge
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = Color.Transparent.toArgb()  // edge-to-edge
+            WindowCompat.getInsetsController(window, view)
+                .isAppearanceLightStatusBars = !darkTheme
         }
     }
 
@@ -114,7 +133,6 @@ fun LeadershipConversationCoachTheme(
     )
 }
 
-// Helper to get user bubble background based on theme
 @Composable
 fun getUserBubbleBackground(): Color {
     return if (isSystemInDarkTheme()) DarkUserBubbleBackground else UserBubbleBackground

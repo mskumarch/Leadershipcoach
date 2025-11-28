@@ -71,7 +71,14 @@ fun NavigationScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AppPalette.Stone50)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            AppPalette.Sage50,
+                            AppPalette.Sage25
+                        )
+                    )
+                )
 
         ) {
             // Main Content
