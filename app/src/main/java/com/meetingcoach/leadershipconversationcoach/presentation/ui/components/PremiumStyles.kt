@@ -30,8 +30,27 @@ fun StandardBackground(modifier: Modifier = Modifier, content: @Composable BoxSc
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(PremiumStyles.TopFadeGradient)
+            .background(com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone50)
     ) {
+        // Mesh Gradients (Unified Style)
+        androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+            // Top Left - Sage
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage600.copy(alpha = 0.15f), Color.Transparent),
+                    center = androidx.compose.ui.geometry.Offset(0f, 0f),
+                    radius = size.width * 0.9f // Increased radius for better visibility
+                )
+            )
+            // Bottom Right - Lavender
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Lavender500.copy(alpha = 0.12f), Color.Transparent),
+                    center = androidx.compose.ui.geometry.Offset(size.width, size.height),
+                    radius = size.width * 0.9f
+                )
+            )
+        }
         content()
     }
 }
