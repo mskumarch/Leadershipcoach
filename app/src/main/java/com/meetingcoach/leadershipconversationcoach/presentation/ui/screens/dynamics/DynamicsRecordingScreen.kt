@@ -81,35 +81,75 @@ fun DynamicsRecordingScreen(
         }
 
         // Top Bar
-        Row(
+        val selectedStakeholder by viewModel.selectedStakeholder.collectAsState()
+        
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 48.dp, start = 24.dp, end = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(top = 48.dp, start = 24.dp, end = 24.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .background(AppPalette.Red500, CircleShape)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "DYNAMICS MODE",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            
-            IconButton(
-                onClick = onStopSession,
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(AppPalette.Red500, CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = "DYNAMICS MODE",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = AppPalette.Sage400,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (selectedStakeholder != null) {
+                            Text(
+                                text = "vs. ${selectedStakeholder?.name}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                
+                IconButton(
+                    onClick = onStopSession,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                }
+            }
+
+            // Stakeholder Tendencies (Prep Card)
+            if (selectedStakeholder != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    selectedStakeholder?.tendencies?.take(2)?.forEach { tendency ->
+                        Surface(
+                            color = Color.White.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "⚠️ ${tendency.type}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = AppPalette.Sage200
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -135,7 +175,7 @@ fun DynamicsRecordingScreen(
         
         // Alignment Meter (Bottom Left)
         AlignmentMeter(
-            alignmentScore = dynamicsAnalysis?.alignmentScore ?: 50,
+            alignmentScore = dynamicsAnalysis?.alignmentScore ?: 100,
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(bottom = 48.dp, start = 24.dp)

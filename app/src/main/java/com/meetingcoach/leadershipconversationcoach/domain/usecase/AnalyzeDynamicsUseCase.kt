@@ -26,7 +26,7 @@ class AnalyzeDynamicsUseCase @Inject constructor(
     private fun simulateAnalysis(transcript: String): DynamicsAnalysis {
         val lowerText = transcript.lowercase()
         val signals = mutableListOf<DynamicsSignal>()
-        var alignment = 75 // Default start
+        var alignment = 100 // Default start
         var tension = 20
 
         // 1. Detect Deflection ("Offline", "Circle back")

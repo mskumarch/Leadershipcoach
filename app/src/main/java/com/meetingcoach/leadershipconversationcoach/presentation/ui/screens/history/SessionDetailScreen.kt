@@ -119,22 +119,29 @@ fun SessionDetailScreen(
             }
         }
     ) { padding ->
-        com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(
-            modifier = Modifier.padding(padding)
-        ) {
-            if (sessionDetails == null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page ->
-                    when (page) {
-                        0 -> InsightsTab(sessionDetails, averageMetrics)
-                        1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
-                        2 -> CoachingTab(sessionDetails.messages)
+        if (sessionDetails != null && sessionDetails.session.mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.DYNAMICS.name) {
+            DynamicsSessionDetailScreen(
+                sessionDetails = sessionDetails,
+                onBackClick = onBackClick
+            )
+        } else {
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(
+                modifier = Modifier.padding(padding)
+            ) {
+                if (sessionDetails == null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        when (page) {
+                            0 -> InsightsTab(sessionDetails, averageMetrics)
+                            1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
+                            2 -> CoachingTab(sessionDetails.messages)
+                        }
                     }
                 }
             }

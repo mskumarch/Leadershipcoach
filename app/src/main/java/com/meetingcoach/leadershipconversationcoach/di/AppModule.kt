@@ -36,6 +36,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideStakeholderDao(database: AppDatabase): com.meetingcoach.leadershipconversationcoach.data.local.StakeholderDao {
+        return database.stakeholderDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideGeminiApiService(@ApplicationContext context: Context): com.meetingcoach.leadershipconversationcoach.data.ai.GeminiApiService {
         return com.meetingcoach.leadershipconversationcoach.data.ai.GeminiApiService(
             context = context,
