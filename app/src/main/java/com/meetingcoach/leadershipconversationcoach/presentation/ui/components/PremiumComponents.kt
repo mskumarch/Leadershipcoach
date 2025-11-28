@@ -587,15 +587,15 @@ fun GradientBackground(
                 brush = Brush.radialGradient(
                     colors = listOf(AppPalette.Sage600.copy(alpha = 0.15f), Color.Transparent),
                     center = Offset(0f, 0f),
-                    radius = size.width * 0.8f
+                    radius = size.width * 0.9f
                 )
             )
             // Bottom Right - Lavender
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(AppPalette.Lavender500.copy(alpha = 0.1f), Color.Transparent),
+                    colors = listOf(AppPalette.Lavender500.copy(alpha = 0.12f), Color.Transparent),
                     center = Offset(size.width, size.height),
-                    radius = size.width * 0.8f
+                    radius = size.width * 0.9f
                 )
             )
         }
