@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
@@ -43,14 +44,8 @@ fun WisdomScreen(
         viewModel.clearSelection()
     }
 
-    Box(
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(
         modifier = modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(AppPalette.Stone50, AppPalette.Stone100)
-                )
-            )
     ) {
         if (uiState.selectedArticle != null) {
             WisdomDetailView(
@@ -330,10 +325,16 @@ fun HeroWisdomCard(
     onShareClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumStyles.StandardCardRadius),
+                spotColor = AppPalette.Sage600.copy(alpha = 0.3f)
+            ),
+        shape = RoundedCornerShape(com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumStyles.StandardCardRadius),
         colors = CardDefaults.cardColors(containerColor = AppPalette.Sage600),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Badge(containerColor = Color.White.copy(alpha = 0.2f)) {
@@ -387,13 +388,9 @@ fun WisdomFeedItem(
     article: RssItem,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(

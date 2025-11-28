@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
@@ -86,6 +87,37 @@ fun GlassmorphicAICard(
                 content = content
             )
         }
+    }
+}
+
+/**
+ * Premium Card - Standardized for Visual Consistency
+ * 22dp Radius, Soft Shadow, White Background
+ */
+@Composable
+fun PremiumCard(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val shape = RoundedCornerShape(PremiumStyles.StandardCardRadius)
+    
+    Surface(
+        modifier = modifier
+            .shadow(
+                elevation = 12.dp,
+                shape = shape,
+                spotColor = Color.Black.copy(alpha = 0.08f),
+                ambientColor = Color.Black.copy(alpha = 0.03f)
+            ),
+        shape = shape,
+        color = Color.White,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier,
+            content = content
+        )
     }
 }
 

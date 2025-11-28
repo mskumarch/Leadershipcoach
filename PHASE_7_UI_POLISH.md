@@ -8,7 +8,7 @@ Elevate the app from "functional prototype" to "premium, commercial-grade produc
     - Replace Emoji icons with **Material Symbols Rounded** (Vector Icons).
     - Apply specific colors: Inactive `#A0B8AD` (40%), Active `#4F7F6B`.
     - Add active state animation (Glow ring + Scale 1.08x).
-- [ ] **Visual Consistency**:
+- [x] **Visual Consistency**:
     - **Background**: Standardize top fade gradient (`#E7F3ED` -> `#FFFFFF`).
     - **Cards**: Enforce **22dp corner radius** and specific shadow (`0dp 6dp 12dp rgba(0,0,0,0.08)`).
     - **Spacing**: Standardize page padding (20dp) and section spacing (16-28dp).

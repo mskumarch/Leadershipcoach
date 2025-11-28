@@ -62,10 +62,8 @@ fun HistoryScreen(
         }
     }
 
-    Box(
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
     ) {
         if (uiState.isLoading) {
             LazyColumn(
