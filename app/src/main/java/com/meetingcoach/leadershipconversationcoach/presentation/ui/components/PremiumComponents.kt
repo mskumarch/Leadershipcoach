@@ -21,10 +21,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Lightbulb
-import androidx.compose.material.icons.rounded.EditNote
-import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.Checklist
+import androidx.compose.material.icons.rounded.MonitorHeart
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Checklist
+import androidx.compose.material.icons.outlined.MonitorHeart
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.graphics.Brush
@@ -699,20 +705,57 @@ fun FloatingPillNav(
             .height(72.dp)
             .width(380.dp),
         shape = RoundedCornerShape(36.dp),
-        color = NavGlassBase,
-        shadowElevation = 8.dp
+        color = Color.White.copy(alpha = 0.9f),
+        shadowElevation = 8.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5E7EB))
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NavIcon(icon = Icons.Rounded.Home, label = "Home", isActive = currentTab == 0, onClick = { onTabSelected(0) })
-            NavIcon(icon = Icons.Rounded.Lightbulb, label = "Wisdom", isActive = currentTab == 5, onClick = { onTabSelected(5) })
-            NavIcon(icon = Icons.Rounded.EditNote, label = "Live", isActive = currentTab == 1, onClick = { onTabSelected(1) })
-            NavIcon(icon = Icons.Rounded.BarChart, label = "Stats", isActive = currentTab == 2, onClick = { onTabSelected(2) })
-            NavIcon(icon = Icons.Rounded.History, label = "History", isActive = currentTab == 3, onClick = { onTabSelected(3) })
-            NavIcon(icon = Icons.Rounded.Settings, label = "Settings", isActive = currentTab == 4, onClick = { onTabSelected(4) })
+            // Home
+            NavIcon(
+                icon = if (currentTab == 0) Icons.Rounded.Home else Icons.Outlined.Home,
+                label = "Home",
+                isActive = currentTab == 0,
+                onClick = { onTabSelected(0) }
+            )
+            // Wisdom
+            NavIcon(
+                icon = if (currentTab == 5) Icons.Rounded.Lightbulb else Icons.Outlined.Lightbulb,
+                label = "Wisdom",
+                isActive = currentTab == 5,
+                onClick = { onTabSelected(5) }
+            )
+            // Live (Checklist)
+            NavIcon(
+                icon = if (currentTab == 1) Icons.Rounded.Checklist else Icons.Outlined.Checklist,
+                label = "Live",
+                isActive = currentTab == 1,
+                onClick = { onTabSelected(1) }
+            )
+            // Stats (Monitoring)
+            NavIcon(
+                icon = if (currentTab == 2) Icons.Rounded.MonitorHeart else Icons.Outlined.MonitorHeart,
+                label = "Stats",
+                isActive = currentTab == 2,
+                onClick = { onTabSelected(2) }
+            )
+            // History
+            NavIcon(
+                icon = if (currentTab == 3) Icons.Rounded.History else Icons.Outlined.History,
+                label = "History",
+                isActive = currentTab == 3,
+                onClick = { onTabSelected(3) }
+            )
+            // Settings
+            NavIcon(
+                icon = if (currentTab == 4) Icons.Rounded.Settings else Icons.Outlined.Settings,
+                label = "Settings",
+                isActive = currentTab == 4,
+                onClick = { onTabSelected(4) }
+            )
         }
     }
 }
@@ -724,8 +767,8 @@ private fun NavIcon(
     isActive: Boolean,
     onClick: () -> Unit
 ) {
-    val scale by animateFloatAsState(targetValue = if (isActive) 1.2f else 1.0f, label = "scale")
-    val color = if (isActive) Color(0xFF4F7F6B) else Color(0xFFA0B8AD)
+    val scale by animateFloatAsState(targetValue = if (isActive) 1.08f else 1.0f, label = "scale")
+    val color = if (isActive) Color(0xFF3E7D68) else Color(0xFFA0B8AD)
     
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -736,10 +779,16 @@ private fun NavIcon(
     ) {
         Box(contentAlignment = Alignment.Center) {
             if (isActive) {
+                // Subtle circular glow behind icon
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFF4F7F6B).copy(alpha = 0.1f), CircleShape)
+                        .size(42.dp)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(Color(0xFF3E7D68).copy(alpha = 0.15f), Color.Transparent)
+                            ),
+                            shape = CircleShape
+                        )
                 )
             }
             Icon(
@@ -747,17 +796,8 @@ private fun NavIcon(
                 contentDescription = label,
                 tint = color,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(if (isActive) 27.dp else 24.dp)
                     .scale(scale)
-            )
-        }
-        
-        if (isActive) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 4.dp)
-                    .size(4.dp)
-                    .background(Color(0xFF4F7F6B), CircleShape)
             )
         }
     }
