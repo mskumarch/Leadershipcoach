@@ -106,24 +106,33 @@ fun PremiumCard(
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(PremiumStyles.StandardCardRadius)
-    
     Surface(
         modifier = modifier
             .shadow(
-                elevation = 12.dp,
-                shape = shape,
-                spotColor = Color.Black.copy(alpha = 0.08f),
-                ambientColor = Color.Black.copy(alpha = 0.03f)
-            ),
-        shape = shape,
-        color = Color.White,
-        tonalElevation = 0.dp
+                elevation = 12.dp, // Slightly softer, deeper shadow
+                shape = RoundedCornerShape(PremiumStyles.StandardCardRadius),
+                spotColor = AppPalette.Sage600.copy(alpha = 0.08f), // Sage-tinted shadow for harmony
+                ambientColor = AppPalette.Sage600.copy(alpha = 0.05f)
+            )
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+        shape = RoundedCornerShape(PremiumStyles.StandardCardRadius),
+        color = Color.Transparent, // Use transparent to allow gradient
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.6f)) // Subtle highlight border
     ) {
-        Column(
-            modifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier,
-            content = content
-        )
+        Box(
+            modifier = Modifier.background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White,
+                        Color(0xFFF5F9F7) // Sage50 equivalent (Very light minty white)
+                    )
+                )
+            )
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                content()
+            }
+        }
     }
 }
 

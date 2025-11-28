@@ -23,44 +23,54 @@ fun PracticeModeScreen(
     onBackClick: () -> Unit,
     onScenarioClick: (PracticeScenario) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Roleplay Practice") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
-            )
-        }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground {
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            item {
+            // Custom Top Bar to match
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBackClick) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone900)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Choose a Scenario",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    text = "Roleplay Practice",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone900
                 )
-                Text(
-                    text = "Practice difficult conversations in a safe environment with AI.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
-            items(ScenarioLibrary.scenarios) { scenario ->
-                ScenarioCard(scenario = scenario, onClick = { onScenarioClick(scenario) })
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 100.dp)
+            ) {
+                item {
+                    Text(
+                        text = "Choose a Scenario",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone900
+                    )
+                    Text(
+                        text = "Practice difficult conversations in a safe environment with AI.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone500
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                items(ScenarioLibrary.scenarios) { scenario ->
+                    ScenarioCard(scenario = scenario, onClick = { onScenarioClick(scenario) })
+                }
             }
         }
     }
@@ -68,63 +78,59 @@ fun PracticeModeScreen(
 
 @Composable
 fun ScenarioCard(scenario: PracticeScenario, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = scenario.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone900
+            )
+            Badge(
+                containerColor = when (scenario.difficulty) {
+                    "Easy" -> com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage500
+                    "Medium" -> com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Amber500
+                    else -> com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Red500
+                }
             ) {
                 Text(
-                    text = scenario.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text = scenario.difficulty,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    color = Color.White
                 )
-                Badge(
-                    containerColor = when (scenario.difficulty) {
-                        "Easy" -> Color(0xFF4CAF50)
-                        "Medium" -> Color(0xFFFFC107)
-                        else -> Color(0xFFF44336)
-                    }
-                ) {
-                    Text(
-                        text = scenario.difficulty,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = Color.White
-                    )
-                }
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = scenario.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = scenario.description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone500
+        )
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
+                tint = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage600,
+                modifier = Modifier.size(16.dp)
             )
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "Start Practice",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Start Practice",
+                style = MaterialTheme.typography.labelLarge,
+                color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage600
+            )
         }
     }
 }
