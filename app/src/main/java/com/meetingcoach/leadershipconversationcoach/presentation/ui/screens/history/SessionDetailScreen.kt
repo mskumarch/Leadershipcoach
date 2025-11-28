@@ -204,10 +204,11 @@ fun InsightsTab(
         // 2. Game Film (Timeline Analysis)
         item {
             ExpandableMasterCoachCard(title = "Game Film", icon = androidx.compose.material.icons.Icons.Rounded.Movie, defaultExpanded = true) {
-                GameFilmTimeline(
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.EnhancedGameFilmTimeline(
                     durationSeconds = sessionDetails.session.durationSeconds,
                     messages = sessionDetails.messages,
-                    startedAt = sessionDetails.session.startedAt
+                    startedAt = sessionDetails.session.startedAt,
+                    onMomentSelected = { /* TODO: Implement moment selection */ }
                 )
             }
         }
@@ -638,131 +639,8 @@ fun ChatHistoryItem(message: SessionMessageEntity) {
     }
 }
 
-@Composable
-fun GameFilmTimeline(
-    durationSeconds: Int,
-    messages: List<SessionMessageEntity>,
-    startedAt: Long
-) {
-    // Filter for key moments
-    val keyMoments = messages.filter {
-        it.messageType.contains("NUDGE") || 
-        it.messageType == "USER_QUESTION" ||
-        it.messageType == "AI_RESPONSE"
-    }
 
-    if (keyMoments.isEmpty()) {
-        Text("No key moments detected in this session.", style = MaterialTheme.typography.bodySmall)
-        return
-    }
 
-    var selectedMoment by remember { mutableStateOf<SessionMessageEntity?>(null) }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "Session Timeline (${durationSeconds / 60}m ${durationSeconds % 60}s)",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-
-        // Timeline Bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .padding(horizontal = 8.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            // Track
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(2.dp))
-            )
-            
-            // Canvas for precise drawing of markers
-            Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { selectedMoment = null } // Deselect on background click
-            ) {
-                val width = size.width
-                val trackY = size.height / 2
-                
-                keyMoments.forEach { moment ->
-                    val relativeTime = (moment.createdAt - startedAt) / 1000f
-                    val progress = if (durationSeconds > 0) (relativeTime / durationSeconds).coerceIn(0f, 1f) else 0f
-                    val x = width * progress
-                    
-                    val color = when {
-                        moment.messageType.contains("URGENT") -> Color(0xFFE57373)
-                        moment.messageType.contains("IMPORTANT") -> Color(0xFFFFB74D)
-                        moment.messageType == "USER_QUESTION" -> Color(0xFF64B5F6)
-                        else -> Color(0xFFAED581)
-                    }
-                    
-                    drawCircle(
-                        color = color,
-                        radius = 6.dp.toPx(),
-                        center = Offset(x, trackY)
-                    )
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            keyMoments.forEach { moment ->
-                val relativeSeconds = ((moment.createdAt - startedAt) / 1000).coerceAtLeast(0)
-                val timeString = String.format("%02d:%02d", relativeSeconds / 60, relativeSeconds % 60)
-                
-                val (icon, color, label) = when {
-                    moment.messageType.contains("URGENT") -> Triple("🔴", MaterialTheme.colorScheme.error, "Tension/Risk")
-                    moment.messageType.contains("IMPORTANT") -> Triple("🟡", Color(0xFFFFB74D), "Coaching Opportunity")
-                    moment.messageType == "USER_QUESTION" -> Triple("🟣", MaterialTheme.colorScheme.primary, "Key Question")
-                    else -> Triple("🟢", MaterialTheme.colorScheme.secondary, "Insight")
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedMoment = moment }
-                        .background(
-                            if (selectedMoment == moment) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                            RoundedCornerShape(8.dp)
-                        )
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = timeString,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.width(40.dp)
-                    )
-                    Text(text = icon, modifier = Modifier.padding(horizontal = 8.dp))
-                    Column {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = color
-                        )
-                        Text(
-                            text = moment.content,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = if (selectedMoment == moment) 10 else 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun ScorecardSection(
