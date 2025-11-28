@@ -33,7 +33,8 @@ class AnalyzeDynamicsUseCase @Inject constructor(
         if (lowerText.contains("offline") || lowerText.contains("circle back") || lowerText.contains("parking lot")) {
             signals.add(DynamicsSignal(
                 type = SignalType.DEFLECTION,
-                description = "Deflection detected: 'Let's take this offline'",
+                description = "Deflection detected",
+                suggestedResponse = "Ask: 'What prevents us from deciding now?'",
                 confidence = 0.9f
             ))
             alignment -= 15
@@ -44,6 +45,7 @@ class AnalyzeDynamicsUseCase @Inject constructor(
             signals.add(DynamicsSignal(
                 type = SignalType.VAGUE_COMMITMENT,
                 description = "Vague commitment detected",
+                suggestedResponse = "Anchor it: 'Who will own this by when?'",
                 confidence = 0.8f
             ))
             alignment -= 10
@@ -54,6 +56,7 @@ class AnalyzeDynamicsUseCase @Inject constructor(
             signals.add(DynamicsSignal(
                 type = SignalType.PASSIVE_RESISTANCE,
                 description = "Passive resistance detected",
+                suggestedResponse = "Probe: 'I sense hesitation. What's the real concern?'",
                 confidence = 0.85f
             ))
             alignment -= 20
@@ -65,6 +68,7 @@ class AnalyzeDynamicsUseCase @Inject constructor(
              signals.add(DynamicsSignal(
                 type = SignalType.STRONG_ALIGNMENT,
                 description = "Strong alignment detected",
+                suggestedResponse = "Lock it in: 'Great, let's document that.'",
                 confidence = 0.9f
             ))
             alignment += 15

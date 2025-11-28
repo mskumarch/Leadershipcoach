@@ -147,10 +147,7 @@ class SessionViewModel @Inject constructor(
                 name = "John (Eng Lead)",
                 role = "Engineering Manager",
                 relationship = "Direct Report",
-                tendencies = listOf(
-                    com.meetingcoach.leadershipconversationcoach.domain.models.BehavioralTendency("Vague Commitment", "High", "Anchor dates and owners."),
-                    com.meetingcoach.leadershipconversationcoach.domain.models.BehavioralTendency("Technical Detail", "High", "Keep it high level.")
-                )
+                tendencies = emptyList()
             )
         )
         defaultStakeholders.forEach { stakeholderRepository.addStakeholder(it) }

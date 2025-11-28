@@ -181,6 +181,71 @@ fun DynamicsRecordingScreen(
                 .padding(bottom = 48.dp, start = 24.dp)
         )
 
+        // Live Subtext Decoder (Signals List)
+        if (!dynamicsAnalysis?.detectedSignals.isNullOrEmpty()) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 24.dp, bottom = 100.dp) // Above Alignment Meter
+                    .width(300.dp)
+            ) {
+                Text(
+                    text = "LIVE SUBTEXT DECODER",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = AppPalette.Sage400,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                dynamicsAnalysis?.detectedSignals?.takeLast(3)?.forEach { signal ->
+                    Surface(
+                        color = Color(0xFF1E293B).copy(alpha = 0.8f),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = when(signal.type) {
+                                    com.meetingcoach.leadershipconversationcoach.domain.models.SignalType.DEFLECTION -> "⚠️"
+                                    com.meetingcoach.leadershipconversationcoach.domain.models.SignalType.VAGUE_COMMITMENT -> "⚓"
+                                    com.meetingcoach.leadershipconversationcoach.domain.models.SignalType.PASSIVE_RESISTANCE -> "🛡️"
+                                    com.meetingcoach.leadershipconversationcoach.domain.models.SignalType.STRONG_ALIGNMENT -> "✅"
+                                    else -> "ℹ️"
+                                },
+                                fontSize = 16.sp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = signal.type.name.replace("_", " "),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = signal.description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = AppPalette.Sage200
+                                )
+                                signal.suggestedResponse?.let { response ->
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "👉 $response",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xFF86EFAC), // Light Green for action
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Strategic Advice Overlay (if urgent)
         dynamicsAnalysis?.strategicAdvice?.let { advice ->
             Card(
