@@ -82,27 +82,38 @@ fun SessionDetailScreen(
                     )
                 )
                 
-                TabRow(
-                    selectedTabIndex = pagerState.currentPage,
-                    containerColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                Surface(
+                    shadowElevation = 4.dp,
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = pagerState.currentPage == index,
-                            onClick = { 
-                                scope.launch {
-                                    pagerState.animateScrollToPage(index)
+                    TabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        indicator = { tabPositions ->
+                            SecondaryIndicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                height = 3.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = pagerState.currentPage == index,
+                                onClick = { 
+                                    scope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
+                                text = { 
+                                    Text(
+                                        text = title,
+                                        fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Medium
+                                    ) 
                                 }
-                            },
-                            text = { Text(title) }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -517,38 +528,41 @@ fun TranscriptTab(messages: List<SessionMessageEntity>, summary: String?) {
             val takeaways = parts.getOrNull(1)?.trim()
 
             item {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "✨ Executive Summary",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        // Render Main Summary
-                        if (mainSummary != null) {
-                            FormattedBulletPoints(mainSummary, MaterialTheme.colorScheme.onPrimaryContainer)
-                        }
-                        
-                        // Render Takeaways if present
-                        if (!takeaways.isNullOrBlank()) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Divider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f))
-                            Spacer(modifier = Modifier.height(16.dp))
-                            
+                    Box(
+                        modifier = Modifier.background(com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage50)
+                    ) {
+                        Column(modifier = Modifier.padding(24.dp)) {
                             Text(
-                                text = "🚀 Key Takeaways",
-                                style = MaterialTheme.typography.titleSmall,
+                                text = "✨ Executive Summary",
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage900
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            FormattedBulletPoints(takeaways, MaterialTheme.colorScheme.onPrimaryContainer)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            
+                            // Render Main Summary
+                            if (mainSummary != null) {
+                                FormattedBulletPoints(mainSummary, com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone900)
+                            }
+                            
+                            // Render Takeaways if present
+                            if (!takeaways.isNullOrBlank()) {
+                                Spacer(modifier = Modifier.height(20.dp))
+                                HorizontalDivider(color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage200)
+                                Spacer(modifier = Modifier.height(20.dp))
+                                
+                                Text(
+                                    text = "🚀 Key Takeaways",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage900
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                FormattedBulletPoints(takeaways, com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Stone900)
+                            }
                         }
                     }
                 }

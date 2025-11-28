@@ -82,17 +82,40 @@ fun HomeIdleState(
                     }
                 )
                 
-                // Quick Tips Carousel (Horizontal Scroll)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                // Quick Tips Carousel (Auto-Scrolling Marquee)
+                val scrollState = androidx.compose.foundation.lazy.rememberLazyListState()
+                
+                // Auto-scroll logic
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        scrollState.animateScrollBy(
+                            value = 1000f, // Scroll distance
+                            animationSpec = tween(10000, easing = LinearEasing) // Slow, linear speed
+                        )
+                        // Reset if needed or infinite list logic (simplified here by just scrolling)
+                        // For true infinite, we'd need a huge list or custom layout. 
+                        // For now, let's just make it a long list by repeating items.
+                    }
+                }
+
+                androidx.compose.foundation.lazy.LazyRow(
+                    state = scrollState,
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp),
+                    userScrollEnabled = true // Allow user to override
                 ) {
-                    QuickTipChip("⚡ Real-time Nudges")
-                    QuickTipChip("📊 Post-Session Analytics")
-                    QuickTipChip("🎭 Roleplay Practice")
+                    // Repeat items to simulate infinite scroll
+                    items(100) { index ->
+                        val tips = listOf(
+                            "⚡ Real-time Nudges",
+                            "📊 Post-Session Analytics",
+                            "🎭 Roleplay Practice",
+                            "🎯 Goal Tracking",
+                            "🧠 AI Wisdom"
+                        )
+                        QuickTipChip(tips[index % tips.size])
+                    }
                 }
                 
                 // Daily Tip Teaser
@@ -133,8 +156,9 @@ fun DailyTipTeaser(tip: String, onClick: () -> Unit) {
             .padding(horizontal = 24.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.8f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppPalette.Stone200.copy(alpha = 0.5f))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

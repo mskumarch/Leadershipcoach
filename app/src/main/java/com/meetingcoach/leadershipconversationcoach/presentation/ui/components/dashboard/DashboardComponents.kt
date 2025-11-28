@@ -105,13 +105,14 @@ fun HeroScoreCard(score: Int) {
                     Button(
                         onClick = { /* TODO */ },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = AppPalette.Stone900
+                            containerColor = AppPalette.Sage600
                         ),
                         shape = RoundedCornerShape(16.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text("View Details")
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
                 // Circular Progress
@@ -136,6 +137,16 @@ fun HeroScoreCard(score: Int) {
                             useCenter = false,
                             style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
                         )
+                        
+                        // Inner Glow Ring (Dual-tone depth)
+                        drawArc(
+                            color = AppPalette.Sage200.copy(alpha = 0.3f),
+                            startAngle = -90f,
+                            sweepAngle = 360 * animatedScore,
+                            useCenter = false,
+                            style = Stroke(width = 24.dp.toPx(), cap = StrokeCap.Round)
+                        )
+
                         // Progress Circle with Glow effect simulation (shadow)
                         drawArc(
                             brush = Brush.sweepGradient(
@@ -165,6 +176,10 @@ fun HeroScoreCard(score: Int) {
                         )
                     }
                 }
+            }
+        }
+    }
+}
             }
         }
     }

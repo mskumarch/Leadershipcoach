@@ -18,30 +18,31 @@ Address the specific design critique to elevate the app to a 10/10 premium stand
 ## 2. Screen-Specific Refinements
 
 ### A. 📊 Growth Screen (Analytics)
-- [ ] **Donut Chart**: Add soft glow or layered ring (dual-tone) for depth.
-- [ ] **"View Details" Button**: Change color to Brand Accent (Sage) or soft black with reduced opacity.
-- [ ] **Spacing**: Add `12dp` padding below "Deep Dive Analytics".
-- [ ] **Nav Icon**: Ensure "Stats" icon matches the new outlined style.
+- [x] **Donut Chart**: Add soft glow or layered ring (dual-tone) for depth. (Completed)
+- [x] **"View Details" Button**: Change color to Brand Accent (Sage) or soft black with reduced opacity. (Completed)
+- [x] **Spacing**: Add `12dp` padding below "Deep Dive Analytics". (Completed)
+- [x] **Nav Icon**: Ensure "Stats" icon matches the new outlined style. (Completed - Handled in Nav Update)
 
 ### B. 📝 Transcript Tab
-- [ ] **Summary Card**:
+- [x] **Summary Card**: (Completed)
     - Increase padding (top/bottom).
     - Lighten green background by 5% for readability.
-- [ ] **Tab Indicator**: Reduce height to `2-3dp`.
-- [ ] **Tab Bar**: Add tiny drop shadow for separation.
+- [x] **Tab Indicator**: Reduce height to `2-3dp`. (Completed)
+- [x] **Tab Bar**: Add tiny drop shadow for separation. (Completed)
 
 ### C. 🕰️ History Screen
-- [ ] **Session Cards**:
+- [x] **Session Cards**: (Completed)
     - Add soft shadow: `0dp 3dp 8dp rgba(0,0,0,0.05)`.
     - Increase corner radius to `22dp`.
     - Fix arrow icon alignment (raise by ~4dp).
-- [ ] **Avatar**: Replace generic icon with a modern circular silhouette or colored initials.
+- [x] **Avatar**: Replace generic icon with a modern circular silhouette or colored initials. (Completed)
 
 ### D. ⚙️ Settings Screen
-- [ ] **Icons**: Enforce consistent stroke thickness (Material Symbols Rounded).
-- [ ] **Slider**: Add soft gradient or depth to the rail.
-- [ ] **Haptic Toggle**: Use M3 toggle style with animated thumb.
-- [ ] **Alignment**: Add `4-8dp` top padding to "Text Size" title.
+- [x] **Icons**: Enforce consistent stroke thickness (Material Symbols Rounded). (Completed)
+- [x] **Slider**: Add soft gradient or depth to the rail. (Completed)
+- [x] **Haptic Toggle**: Use M3 toggle style with animated thumb. (Completed)
+- [x] **Alignment**: Add `4-8dp` top padding to "Text Size" title. (Completed)
+- [x] **Coaching Style**: Convert to Dropdown. (Completed)
 
 ### E. 💡 Session Insights
 - [ ] **Headers**: Increase font weight (+100) for "Performance Scorecard" and "Feedback Loop".

@@ -70,7 +70,7 @@ fun NavigationScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(androidx.compose.ui.graphics.Color.White)
+                .background(AppPalette.Stone50)
 
         ) {
             // Main Content
