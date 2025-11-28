@@ -49,9 +49,10 @@ Address the specific design critique to elevate the app to a 10/10 premium stand
 - [x] **Spacing**: Add `8dp` extra margin between sections (Total 24dp). (Completed)
 - [x] **Cards**: Ensure all insight cards use the new `PremiumCard` style (white bg, soft shadow). (Completed - Already using PremiumCard)
 ### F. 🏠 Home Landing Screen
-- [ ] **Start Button**: Add depth shadow (`0dp 8dp 20dp rgba(0,0,0,0.12)`).
-- [ ] **Icons**: Ensure starter icons match the new outlined style.
-- [ ] **Profile Icon**: Use a softer round-rect with gradient.
+- [x] **Start Button**: Add depth shadow (`0dp 8dp 20dp rgba(0,0,0,0.12)`). (Completed)
+- [x] **Icons**: Ensure starter icons match the new outlined style. (Completed - Handled in Nav Update)
+- [x] **Greeting**: Add `2dp` letter spacing to "Good Morning". (Completed)
+- [x] **Profile Icon**: Use a softer round-rect with gradient. (Completed)
 
 ## 3. Implementation Plan
 1.  **Nav & Icons**: Fix the bottom bar first (highest impact).

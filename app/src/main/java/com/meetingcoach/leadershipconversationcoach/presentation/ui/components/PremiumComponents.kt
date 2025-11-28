@@ -650,10 +650,18 @@ fun StartSessionOrb(
         
         // Main Orb
         Surface(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .shadow(
+                    elevation = 20.dp,
+                    shape = CircleShape,
+                    spotColor = Color.Black.copy(alpha = 0.12f),
+                    ambientColor = Color.Black.copy(alpha = 0.12f)
+                ),
             shape = CircleShape,
             color = AppPalette.Sage600,
-            shadowElevation = 12.dp
+            shadowElevation = 0.dp // Handled by custom shadow modifier
         ) {
             Box(
                 modifier = Modifier

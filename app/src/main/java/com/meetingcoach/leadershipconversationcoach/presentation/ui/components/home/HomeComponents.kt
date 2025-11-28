@@ -65,7 +65,8 @@ fun HomeIdleState(
                     Text(
                         text = "Good Morning,",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = AppPalette.Stone500
+                        color = AppPalette.Stone500,
+                        letterSpacing = 2.sp
                     )
                     Text(
                         text = "Ready to Lead?",
