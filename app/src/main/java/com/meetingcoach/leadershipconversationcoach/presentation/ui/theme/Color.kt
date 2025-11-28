@@ -30,7 +30,7 @@ object AppPalette {
     val Stone300 = Color(0xFFD6D3D1) // Medium Stone
     val Stone200 = Color(0xFFE7E5E4) // Light Stone
     val Stone100 = Color(0xFFF5F5F4) // Surface Variant / Borders
-    val Stone50 = Color(0xFFFAFAF9)  // Background Alternative (Warm Off-White)
+    val Stone50 = Color(0xFFF2F7F5)  // Background Alternative (Minty White)
     val White = Color(0xFFFFFFFF)    // Pure White
 
     // Semantic Colors

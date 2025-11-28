@@ -677,7 +677,7 @@ fun StartSessionOrb(
                     .fillMaxSize()
                     .background(
                         brush = Brush.linearGradient(
-                            colors = listOf(AppPalette.Sage500, AppPalette.Sage600),
+                            colors = listOf(AppPalette.Sage400, AppPalette.Sage500),
                             start = Offset(0f, 0f),
                             end = Offset(0f, Float.POSITIVE_INFINITY)
                         )
