@@ -17,6 +17,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Lightbulb
+import androidx.compose.material.icons.rounded.EditNote
+import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -656,7 +665,7 @@ fun FloatingPillNav(
     Surface(
         modifier = modifier
             .height(72.dp)
-            .width(380.dp), // Increased width for 6 items
+            .width(380.dp),
         shape = RoundedCornerShape(36.dp),
         color = NavGlassBase,
         shadowElevation = 8.dp
@@ -666,23 +675,26 @@ fun FloatingPillNav(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NavIcon(icon = "🏠", label = "Home", isActive = currentTab == 0, onClick = { onTabSelected(0) })
-            NavIcon(icon = "💡", label = "Wisdom", isActive = currentTab == 5, onClick = { onTabSelected(5) }) // New Wisdom Tab
-            NavIcon(icon = "📝", label = "Live", isActive = currentTab == 1, onClick = { onTabSelected(1) })
-            NavIcon(icon = "📊", label = "Stats", isActive = currentTab == 2, onClick = { onTabSelected(2) })
-            NavIcon(icon = "📜", label = "History", isActive = currentTab == 3, onClick = { onTabSelected(3) })
-            NavIcon(icon = "⚙️", label = "Settings", isActive = currentTab == 4, onClick = { onTabSelected(4) })
+            NavIcon(icon = Icons.Rounded.Home, label = "Home", isActive = currentTab == 0, onClick = { onTabSelected(0) })
+            NavIcon(icon = Icons.Rounded.Lightbulb, label = "Wisdom", isActive = currentTab == 5, onClick = { onTabSelected(5) })
+            NavIcon(icon = Icons.Rounded.EditNote, label = "Live", isActive = currentTab == 1, onClick = { onTabSelected(1) })
+            NavIcon(icon = Icons.Rounded.BarChart, label = "Stats", isActive = currentTab == 2, onClick = { onTabSelected(2) })
+            NavIcon(icon = Icons.Rounded.History, label = "History", isActive = currentTab == 3, onClick = { onTabSelected(3) })
+            NavIcon(icon = Icons.Rounded.Settings, label = "Settings", isActive = currentTab == 4, onClick = { onTabSelected(4) })
         }
     }
 }
 
 @Composable
 private fun NavIcon(
-    icon: String, 
+    icon: ImageVector,
     label: String,
-    isActive: Boolean, 
+    isActive: Boolean,
     onClick: () -> Unit
 ) {
+    val scale by animateFloatAsState(targetValue = if (isActive) 1.2f else 1.0f, label = "scale")
+    val color = if (isActive) Color(0xFF4F7F6B) else Color(0xFFA0B8AD)
+    
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -690,21 +702,35 @@ private fun NavIcon(
             .clickable(onClick = onClick)
             .padding(8.dp)
     ) {
-        Text(
-            text = icon, 
-            fontSize = 24.sp,
-            color = if (isActive) AppPalette.Sage600 else AppPalette.Stone500
-        )
+        Box(contentAlignment = Alignment.Center) {
+            if (isActive) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color(0xFF4F7F6B).copy(alpha = 0.1f), CircleShape)
+                )
+            }
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = color,
+                modifier = Modifier
+                    .size(24.dp)
+                    .scale(scale)
+            )
+        }
+        
         if (isActive) {
             Box(
                 modifier = Modifier
                     .padding(top = 4.dp)
                     .size(4.dp)
-                    .background(AppPalette.Sage600, CircleShape)
+                    .background(Color(0xFF4F7F6B), CircleShape)
             )
         }
     }
 }
+
 
 
 
