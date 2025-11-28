@@ -35,7 +35,7 @@ fun HomeIdleState(
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     
-    GradientBackground {
+    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
