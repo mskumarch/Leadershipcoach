@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -64,7 +65,8 @@ fun HomeIdleState(
                     Text(
                         text = "Good Morning,",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = AppPalette.Stone500
+                        color = AppPalette.Stone500,
+                        letterSpacing = 2.sp
                     )
                     Text(
                         text = "Ready to Lead?",

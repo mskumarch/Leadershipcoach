@@ -91,7 +91,7 @@ fun SessionDetailScreen(
                         containerColor = MaterialTheme.colorScheme.background,
                         contentColor = MaterialTheme.colorScheme.primary,
                         indicator = { tabPositions ->
-                            SecondaryIndicator(
+                            TabRowDefaults.SecondaryIndicator(
                                 modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
                                 height = 3.dp,
                                 color = MaterialTheme.colorScheme.primary
@@ -205,7 +205,7 @@ fun InsightsTab(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         // 1. Session Health Header (Traffic Light)
         item {
@@ -396,8 +396,8 @@ fun ExpandableMasterCoachCard(
                 )
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )

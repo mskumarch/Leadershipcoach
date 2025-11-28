@@ -12,11 +12,13 @@ import androidx.compose.ui.graphics.Color
 
 object AppPalette {
     // Brand Colors - Modern Sage & Lavender
+    val Sage900 = Color(0xFF1B3C35) // Dark Sage for Text
     val Sage600 = Color(0xFF4A7A68) // Primary Brand Color (Deep Sage)
     val Sage500 = Color(0xFF5B9A8B) // Primary Light
     val Sage400 = Color(0xFF7CB3A6) // Lighter Sage
     val Sage200 = Color(0xFFC5E0D8) // Very Light Sage
     val Sage100 = Color(0xFFE8F3EF) // Light Sage Background
+    val Sage50 = Color(0xFFF5F9F7)  // Very Light Sage Background
 
     val Lavender500 = Color(0xFF8B80F9) // Modern Lavender (Secondary)
     val Lavender100 = Color(0xFFF3F0FF) // Light Lavender

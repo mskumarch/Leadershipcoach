@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Brush
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.CalmGreenStart
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.CalmGreenEnd
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.SessionDetailScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.practice.PracticeModeScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.wisdom.WisdomScreen
