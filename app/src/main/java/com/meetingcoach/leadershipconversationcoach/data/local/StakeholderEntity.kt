@@ -4,8 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
 import com.meetingcoach.leadershipconversationcoach.domain.models.BehavioralTendency
 
 @Entity(tableName = "stakeholders")
@@ -20,21 +18,37 @@ data class StakeholderEntity(
 )
 
 class StakeholderConverters {
-    private val moshi = Moshi.Builder().build()
-    private val listType = Types.newParameterizedType(List::class.java, BehavioralTendency::class.java)
-    private val adapter = moshi.adapter<List<BehavioralTendency>>(listType)
-
     @TypeConverter
     fun fromTendenciesList(value: List<BehavioralTendency>?): String {
-        return adapter.toJson(value ?: emptyList())
+        if (value == null) return "[]"
+        val jsonArray = org.json.JSONArray()
+        value.forEach { item ->
+            val jsonObj = org.json.JSONObject()
+            jsonObj.put("type", item.type)
+            jsonObj.put("frequency", item.frequency)
+            jsonObj.put("strategy", item.strategy)
+            jsonArray.put(jsonObj)
+        }
+        return jsonArray.toString()
     }
 
     @TypeConverter
-    fun toTendenciesList(value: String): List<BehavioralTendency> {
-        return try {
-            adapter.fromJson(value) ?: emptyList()
+    fun toTendenciesList(value: String?): List<BehavioralTendency> {
+        if (value.isNullOrEmpty()) return emptyList()
+        val list = mutableListOf<BehavioralTendency>()
+        try {
+            val jsonArray = org.json.JSONArray(value)
+            for (i in 0 until jsonArray.length()) {
+                val item = jsonArray.getJSONObject(i)
+                list.add(BehavioralTendency(
+                    type = item.optString("type"),
+                    frequency = item.optString("frequency"),
+                    strategy = item.optString("strategy")
+                ))
+            }
         } catch (e: Exception) {
-            emptyList()
+            e.printStackTrace()
         }
+        return list
     }
 }
