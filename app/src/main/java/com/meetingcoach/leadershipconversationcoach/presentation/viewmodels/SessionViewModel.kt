@@ -78,9 +78,21 @@ class SessionViewModel @Inject constructor(
         }
 
         // Observe SessionManager events
+        // Observe SessionManager events
         viewModelScope.launch {
             sessionManager.transcripts.collect { chunk ->
-                if (!chunk.isPartial) {
+                if (chunk.isPartial) {
+                    // Update partial transcript for live UI
+                    _sessionState.update { it.copy(partialTranscript = chunk.text) }
+                    
+                    // Trigger Dynamics Analysis on partials for "Live" feel
+                    // Only analyze if text is substantial (> 20 chars) to avoid noise
+                    if (_sessionState.value.mode == SessionMode.DYNAMICS && chunk.text.length > 20) {
+                        val analysis = analyzeDynamicsUseCase(chunk.text)
+                        _dynamicsAnalysis.value = analysis
+                    }
+                } else {
+                    // Final result
                     val message = ChatMessage(
                         type = MessageType.TRANSCRIPT,
                         content = chunk.text,
@@ -92,8 +104,11 @@ class SessionViewModel @Inject constructor(
                     )
                     addMessage(message)
                     updateMetrics()
+                    
+                    // Clear partial transcript
+                    _sessionState.update { it.copy(partialTranscript = "") }
 
-                    // Trigger Dynamics Analysis if in DYNAMICS mode
+                    // Trigger Dynamics Analysis on final result
                     if (_sessionState.value.mode == SessionMode.DYNAMICS) {
                         val analysis = analyzeDynamicsUseCase(chunk.text)
                         _dynamicsAnalysis.value = analysis
