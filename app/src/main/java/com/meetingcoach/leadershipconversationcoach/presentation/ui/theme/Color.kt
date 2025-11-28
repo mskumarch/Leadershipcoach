@@ -14,6 +14,8 @@ object AppPalette {
     // Brand Colors - Modern Sage & Lavender
     val Sage600 = Color(0xFF4A7A68) // Primary Brand Color (Deep Sage)
     val Sage500 = Color(0xFF5B9A8B) // Primary Light
+    val Sage400 = Color(0xFF7CB3A6) // Lighter Sage
+    val Sage200 = Color(0xFFC5E0D8) // Very Light Sage
     val Sage100 = Color(0xFFE8F3EF) // Light Sage Background
 
     val Lavender500 = Color(0xFF8B80F9) // Modern Lavender (Secondary)
@@ -24,6 +26,7 @@ object AppPalette {
     val Stone700 = Color(0xFF44403C) // Secondary Text
     val Stone500 = Color(0xFF78716C) // Disabled / Hint
     val Stone300 = Color(0xFFD6D3D1) // Medium Stone
+    val Stone200 = Color(0xFFE7E5E4) // Light Stone
     val Stone100 = Color(0xFFF5F5F4) // Surface Variant / Borders
     val Stone50 = Color(0xFFFAFAF9)  // Background Alternative (Warm Off-White)
     val White = Color(0xFFFFFFFF)    // Pure White

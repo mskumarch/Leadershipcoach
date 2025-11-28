@@ -122,20 +122,26 @@ fun HeroScoreCard(score: Int) {
                     )
                     
                     Canvas(modifier = Modifier.size(140.dp)) {
-                        // Background Circle
+                        // Background Circle with subtle gradient
                         drawArc(
-                            color = AppPalette.Stone100,
+                            brush = Brush.sweepGradient(
+                                colors = listOf(
+                                    AppPalette.Stone100,
+                                    AppPalette.Stone200,
+                                    AppPalette.Stone100
+                                )
+                            ),
                             startAngle = 0f,
                             sweepAngle = 360f,
                             useCenter = false,
                             style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
                         )
-                        // Progress Circle
+                        // Progress Circle with Glow effect simulation (shadow)
                         drawArc(
                             brush = Brush.sweepGradient(
                                 colors = listOf(
                                     AppPalette.Sage600,
-                                    AppPalette.Sage500, // Light Sage
+                                    AppPalette.Sage400,
                                     AppPalette.Sage600
                                 )
                             ),
@@ -249,6 +255,16 @@ fun ActivityChartCard(timeRange: String) {
                     .weight(1f),
                 contentAlignment = Alignment.BottomCenter
             ) {
+                // Grid lines
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    repeat(4) {
+                        Divider(color = AppPalette.Stone100, thickness = 1.dp)
+                    }
+                }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -265,14 +281,14 @@ fun ActivityChartCard(timeRange: String) {
                             // Bar
                             Box(
                                 modifier = Modifier
-                                    .width(12.dp)
+                                    .width(16.dp) // Wider bars
                                     .fillMaxHeight(value / max)
-                                    .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
+                                    .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                AppPalette.Sage600,
-                                                AppPalette.Sage100
+                                                AppPalette.Sage500,
+                                                AppPalette.Sage200
                                             )
                                         )
                                     )
@@ -289,7 +305,7 @@ fun ActivityChartCard(timeRange: String) {
                                     6 -> "S"
                                     else -> ""
                                 },
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = AppPalette.Stone500
                             )
                         }

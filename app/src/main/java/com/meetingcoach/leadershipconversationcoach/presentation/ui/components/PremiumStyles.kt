@@ -2,6 +2,7 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,7 +26,7 @@ object PremiumStyles {
 }
 
 @Composable
-fun StandardBackground(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun StandardBackground(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize()

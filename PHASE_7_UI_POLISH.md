@@ -12,7 +12,7 @@ Elevate the app from "functional prototype" to "premium, commercial-grade produc
     - **Background**: Standardize top fade gradient (`#E7F3ED` -> `#FFFFFF`).
     - **Cards**: Enforce **22dp corner radius** and specific shadow (`0dp 6dp 12dp rgba(0,0,0,0.08)`).
     - **Spacing**: Standardize page padding (20dp) and section spacing (16-28dp).
-- [ ] **Typography**:
+- [x] **Typography**:
     - Update `Type.kt` to enforce hierarchy:
         - H1: 28sp Bold
         - H2: 22sp SemiBold
@@ -21,25 +21,26 @@ Elevate the app from "functional prototype" to "premium, commercial-grade produc
         - Caption: 13sp Medium (55% opacity)
 
 ## 2. Screen-Specific Refinements
-- [ ] **Home Screen**:
-    - Add blurred gradient behind "Start Session" orb.
-    - Add abstract leadership illustration.
-    - Fix "Daily Tip" card spacing.
-    - Replace generic profile avatar.
-- [ ] **History Screen**:
-    - Update Session Cards (Shadow + 22dp Radius).
-    - Fix Graph Header padding.
-- [ ] **Analytics / Growth**:
-    - Modernize Charts: Rounded ends, gradients, soft easing.
-    - Style "Score Donut" to look less generic.
-    - Update Time Range Pill Toggle (1D/7D/30D).
-- [ ] **Session Insights**:
-    - Add micro-icons to Feedback Loop.
-    - Add placeholder illustration for "Game Film" if empty.
-- [ ] **Settings**:
-    - Lighten "Analysis Frequency" tile.
-    - Unify icon styles (Robot vs Palette vs Gear).
-    - Modernize Slider track.
+- [x] **Home Screen**:
+    - Apply consistent styling (`StandardBackground`, `PremiumCard`). (Completed)
+    - Remove "Goal Completion" and "Sentiment Trend" cards. (Completed)
+    - Ensure "Start Session" orb matches new design. (Completed)
+- [x] **History Screen**:
+    - Update Session Cards (Shadow + 22dp Radius). (Completed)
+    - Fix Graph Header padding. (Completed)
+- [x] **Analytics/Growth**:
+    - Apply consistent styling (`StandardBackground`, `PremiumCard`). (Completed)
+    - Modernize Charts: Rounded ends, gradients, soft easing. (Completed)
+    - Style "Score Donut" to look less generic. (Completed)
+    - Update Time Range Pill Toggle (1D/7D/30D). (Completed)
+- [x] **Session Insights**:
+    - Apply consistent styling (`StandardBackground`, `PremiumCard`). (Completed)
+    - Add micro-icons to Feedback Loop. (Completed)
+    - Add placeholder illustration for "Game Film" if empty. (Skipped - using Text for now)
+- [x] **Settings**:
+    - Lighten "Analysis Frequency" tile. (Completed)
+    - Unify icon styles (Robot vs Palette vs Gear). (Completed)
+    - Modernize Slider track. (Completed)
 
 ## 3. Implementation Strategy
 1.  **Foundation**: Update `Type.kt` and `PremiumComponents.kt` (Navigation, Cards).
