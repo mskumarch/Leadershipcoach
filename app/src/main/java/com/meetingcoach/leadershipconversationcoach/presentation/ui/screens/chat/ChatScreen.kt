@@ -136,19 +136,18 @@ fun ChatScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // 1. Header "Ask AI Coach" (Glassy)
-                    GlassCard(
+                    // 1. Header & Metrics (The Cockpit)
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .padding(top = 40.dp), // Status bar
-                        shape = RoundedCornerShape(24.dp),
-                        alpha = 0.6f
+                            .background(GlassDesign.EtherealBackground) // Ensure background continuity
+                            .statusBarsPadding()
                     ) {
+                        // Top Bar
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -156,33 +155,26 @@ fun ChatScreen(
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = AppPalette.Sage900)
                             }
                             
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "Ask AI Coach",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = AppPalette.Sage900
-                                )
-                                // Live Status
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(6.dp)
-                                            .background(AppPalette.Red500, CircleShape)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = sessionState.duration ?: "00:00",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = AppPalette.Sage700
-                                    )
-                                }
-                            }
+                            Text(
+                                text = "Ask AI Coach",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = AppPalette.Sage900
+                            )
                             
                             IconButton(onClick = { /* TODO: Menu */ }) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = AppPalette.Sage900)
                             }
                         }
+
+                        // Metrics HUD (Restored)
+                        MetricsHUD(
+                            isRecording = sessionState.isRecording,
+                            duration = sessionState.duration ?: "00:00",
+                            talkRatio = 45, // Placeholder, connect to viewModel if available
+                            qualityScore = 88, // Placeholder
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
                     }
 
                     // 2. Main Feed (LazyColumn)
@@ -192,7 +184,7 @@ fun ChatScreen(
                             .weight(1f)
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
-                        contentPadding = PaddingValues(bottom = 120.dp, top = 8.dp),
+                        contentPadding = PaddingValues(bottom = 20.dp, top = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(sessionState.messages) { message: com.meetingcoach.leadershipconversationcoach.domain.models.ChatMessage ->
@@ -395,6 +387,44 @@ fun ChatScreen(
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
+                            }
+                        }
+                        
+                        // Session Controls (Restored)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Pause/Resume
+                            IconButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    if (sessionState.isPaused) viewModel.resumeSession() else viewModel.pauseSession()
+                                },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(AppPalette.Stone100, CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = if (sessionState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                                    contentDescription = if (sessionState.isPaused) "Resume" else "Pause",
+                                    tint = AppPalette.Sage900
+                                )
+                            }
+
+                            // Stop (Prominent)
+                            Button(
+                                onClick = { 
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.stopSession() 
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Red500),
+                                shape = RoundedCornerShape(50),
+                                contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp)
+                            ) {
+                                Icon(Icons.Default.Stop, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("END SESSION", fontWeight = FontWeight.Bold)
                             }
                         }
                     }
