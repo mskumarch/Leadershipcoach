@@ -55,3 +55,4 @@ Create a premium, "Apple-like" onboarding experience that welcomes new users, ex
 3.  **Permissions**: Implement the "Primer" logic using Accompanist Permissions or standard ActivityResultContracts.
 4.  **Personalization**: Create the Profile input form and save logic.
 5.  **Integration**: Wire it up in `MainActivity` / `NavigationScreen`.
+![alt text](image.png)

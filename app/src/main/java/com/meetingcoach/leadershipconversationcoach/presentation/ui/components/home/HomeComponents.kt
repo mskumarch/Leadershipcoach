@@ -1,186 +1,318 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.components.home
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
-import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PulsingConcentricCircles
-import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.GradientBackground
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlassCard
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlassDesign
 
 @Composable
 fun HomeIdleState(
     onStartSession: () -> Unit
 ) {
-    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-    
-    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground {
-        Box(
-            modifier = Modifier.fillMaxSize()
+    // Main Background
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .padding(top = 60.dp), // Status bar spacing
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Top Right Profile (Mock)
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(24.dp)
-                    .size(40.dp)
-                    .background(AppPalette.Stone100, RoundedCornerShape(12.dp))
-                    .border(1.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("👤", fontSize = 20.sp)
-            }
+            // 1. Header
+            HeaderSection()
 
-            // Center Content
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(bottom = 60.dp), // Offset for bottom nav
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(40.dp)
-            ) {
-                // Header
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "Good Morning,",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = AppPalette.Stone500,
-                        letterSpacing = 2.sp
-                    )
-                    Text(
-                        text = "Ready to Lead?",
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
-                        color = AppPalette.Stone900
-                    )
-                }
+            // 2. Main Metric Card (Readiness/Impact)
+            MainMetricCard()
 
-                // The Orb
-                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StartSessionOrb(
-                    onClick = {
-                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                        onStartSession()
-                    }
-                )
-                
-                // Quick Tips Carousel (Auto-Scrolling Marquee)
-                val scrollState = androidx.compose.foundation.lazy.rememberLazyListState()
-                
-                // Auto-scroll logic
-                LaunchedEffect(Unit) {
-                    while (true) {
-                        scrollState.animateScrollBy(
-                            value = 1000f, // Scroll distance
-                            animationSpec = tween(10000, easing = LinearEasing) // Slow, linear speed
-                        )
-                        // Reset if needed or infinite list logic (simplified here by just scrolling)
-                        // For true infinite, we'd need a huge list or custom layout. 
-                        // For now, let's just make it a long list by repeating items.
-                    }
-                }
+            // 3. Quick Actions Row
+            QuickActionsRow(onStartSession = onStartSession)
 
-                androidx.compose.foundation.lazy.LazyRow(
-                    state = scrollState,
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp),
-                    userScrollEnabled = true // Allow user to override
-                ) {
-                    // Repeat items to simulate infinite scroll
-                    items(100) { index ->
-                        val tips = listOf(
-                            "⚡ Real-time Nudges",
-                            "📊 Post-Session Analytics",
-                            "🎭 Roleplay Practice",
-                            "🎯 Goal Tracking",
-                            "🧠 AI Wisdom"
-                        )
-                        QuickTipChip(tips[index % tips.size])
-                    }
-                }
-                
-                // Daily Tip Teaser
-                DailyTipTeaser(
-                    tip = "When delegating, define the 'What' and 'When,' but let them define the 'How'.",
-                    onClick = { /* TODO: Navigate to Wisdom Tab */ }
-                )
-            }
-            
-            // Bottom Navigation - Handled by NavigationScreen
+            // 4. Daily Insight Card
+            DailyInsightCard()
         }
     }
 }
 
 @Composable
-fun QuickTipChip(text: String) {
-    Box(
-        modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+private fun HeaderSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = text,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        Column {
+            Text(
+                text = "Good Morning, Leader!",
+                style = MaterialTheme.typography.titleLarge,
+                color = AppPalette.Sage900,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Friday, October 31", // TODO: Dynamic Date
+                style = MaterialTheme.typography.bodyMedium,
+                color = AppPalette.Sage700
+            )
+        }
+        
+        // Profile / Weather Pill
+        GlassCard(
+            shape = RoundedCornerShape(50),
+            alpha = 0.5f,
+            modifier = Modifier.height(40.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("🌤️ +10°", style = MaterialTheme.typography.labelMedium, color = AppPalette.Sage900)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MainMetricCard() {
+    GlassCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(320.dp),
+        shape = RoundedCornerShape(32.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Weekly Impact",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AppPalette.Sage900,
+                    fontWeight = FontWeight.SemiBold
+                )
+                
+                Icon(
+                    imageVector = Icons.Default.School, // Placeholder icon
+                    contentDescription = null,
+                    tint = AppPalette.Sage700,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Circular Progress
+            Box(contentAlignment = Alignment.Center) {
+                // Background Circle
+                Canvas(modifier = Modifier.size(180.dp)) {
+                    drawCircle(
+                        color = AppPalette.Sage100,
+                        style = Stroke(width = 25.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+                
+                // Progress Circle (Gradient)
+                Canvas(modifier = Modifier.size(180.dp)) {
+                    drawArc(
+                        brush = Brush.sweepGradient(
+                            colors = listOf(AppPalette.Sage400, AppPalette.Lavender500, AppPalette.Sage400)
+                        ),
+                        startAngle = -90f,
+                        sweepAngle = 280f, // 80% roughly
+                        useCenter = false,
+                        style = Stroke(width = 25.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Good",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = AppPalette.Sage500
+                    )
+                    Text(
+                        text = "85%",
+                        style = MaterialTheme.typography.displayMedium,
+                        color = AppPalette.Sage900,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Better than 73% of users",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = AppPalette.Sage500,
+                        modifier = Modifier.width(80.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.weight(1f))
+            
+            // View Report Button
+            Button(
+                onClick = { /* TODO */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AppPalette.Sage700
+                ),
+                shape = RoundedCornerShape(50),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
+            ) {
+                Text("View Full Report")
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickActionsRow(onStartSession: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // 1. Start Session
+        QuickActionCard(
+            modifier = Modifier.weight(1f),
+            title = "Start\nSession",
+            icon = "🎙️",
+            gradient = GlassDesign.ActiveGradient,
+            onClick = onStartSession
+        )
+        
+        // 2. Practice
+        QuickActionCard(
+            modifier = Modifier.weight(1f),
+            title = "Practice\nScenario",
+            icon = "🎭",
+            gradient = GlassDesign.GlassCardGradient, // Subtle
+            onClick = { /* TODO */ }
+        )
+        
+        // 3. Ask Coach
+        QuickActionCard(
+            modifier = Modifier.weight(1f),
+            title = "Ask\nCoach",
+            icon = "💬",
+            gradient = GlassDesign.LavenderGradient,
+            onClick = { /* TODO */ }
         )
     }
 }
+
 @Composable
-fun DailyTipTeaser(tip: String, onClick: () -> Unit) {
-    Card(
+private fun QuickActionCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    icon: String,
+    gradient: Brush,
+    onClick: () -> Unit
+) {
+    GlassCard(
+        modifier = modifier
+            .height(110.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(gradient.copy(alpha = 0.1f)) // Subtle tint
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color.White.copy(alpha = 0.5f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(icon, fontSize = 20.sp)
+                }
+                
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = AppPalette.Sage900,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    lineHeight = 14.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DailyInsightCard() {
+    GlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, AppPalette.Stone200.copy(alpha = 0.5f))
+            .height(100.dp),
+        shape = RoundedCornerShape(24.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("💡", fontSize = 24.sp)
-            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(AppPalette.Lavender100, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("✨", fontSize = 24.sp)
+            }
+            
             Column {
                 Text(
-                    text = "DAILY TIP",
+                    text = "AI Insight",
                     style = MaterialTheme.typography.labelSmall,
-                    color = AppPalette.Sage600,
+                    color = AppPalette.Lavender500,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = tip,
+                    text = "You asked 20% more open questions this week. Great job!",
                     style = MaterialTheme.typography.bodySmall,
-                    color = AppPalette.Stone900,
-                    maxLines = 2,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    color = AppPalette.Sage900,
+                    maxLines = 2
                 )
             }
         }
