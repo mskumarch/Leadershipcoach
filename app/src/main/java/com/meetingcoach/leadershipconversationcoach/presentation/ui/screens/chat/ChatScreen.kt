@@ -3,6 +3,9 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.cha
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -15,9 +18,14 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.zIndex
+import androidx.compose.foundation.border
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -100,13 +108,19 @@ fun ChatScreen(
         }
     }
 
-    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(modifier = modifier) {
+    // Main Background
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(GlassDesign.EtherealBackground)
+    ) {
         // Snackbar for Guardian nudges
         androidx.compose.material3.SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
-                .align(Alignment.TopCenter) // Move to top for better visibility
+                .align(Alignment.TopCenter)
                 .padding(top = 80.dp)
+                .zIndex(10f)
         )
         
         if (sessionState.isRecording) {
@@ -119,133 +133,169 @@ fun ChatScreen(
                 // ============================================================
                 // RECORDING STATE - THE COCKPIT
                 // ============================================================
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier.fillMaxSize()
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    // 1. Header "Ask AI Coach" (Glassy)
+                    GlassCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(top = 40.dp), // Status bar
+                        shape = RoundedCornerShape(24.dp),
+                        alpha = 0.6f
                     ) {
-                        // 1. Metrics HUD (Glassmorphic Top Bar) - Ghost Mode Logic
-                        // Calculate alpha based on health: If talk ratio is balanced (30-70), fade out to 0.3f
-                        val isHealthy = sessionState.metrics.talkRatio in 30..70
-                        val hudAlpha by animateFloatAsState(
-                            targetValue = if (isHealthy) 0.3f else 1.0f,
-                            animationSpec = tween(durationMillis = 1000)
-                        )
-
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .padding(16.dp)
-                                .alpha(hudAlpha)
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                MetricsHUD(
-                                    isRecording = !sessionState.isPaused,
-                                    duration = sessionState.duration,
-                                    talkRatio = sessionState.metrics.talkRatio,
-                                    qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100)
+                            IconButton(onClick = { /* TODO: Back */ }) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = AppPalette.Sage900)
+                            }
+                            
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Ask AI Coach",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = AppPalette.Sage900
                                 )
-                                
-                                // Live Coaching Controls
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Sentiment (Mocked for now, connect to VM later)
-                                    SentimentIndicator(sentiment = "Engaged")
-                                    
-                                    // Note Panel (Scrollable)
+                                // Live Status
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(
                                         modifier = Modifier
-                                            .weight(1f)
-                                            .horizontalScroll(rememberScrollState())
-                                    ) {
-                                        NotePanel(
-                                            onCategorySelected = { category: String ->
-                                                // TODO: Handle category selection (e.g., filter notes or add tag)
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        // 2. Main Feed (LazyColumn)
-                        androidx.compose.foundation.lazy.LazyColumn(
-                            state = listState,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            contentPadding = PaddingValues(bottom = 120.dp, top = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(sessionState.messages) { message: com.meetingcoach.leadershipconversationcoach.domain.models.ChatMessage ->
-                                when (message.type) {
-                                    // LIVE TRANSCRIPT
-                                    MessageType.TRANSCRIPT -> {
-                                        StreamingTranscriptBubble(
-                                            text = message.content,
-                                            isFinal = true, // Assuming stored messages are final chunks
-                                            speaker = message.speaker?.name ?: "UNKNOWN"
-                                        )
-                                    }
-                                    
-                                    // Coaching cards
-                                    MessageType.URGENT_NUDGE -> {
-                                        CoachingBanner(
-                                            type = BannerType.CRITICAL_NUDGE,
-                                            message = message.content,
-                                            copyableText = null,
-                                            onDismiss = { viewModel.removeMessage(message.id) },
-                                            onGotIt = { viewModel.removeMessage(message.id) }
-                                        )
-                                    }
-                                    MessageType.IMPORTANT_PROMPT, MessageType.HELPFUL_TIP, MessageType.CONTEXT -> {
-                                        CoachingBanner(
-                                            type = BannerType.HELPFUL_SUGGESTION,
-                                            message = message.content,
-                                            copyableText = null,
-                                            onDismiss = { viewModel.removeMessage(message.id) },
-                                            onGotIt = { viewModel.removeMessage(message.id) }
-                                        )
-                                    }
-
-                                    // User question bubble
-                                    MessageType.USER_QUESTION -> {
-                                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                                            UserMessageBubble(message = message.content)
-                                        }
-                                    }
-
-                                    // AI response bubble
-                                    MessageType.AI_RESPONSE -> {
-                                        if (message.content == "Thinking...") {
-                                            GlassmorphicAICard {
-                                                TypingIndicator()
-                                            }
-                                        } else {
-                                            GlassmorphicAICard {
-                                                Text(
-                                                    text = message.content,
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
-                                            }
-                                        }
-                                    }
-                                    else -> {}
+                                            .size(6.dp)
+                                            .background(AppPalette.Red500, CircleShape)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = sessionState.duration ?: "00:00",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = AppPalette.Sage700
+                                    )
                                 }
                             }
                             
-                            // Live Partial Transcript
-                            if (sessionState.partialTranscript.isNotEmpty()) {
-                                item {
+                            IconButton(onClick = { /* TODO: Menu */ }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = AppPalette.Sage900)
+                            }
+                        }
+                    }
+
+                    // 2. Main Feed (LazyColumn)
+                    androidx.compose.foundation.lazy.LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        contentPadding = PaddingValues(bottom = 120.dp, top = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(sessionState.messages) { message: com.meetingcoach.leadershipconversationcoach.domain.models.ChatMessage ->
+                            when (message.type) {
+                                // LIVE TRANSCRIPT
+                                MessageType.TRANSCRIPT -> {
                                     StreamingTranscriptBubble(
-                                        text = sessionState.partialTranscript,
-                                        isFinal = false,
-                                        speaker = "You"
+                                        text = message.content,
+                                        isFinal = true,
+                                        speaker = message.speaker?.name ?: "UNKNOWN"
                                     )
                                 }
+                                
+                                // Coaching cards
+                                MessageType.URGENT_NUDGE -> {
+                                    CoachingBanner(
+                                        type = BannerType.CRITICAL_NUDGE,
+                                        message = message.content,
+                                        copyableText = null,
+                                        onDismiss = { viewModel.removeMessage(message.id) },
+                                        onGotIt = { viewModel.removeMessage(message.id) }
+                                    )
+                                }
+                                MessageType.IMPORTANT_PROMPT, MessageType.HELPFUL_TIP, MessageType.CONTEXT -> {
+                                    CoachingBanner(
+                                        type = BannerType.HELPFUL_SUGGESTION,
+                                        message = message.content,
+                                        copyableText = null,
+                                        onDismiss = { viewModel.removeMessage(message.id) },
+                                        onGotIt = { viewModel.removeMessage(message.id) }
+                                    )
+                                }
+
+                                // User question bubble
+                                MessageType.USER_QUESTION -> {
+                                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                                        UserMessageBubble(message = message.content)
+                                    }
+                                }
+
+                                // AI response bubble
+                                MessageType.AI_RESPONSE -> {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Start
+                                    ) {
+                                        // AI Avatar
+                                        Box(
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .background(AppPalette.Sage100, CircleShape)
+                                                .border(1.dp, Color.White, CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("🤖", fontSize = 16.sp)
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        
+                                        if (message.content == "Thinking...") {
+                                            GlassCard(
+                                                shape = RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp),
+                                                alpha = 0.8f
+                                            ) {
+                                                Box(modifier = Modifier.padding(12.dp)) {
+                                                    TypingIndicator()
+                                                }
+                                            }
+                                        } else {
+                                            GlassCard(
+                                                shape = RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp),
+                                                alpha = 0.8f
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(
+                                                        text = "AI Coach",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color = AppPalette.Sage700,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                    Spacer(modifier = Modifier.height(4.dp))
+                                                    Text(
+                                                        text = message.content,
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = AppPalette.Sage900
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else -> {}
+                            }
+                        }
+                        
+                        // Live Partial Transcript
+                        if (sessionState.partialTranscript.isNotEmpty()) {
+                            item {
+                                StreamingTranscriptBubble(
+                                    text = sessionState.partialTranscript,
+                                    isFinal = false,
+                                    speaker = "You"
+                                )
                             }
                         }
                     }
@@ -253,40 +303,79 @@ fun ChatScreen(
                     // 3. Floating Controls (Bottom)
                     Column(
                         modifier = Modifier
-                            .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .background(
-                                 brush = Brush.verticalGradient(
-                                     colors = listOf(Color.Transparent, AppPalette.Stone50.copy(alpha = 0.9f))
-                                 )
-                            )
                             .padding(16.dp)
-                            .padding(bottom = 16.dp),
+                            .padding(bottom = 80.dp), // Space for nav
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Input Area
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            // Magic Wand (Quick Actions)
-                            SmallFloatingActionButton(
-                                onClick = { showQuickActions = true },
-                                containerColor = AppPalette.Lavender500,
-                                contentColor = Color.White,
-                                shape = CircleShape
+                        // Suggested Actions (Chips)
+                        if (!sessionState.isPaused) {
+                            Row(
+                                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("✨", fontSize = 20.sp)
+                                SuggestionChip(
+                                    onClick = { viewModel.addUserMessage("What did I miss?") },
+                                    label = { Text("What did I miss?") },
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = Color.White.copy(alpha = 0.8f)
+                                    )
+                                )
+                                SuggestionChip(
+                                    onClick = { viewModel.addUserMessage("Check my tone") },
+                                    label = { Text("Check my tone") },
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = Color.White.copy(alpha = 0.8f)
+                                    )
+                                )
+                                SuggestionChip(
+                                    onClick = { viewModel.addUserMessage("Summarize") },
+                                    label = { Text("Summarize") },
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = Color.White.copy(alpha = 0.8f)
+                                    )
+                                )
                             }
-                            
-                            // Text Input
-                            Box(modifier = Modifier.weight(1f)) {
-                                ChatInputField(
-                                    value = inputText,
-                                    onValueChange = { inputText = it },
-                                    onSend = {
+                        }
+
+                        // Input Area
+                        GlassCard(
+                            shape = RoundedCornerShape(50),
+                            alpha = 0.9f
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Magic Wand
+                                IconButton(onClick = { showQuickActions = true }) {
+                                    Text("✨", fontSize = 20.sp)
+                                }
+                                
+                                // Text Input
+                                Box(modifier = Modifier.weight(1f)) {
+                                    BasicTextField(
+                                        value = inputText,
+                                        onValueChange = { inputText = it },
+                                        textStyle = MaterialTheme.typography.bodyMedium.copy(color = AppPalette.Sage900),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp),
+                                        decorationBox = { innerTextField ->
+                                            if (inputText.isEmpty()) {
+                                                Text("Ask your coach...", style = MaterialTheme.typography.bodyMedium, color = AppPalette.Sage900.copy(alpha = 0.5f))
+                                            }
+                                            innerTextField()
+                                        }
+                                    )
+                                }
+                                
+                                // Send / Mic
+                                IconButton(
+                                    onClick = {
                                         if (inputText.isNotBlank()) {
                                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                             viewModel.addUserMessage(inputText)
@@ -294,52 +383,25 @@ fun ChatScreen(
                                             viewModel.addAIResponse(aiResponse)
                                             inputText = ""
                                         }
-                                    }
-                                )
-                            }
-                        }
-                        
-                        // Session Controls (Pause/Stop)
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(24.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // Pause/Resume
-                            IconButton(
-                                onClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    if (sessionState.isPaused) viewModel.resumeSession() else viewModel.pauseSession()
-                                },
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .background(AppPalette.Stone100, CircleShape)
-                            ) {
-                                Icon(
-                                    imageVector = if (sessionState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
-                                    contentDescription = if (sessionState.isPaused) "Resume" else "Pause",
-                                    tint = DeepCharcoal
-                                )
-                            }
-
-                            // Stop (Prominent)
-                            Button(
-                                onClick = { 
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.stopSession() 
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Red500),
-                                shape = RoundedCornerShape(50),
-                                contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp)
-                            ) {
-                                Icon(Icons.Default.Stop, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("END SESSION", fontWeight = FontWeight.Bold)
+                                    },
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .background(AppPalette.Sage700, CircleShape)
+                                ) {
+                                    Icon(
+                                        imageVector = if (inputText.isNotBlank()) Icons.AutoMirrored.Filled.Send else Icons.Default.Mic,
+                                        contentDescription = "Send",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
-
+                    
                     // Quick Actions Sheet
                     if (showQuickActions) {
+                        // ... (Keep existing logic)
                         val promptSummarize = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_summarize)
                         val promptExplain = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_explain)
                         val promptCheckTone = androidx.compose.ui.res.stringResource(com.meetingcoach.leadershipconversationcoach.R.string.prompt_check_tone)

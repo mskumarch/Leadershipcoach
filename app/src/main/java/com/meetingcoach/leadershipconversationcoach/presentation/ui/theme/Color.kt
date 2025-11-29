@@ -17,6 +17,7 @@ object AppPalette {
     val Sage600 = Color(0xFF3C7C65)
     val Sage500 = Color(0xFF4F8F77) // Mid Sage UI elements
     val Sage400 = Color(0xFF7CB6A2)
+    val Sage300 = Color(0xFFA9D4C6) // Added for compatibility
     val Sage200 = Color(0xFFD5F3EA)
     val Sage100 = Color(0xFFE9F3EE) // Card tint / soft mint
     val Sage50  = Color(0xFFEEF7F3) // Top gradient
