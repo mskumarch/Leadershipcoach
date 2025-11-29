@@ -708,14 +708,7 @@ fun StartSessionOrb(
     }
 }
 
-/**
-                modifier = Modifier
-                    .size(if (isActive) 27.dp else 24.dp)
-                    .scale(scale)
-            )
-        }
-    }
-}
+
 
 
 

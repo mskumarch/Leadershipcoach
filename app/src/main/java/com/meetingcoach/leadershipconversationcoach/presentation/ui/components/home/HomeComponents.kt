@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -246,7 +247,9 @@ private fun QuickActionCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(gradient.copy(alpha = 0.1f)) // Subtle tint
+                .drawBehind {
+                    drawRect(brush = gradient, alpha = 0.1f)
+                }
         ) {
             Column(
                 modifier = Modifier

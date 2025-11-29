@@ -38,7 +38,7 @@ object GlassDesign {
     // The main background gradient (Sage to Soft Lavender)
     val EtherealBackground = Brush.verticalGradient(
         colors = listOf(
-            AppPalette.Sage5,   // Top (Lightest Sage)
+            AppPalette.Sage50,   // Top (Lightest Sage)
             AppPalette.Sage25,  // Mid (Soft Sage)
             AppPalette.Lavender100.copy(alpha = 0.5f) // Bottom (Hint of Lavender)
         )

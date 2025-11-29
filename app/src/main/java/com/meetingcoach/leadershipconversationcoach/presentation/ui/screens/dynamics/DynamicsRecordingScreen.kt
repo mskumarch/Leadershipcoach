@@ -24,6 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlassDesign
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.glass
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlassCard
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.SessionViewModel
 import kotlinx.coroutines.delay
 import kotlin.math.cos
@@ -32,6 +35,7 @@ import kotlin.math.sin
 /**
  * Dynamics Mode Recording Screen
  * "The Radar" - Visualizes alignment, resistance, and power dynamics.
+ * Refactored to use Glassmorphic Light Theme.
  */
 @Composable
 fun DynamicsRecordingScreen(
@@ -42,18 +46,11 @@ fun DynamicsRecordingScreen(
     val audioLevel by viewModel.audioLevel.collectAsState()
     val dynamicsAnalysis by viewModel.dynamicsAnalysis.collectAsState()
     
-    // Strategic Background (Darker Sage/Slate)
+    // Glassmorphic Background
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF1E293B), // Slate 800
-                        Color(0xFF0F172A)  // Slate 900
-                    )
-                )
-            )
+            .background(GlassDesign.EtherealBackground)
     ) {
         // Radar Visualization (Center)
         Box(
@@ -67,14 +64,14 @@ fun DynamicsRecordingScreen(
                 Text(
                     text = sessionState.duration ?: "00:00",
                     style = MaterialTheme.typography.displayMedium,
-                    color = Color.White,
+                    color = AppPalette.Sage900,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
                     text = "LISTENING FOR INTENT...",
                     style = MaterialTheme.typography.labelSmall,
-                    color = AppPalette.Sage400,
+                    color = AppPalette.Sage500,
                     letterSpacing = 2.sp
                 )
             }
@@ -104,14 +101,14 @@ fun DynamicsRecordingScreen(
                         Text(
                             text = "DYNAMICS MODE",
                             style = MaterialTheme.typography.labelSmall,
-                            color = AppPalette.Sage400,
+                            color = AppPalette.Sage500,
                             fontWeight = FontWeight.Bold
                         )
                         if (selectedStakeholder != null) {
                             Text(
                                 text = "vs. ${selectedStakeholder?.name}",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = Color.White,
+                                color = AppPalette.Sage900,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -122,9 +119,9 @@ fun DynamicsRecordingScreen(
                     onClick = onStopSession,
                     modifier = Modifier
                         .size(40.dp)
-                        .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                        .glass(CircleShape)
                 ) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = AppPalette.Sage900)
                 }
             }
 
@@ -133,9 +130,9 @@ fun DynamicsRecordingScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     selectedStakeholder?.tendencies?.take(2)?.forEach { tendency ->
-                        Surface(
-                            color = Color.White.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(8.dp)
+                        GlassCard(
+                            shape = RoundedCornerShape(8.dp),
+                            alpha = 0.5f
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -144,7 +141,7 @@ fun DynamicsRecordingScreen(
                                 Text(
                                     text = "⚠️ ${tendency.type}",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = AppPalette.Sage200
+                                    color = AppPalette.Sage700
                                 )
                             }
                         }
@@ -174,41 +171,37 @@ fun DynamicsRecordingScreen(
         }
         
         // Transcript Feed (Bottom Overlay)
-    val lastTranscript = sessionState.messages.lastOrNull { it.type == com.meetingcoach.leadershipconversationcoach.domain.models.MessageType.TRANSCRIPT }?.content
-    val currentText = if (sessionState.partialTranscript.isNotEmpty()) sessionState.partialTranscript else lastTranscript
+        val lastTranscript = sessionState.messages.lastOrNull { it.type == com.meetingcoach.leadershipconversationcoach.domain.models.MessageType.TRANSCRIPT }?.content
+        val currentText = if (sessionState.partialTranscript.isNotEmpty()) sessionState.partialTranscript else lastTranscript
 
-    if (!currentText.isNullOrEmpty()) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 120.dp, start = 16.dp, end = 16.dp)
-                .fillMaxWidth()
-                .heightIn(max = 100.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f))
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+        if (!currentText.isNullOrEmpty()) {
+            GlassCard(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 120.dp, start = 16.dp, end = 16.dp)
+                    .fillMaxWidth()
+                    .heightIn(max = 100.dp),
+                shape = RoundedCornerShape(12.dp),
+                alpha = 0.8f
+            ) {
+                Text(
+                    text = currentText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = AppPalette.Sage900,
+                    modifier = Modifier.padding(16.dp),
+                    maxLines = 3,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
-        ) {
-            Text(
-                text = currentText,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
-                modifier = Modifier.padding(16.dp),
-                maxLines = 3,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
+            }
         }
-    }
 
-    // Alignment Meter (Bottom Left)
-    AlignmentMeter(
-        alignmentScore = dynamicsAnalysis?.alignmentScore ?: 100, // Use live data, default to 100
-        modifier = Modifier
-            .align(Alignment.BottomStart)
-            .padding(bottom = 48.dp, start = 24.dp)
-    )
+        // Alignment Meter (Bottom Left)
+        AlignmentMeter(
+            alignmentScore = dynamicsAnalysis?.alignmentScore ?: 100, // Use live data, default to 100
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(bottom = 48.dp, start = 24.dp)
+        )
 
         // Live Subtext Decoder (Signals List)
         if (!dynamicsAnalysis?.detectedSignals.isNullOrEmpty()) {
@@ -221,16 +214,16 @@ fun DynamicsRecordingScreen(
                 Text(
                     text = "LIVE SUBTEXT DECODER",
                     style = MaterialTheme.typography.labelSmall,
-                    color = AppPalette.Sage400,
+                    color = AppPalette.Sage500,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
                 dynamicsAnalysis?.detectedSignals?.takeLast(3)?.forEach { signal ->
-                    Surface(
-                        color = Color(0xFF1E293B).copy(alpha = 0.8f),
+                    GlassCard(
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        alpha = 0.9f
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -251,20 +244,20 @@ fun DynamicsRecordingScreen(
                                 Text(
                                     text = signal.type.name.replace("_", " "),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White,
+                                    color = AppPalette.Sage900,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
                                     text = signal.description,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = AppPalette.Sage200
+                                    color = AppPalette.Sage700
                                 )
                                 signal.suggestedResponse?.let { response ->
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = "👉 $response",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFF86EFAC), // Light Green for action
+                                        color = AppPalette.Sage600, // Darker green for readability
                                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                                     )
                                 }
@@ -277,13 +270,13 @@ fun DynamicsRecordingScreen(
 
         // Strategic Advice Overlay (if urgent)
         dynamicsAnalysis?.strategicAdvice?.let { advice ->
-            Card(
+            GlassCard(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 100.dp, start = 24.dp, end = 24.dp)
                     .fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = AppPalette.Sage900.copy(alpha = 0.9f)),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                alpha = 0.95f
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
@@ -296,7 +289,7 @@ fun DynamicsRecordingScreen(
                     )
                     Text(
                         text = advice,
-                        color = Color.White,
+                        color = AppPalette.Sage900,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -325,7 +318,7 @@ fun RadarView(isActive: Boolean) {
         val circles = 4
         for (i in 1..circles) {
             drawCircle(
-                color = Color.White.copy(alpha = 0.05f),
+                color = AppPalette.Sage300.copy(alpha = 0.3f), // Darker lines for light bg
                 radius = (maxRadius / circles) * i,
                 style = Stroke(width = 1.dp.toPx())
             )
@@ -333,13 +326,13 @@ fun RadarView(isActive: Boolean) {
 
         // Draw Crosshairs
         drawLine(
-            color = Color.White.copy(alpha = 0.05f),
+            color = AppPalette.Sage300.copy(alpha = 0.3f),
             start = Offset(center.x, 0f),
             end = Offset(center.x, size.height),
             strokeWidth = 1.dp.toPx()
         )
         drawLine(
-            color = Color.White.copy(alpha = 0.05f),
+            color = AppPalette.Sage300.copy(alpha = 0.3f),
             start = Offset(0f, center.y),
             end = Offset(size.width, center.y),
             strokeWidth = 1.dp.toPx()
@@ -354,7 +347,7 @@ fun RadarView(isActive: Boolean) {
             // Sweep Line
             drawLine(
                 brush = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, AppPalette.Sage400.copy(alpha = 0.5f)),
+                    colors = listOf(Color.Transparent, AppPalette.Sage500.copy(alpha = 0.5f)),
                     start = center,
                     end = Offset(endX, endY)
                 ),
@@ -369,8 +362,8 @@ fun RadarView(isActive: Boolean) {
 @Composable
 fun AlignmentMeter(alignmentScore: Int, modifier: Modifier = Modifier) {
     val color = when {
-        alignmentScore >= 75 -> AppPalette.Sage400 // Green/Good
-        alignmentScore >= 40 -> Color(0xFFFBBF24)  // Yellow/Warning
+        alignmentScore >= 75 -> AppPalette.Sage500 // Green/Good
+        alignmentScore >= 40 -> Color(0xFFF59E0B)  // Amber/Warning
         else -> AppPalette.Red500                  // Red/Danger
     }
 
@@ -378,7 +371,7 @@ fun AlignmentMeter(alignmentScore: Int, modifier: Modifier = Modifier) {
         Text(
             text = "ALIGNMENT",
             style = MaterialTheme.typography.labelSmall,
-            color = AppPalette.Sage400,
+            color = AppPalette.Sage500,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -396,7 +389,7 @@ fun AlignmentMeter(alignmentScore: Int, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .width(100.dp)
                 .height(4.dp)
-                .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(2.dp))
+                .background(AppPalette.Sage200, RoundedCornerShape(2.dp))
         ) {
             Box(
                 modifier = Modifier
@@ -407,3 +400,4 @@ fun AlignmentMeter(alignmentScore: Int, modifier: Modifier = Modifier) {
         }
     }
 }
+
