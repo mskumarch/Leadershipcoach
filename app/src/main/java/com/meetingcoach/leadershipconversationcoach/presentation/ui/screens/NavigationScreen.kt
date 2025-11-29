@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.CoachBottomNavigationBar
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingPillNav
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.chat.ChatScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.coach.CoachScreen
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.HistoryScreen
@@ -134,7 +134,7 @@ fun NavigationScreen(
 
             // Floating Pill Navigation (Bottom Center)
             if (selectedSessionId == null && !showPracticeMode && !showAchievements) {
-                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingPillNav(
+                FloatingPillNav(
                     currentTab = selectedTab,
                     onTabSelected = { selectedTab = it },
                     modifier = Modifier

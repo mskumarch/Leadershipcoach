@@ -30,14 +30,7 @@ fun StandardBackground(modifier: Modifier = Modifier, content: @Composable BoxSc
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage50,   // #EEF7F3 (top)
-                        com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.Sage25    // #C9DED6 (bottom)
-                    )
-                )
-            )
+            .background(com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.GlassDesign.EtherealBackground)
     ) {
         content()
     }
