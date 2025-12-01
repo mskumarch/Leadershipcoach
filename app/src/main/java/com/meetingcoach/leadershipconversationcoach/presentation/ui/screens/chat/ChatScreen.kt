@@ -257,7 +257,11 @@ fun ChatScreen(
                             .fillMaxWidth()
                             .background(
                                  brush = Brush.verticalGradient(
-                                     colors = listOf(Color.Transparent, AppPalette.Stone50.copy(alpha = 0.9f))
+                                     colors = listOf(
+                                         Color.Transparent,
+                                         AppPalette.Sage25.copy(alpha = 0.8f), // Match app background
+                                         AppPalette.Sage25 // Solid at bottom
+                                     )
                                  )
                             )
                             .padding(16.dp)
