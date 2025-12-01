@@ -246,70 +246,37 @@ fun ChatScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Input Area (Hidden by default when recording)
-                        var showKeyboard by remember { mutableStateOf(false) }
-
-                        if (!sessionState.isRecording || showKeyboard) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        // Input Area
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Magic Wand (Quick Actions)
+                            SmallFloatingActionButton(
+                                onClick = { showQuickActions = true },
+                                containerColor = AppPalette.Lavender500,
+                                contentColor = Color.White,
+                                shape = CircleShape
                             ) {
-                                // Magic Wand (Quick Actions)
-                                SmallFloatingActionButton(
-                                    onClick = { showQuickActions = true },
-                                    containerColor = AppPalette.Lavender500,
-                                    contentColor = Color.White,
-                                    shape = CircleShape
-                                ) {
-                                    Text("✨", fontSize = 20.sp)
-                                }
-                                
-                                // Text Input
-                                Box(modifier = Modifier.weight(1f)) {
-                                    ChatInputField(
-                                        value = inputText,
-                                        onValueChange = { inputText = it },
-                                        onSend = {
-                                            if (inputText.isNotBlank()) {
-                                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                                viewModel.addUserMessage(inputText)
-                                                val aiResponse = viewModel.getAIResponse(inputText)
-                                                viewModel.addAIResponse(aiResponse)
-                                                inputText = ""
-                                            }
-                                        }
-                                    )
-                                }
+                                Text("✨", fontSize = 20.sp)
                             }
-                        } else {
-                            // Minimized Controls when Recording (No Keyboard)
-                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                // Magic Wand
-                                IconButton(
-                                    onClick = { showQuickActions = true },
-                                    modifier = Modifier.background(AppPalette.Lavender500.copy(alpha=0.2f), CircleShape)
-                                ) {
-                                    Text("✨", fontSize = 20.sp)
-                                }
-                                
-                                Spacer(modifier = Modifier.width(24.dp))
-
-                                // Show Keyboard Toggle
-                                IconButton(
-                                    onClick = { showKeyboard = true },
-                                    modifier = Modifier.background(AppPalette.Sage100, CircleShape)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Keyboard,
-                                        contentDescription = "Show Keyboard",
-                                        tint = AppPalette.Sage700
-                                    )
-                                }
+                            
+                            // Text Input
+                            Box(modifier = Modifier.weight(1f)) {
+                                ChatInputField(
+                                    value = inputText,
+                                    onValueChange = { inputText = it },
+                                    onSend = {
+                                        if (inputText.isNotBlank()) {
+                                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                            viewModel.addUserMessage(inputText)
+                                            val aiResponse = viewModel.getAIResponse(inputText)
+                                            viewModel.addAIResponse(aiResponse)
+                                            inputText = ""
+                                        }
+                                    }
+                                )
                             }
                         }
                         
