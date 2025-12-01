@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
@@ -172,29 +175,96 @@ fun TranscriptScreen(
             }
 
         } else if (!sessionState.isRecording) {
-            // Empty state - no recording
+            // Empty state - Before Session Starts Panel
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(24.dp)
+                    .verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                Spacer(modifier = Modifier.height(40.dp))
+                
                 Text(
-                    text = "No Active Session",
+                    text = "Before Session Starts",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = AppPalette.Sage900
                 )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
+
+                // 1. Quick Tip Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = AppPalette.Sage100),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text("💡", fontSize = 24.sp)
+                        Column {
+                            Text(
+                                text = "QUICK TIP",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = AppPalette.Sage600
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Take a deep breath before you start. A calm mind leads to clearer communication.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = AppPalette.Sage900
+                            )
+                        }
+                    }
+                }
+
+                // 2. What Good Communication Looks Like
                 Text(
-                    text = "Start a recording from the Coach tab to see the live transcript here.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "What good communication looks like",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Sage900
                 )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    CommunicationMicroCard(
+                        icon = "👂",
+                        title = "Active Listening",
+                        modifier = Modifier.weight(1f)
+                    )
+                    CommunicationMicroCard(
+                        icon = "🎯",
+                        title = "Clear Intent",
+                        modifier = Modifier.weight(1f)
+                    )
+                    CommunicationMicroCard(
+                        icon = "🤝",
+                        title = "Empathy",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // 3. Warm-up Questions
+                Text(
+                    text = "Warm-up Questions",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Sage900
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    WarmUpQuestionCard("What is the main goal of this conversation?")
+                    WarmUpQuestionCard("How do I want the other person to feel?")
+                }
+                
+                Spacer(modifier = Modifier.height(80.dp)) // Bottom padding
             }
         } else {
             // Recording but no transcript yet
