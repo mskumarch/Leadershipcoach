@@ -145,7 +145,7 @@ fun HistoryScreen(
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
+                                .background(Color.Transparent) // Transparent to blend with screen background
                                 .padding(vertical = 8.dp)
                         )
                     }
