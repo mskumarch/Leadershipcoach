@@ -66,15 +66,18 @@ fun NavigationScreen(
 
     // Full screen box to hold background and scaffold
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        AppPalette.Sage50,
+                        AppPalette.Sage25
+                    )
+                )
+            )
     ) {
-        // Background Image (Global Wallpaper)
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.meetingcoach.leadershipconversationcoach.R.drawable.background_clouds),
-            contentDescription = null,
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        // Background Image removed as per request
 
         Scaffold(
             containerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -90,6 +93,8 @@ fun NavigationScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = paddingValues.calculateTopPadding()) // Push content below status bar
+                        // Add padding to bottom to avoid overlap with floating menu
+                        .padding(bottom = if (selectedSessionId == null && !showPracticeMode && !showAchievements) 110.dp else 0.dp)
                 ) {
                     if (showPracticeMode) {
                         PracticeModeScreen(

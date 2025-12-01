@@ -723,37 +723,44 @@ fun FloatingPillNav(
             .height(80.dp)
             .fillMaxWidth()
             .shadow(
-                elevation = 16.dp,
+                elevation = 20.dp,
                 shape = RoundedCornerShape(40.dp),
-                spotColor = Color.Black.copy(alpha = 0.1f),
-                ambientColor = Color.Black.copy(alpha = 0.1f)
+                spotColor = Color.Black.copy(alpha = 0.15f),
+                ambientColor = Color.Black.copy(alpha = 0.15f)
             )
             .clip(RoundedCornerShape(40.dp))
-            .background(Color.White.copy(alpha = 0.7f))
-            .border(
-                width = 1.dp,
+            .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.8f),
-                        Color.White.copy(alpha = 0.2f)
+                        Color.White.copy(alpha = 0.95f), // More opaque at top
+                        Color.White.copy(alpha = 0.85f)  // Slightly less at bottom
+                    )
+                )
+            )
+            .border(
+                width = 1.5.dp, // Thicker border
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 1.0f), // Pure white top highlight
+                        Color.White.copy(alpha = 0.3f)  // Faded bottom
                     )
                 ),
                 shape = RoundedCornerShape(40.dp)
             )
     ) {
-        // Glossy Shine Overlay
+        // Glossy Shine Overlay - Stronger
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.4f),
+                            Color.White.copy(alpha = 0.7f), // Stronger shine
                             Color.White.copy(alpha = 0.1f),
                             Color.Transparent
                         ),
                         start = Offset(0f, 0f),
-                        end = Offset(0f, 150f) // Short gradient for top shine
+                        end = Offset(0f, 120f) // Sharper cutoff
                     )
                 )
         )
