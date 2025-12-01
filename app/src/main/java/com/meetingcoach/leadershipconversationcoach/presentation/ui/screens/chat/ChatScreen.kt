@@ -136,7 +136,7 @@ fun ChatScreen(
                                 .padding(16.dp)
                                 .alpha(hudAlpha)
                         ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 MetricsHUD(
                                     isRecording = !sessionState.isPaused,
                                     duration = sessionState.duration,
@@ -144,26 +144,45 @@ fun ChatScreen(
                                     qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100)
                                 )
                                 
-                                // Live Coaching Controls
-                                Row(
+                                // Live Session Insights Card
+                                Card(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                    colors = CardDefaults.cardColors(containerColor = AppPalette.White.copy(alpha = 0.5f)),
+                                    shape = RoundedCornerShape(16.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, AppPalette.Sage100)
                                 ) {
-                                    // Sentiment (Mocked for now, connect to VM later)
-                                    SentimentIndicator(sentiment = "Engaged")
-                                    
-                                    // Note Panel (Scrollable)
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .horizontalScroll(rememberScrollState())
-                                    ) {
-                                        NotePanel(
-                                            onCategorySelected = { category: String ->
-                                                // TODO: Handle category selection (e.g., filter notes or add tag)
-                                            }
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(
+                                            text = "LIVE SESSION INSIGHTS",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = AppPalette.Sage600,
+                                            modifier = Modifier.padding(bottom = 8.dp)
                                         )
+                                        
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            // Sentiment (Mocked for now, connect to VM later)
+                                            SentimentIndicator(sentiment = "Engaged")
+                                            
+                                            Spacer(modifier = Modifier.width(12.dp))
+
+                                            // Note Panel (Scrollable)
+                                            Box(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .horizontalScroll(rememberScrollState())
+                                            ) {
+                                                NotePanel(
+                                                    onCategorySelected = { category: String ->
+                                                        // TODO: Handle category selection (e.g., filter notes or add tag)
+                                                    }
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
