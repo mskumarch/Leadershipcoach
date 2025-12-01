@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -136,56 +137,13 @@ fun ChatScreen(
                                 .padding(16.dp)
                                 .alpha(hudAlpha)
                         ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                MetricsHUD(
-                                    isRecording = !sessionState.isPaused,
-                                    duration = sessionState.duration,
-                                    talkRatio = sessionState.metrics.talkRatio,
-                                    qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100)
-                                )
-                                
-                                // Live Session Insights Card
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(containerColor = AppPalette.White.copy(alpha = 0.5f)),
-                                    shape = RoundedCornerShape(16.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, AppPalette.Sage100)
-                                ) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
-                                        Text(
-                                            text = "LIVE SESSION INSIGHTS",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = AppPalette.Sage600,
-                                            modifier = Modifier.padding(bottom = 8.dp)
-                                        )
-                                        
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            // Sentiment (Mocked for now, connect to VM later)
-                                            SentimentIndicator(sentiment = "Engaged")
-                                            
-                                            Spacer(modifier = Modifier.width(12.dp))
-
-                                            // Note Panel (Scrollable)
-                                            Box(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .horizontalScroll(rememberScrollState())
-                                            ) {
-                                                NotePanel(
-                                                    onCategorySelected = { category: String ->
-                                                        // TODO: Handle category selection (e.g., filter notes or add tag)
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            MetricsHUD(
+                                isRecording = !sessionState.isPaused,
+                                duration = sessionState.duration,
+                                talkRatio = sessionState.metrics.talkRatio,
+                                qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100),
+                                sentiment = "Engaged" // Connect to VM later
+                            )
                         }
 
                         // 2. Main Feed (LazyColumn)
@@ -288,37 +246,70 @@ fun ChatScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Input Area
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            // Magic Wand (Quick Actions)
-                            SmallFloatingActionButton(
-                                onClick = { showQuickActions = true },
-                                containerColor = AppPalette.Lavender500,
-                                contentColor = Color.White,
-                                shape = CircleShape
+                        // Input Area (Hidden by default when recording)
+                        var showKeyboard by remember { mutableStateOf(false) }
+
+                        if (!sessionState.isRecording || showKeyboard) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("✨", fontSize = 20.sp)
-                            }
-                            
-                            // Text Input
-                            Box(modifier = Modifier.weight(1f)) {
-                                ChatInputField(
-                                    value = inputText,
-                                    onValueChange = { inputText = it },
-                                    onSend = {
-                                        if (inputText.isNotBlank()) {
-                                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                            viewModel.addUserMessage(inputText)
-                                            val aiResponse = viewModel.getAIResponse(inputText)
-                                            viewModel.addAIResponse(aiResponse)
-                                            inputText = ""
+                                // Magic Wand (Quick Actions)
+                                SmallFloatingActionButton(
+                                    onClick = { showQuickActions = true },
+                                    containerColor = AppPalette.Lavender500,
+                                    contentColor = Color.White,
+                                    shape = CircleShape
+                                ) {
+                                    Text("✨", fontSize = 20.sp)
+                                }
+                                
+                                // Text Input
+                                Box(modifier = Modifier.weight(1f)) {
+                                    ChatInputField(
+                                        value = inputText,
+                                        onValueChange = { inputText = it },
+                                        onSend = {
+                                            if (inputText.isNotBlank()) {
+                                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                                viewModel.addUserMessage(inputText)
+                                                val aiResponse = viewModel.getAIResponse(inputText)
+                                                viewModel.addAIResponse(aiResponse)
+                                                inputText = ""
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
+                            }
+                        } else {
+                            // Minimized Controls when Recording (No Keyboard)
+                             Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                // Magic Wand
+                                IconButton(
+                                    onClick = { showQuickActions = true },
+                                    modifier = Modifier.background(AppPalette.Lavender500.copy(alpha=0.2f), CircleShape)
+                                ) {
+                                    Text("✨", fontSize = 20.sp)
+                                }
+                                
+                                Spacer(modifier = Modifier.width(24.dp))
+
+                                // Show Keyboard Toggle
+                                IconButton(
+                                    onClick = { showKeyboard = true },
+                                    modifier = Modifier.background(AppPalette.Sage100, CircleShape)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Keyboard,
+                                        contentDescription = "Show Keyboard",
+                                        tint = AppPalette.Sage700
+                                    )
+                                }
                             }
                         }
                         

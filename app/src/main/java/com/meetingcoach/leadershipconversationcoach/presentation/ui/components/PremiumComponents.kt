@@ -890,6 +890,7 @@ fun MetricsHUD(
     duration: String,
     talkRatio: Int,
     qualityScore: Int, // 0-100
+    sentiment: String = "Neutral",
     modifier: Modifier = Modifier
 ) {
     GlassmorphicFloatingPanel(
@@ -919,7 +920,27 @@ fun MetricsHUD(
             }
             
             // Metrics
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                // Sentiment
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = when(sentiment.lowercase()) {
+                            "engaged" -> "🤩"
+                            "neutral" -> "😐"
+                            "tense" -> "😬"
+                            else -> "😐"
+                        }, 
+                        fontSize = 12.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = sentiment,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = DeepCharcoal
+                    )
+                }
+
                 // Mini Talk Ratio
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("🗣️", fontSize = 12.sp)
@@ -927,7 +948,8 @@ fun MetricsHUD(
                     Text(
                         text = "$talkRatio%",
                         style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = DeepCharcoal
                     )
                 }
                 
@@ -938,7 +960,8 @@ fun MetricsHUD(
                     Text(
                         text = "$qualityScore",
                         style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = DeepCharcoal
                     )
                 }
             }
