@@ -54,9 +54,8 @@ fun TranscriptScreen(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) // Uses SoftCream from Theme
+        modifier = modifier.fillMaxSize()
+        // Background removed to allow cloud wallpaper to show through
     ) {
         if (sessionState.isRecording && transcriptItems.isNotEmpty()) {
             Column(

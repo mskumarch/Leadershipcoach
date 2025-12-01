@@ -64,24 +64,31 @@ fun NavigationScreen(
         }
     }
 
-    Scaffold(
-        // Removed standard bottom bar
-    ) { paddingValues ->
-        // Full screen box with calm green gradient background
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .fillMaxSize()
-        ) {
-            // Background Image
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = com.meetingcoach.leadershipconversationcoach.R.drawable.background_clouds),
-                contentDescription = null,
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            // Main Content
-            Box(modifier = Modifier.padding(bottom = if (selectedSessionId == null && !showPracticeMode && !showAchievements) 80.dp else 0.dp)) {
+    // Full screen box to hold background and scaffold
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Background Image (Global Wallpaper)
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.meetingcoach.leadershipconversationcoach.R.drawable.background_clouds),
+            contentDescription = null,
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Scaffold(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            // Removed standard bottom bar
+        ) { paddingValues ->
+            // Main Content Area
+            // We pass paddingValues to children, but we DON'T apply bottom padding to this Box
+            // so that content can scroll behind the floating nav bar.
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = paddingValues.calculateTopPadding()) 
+                    // We intentionally ignore bottom padding here to allow behind-nav scrolling
+            ) {
                 if (showPracticeMode) {
                     PracticeModeScreen(
                         onBackClick = { showPracticeMode = false },
@@ -101,30 +108,30 @@ fun NavigationScreen(
                         when (tab) {
                             0 -> ChatScreen(
                                 viewModel = viewModel,
-                                modifier = Modifier.padding(paddingValues),
+                                modifier = Modifier, // ChatScreen handles its own padding/insets
                                 hasRecordAudioPermission = hasRecordAudioPermission,
                                 onNavigateToPractice = { showPracticeMode = true }
                             )
                             1 -> TranscriptScreen(
                                 viewModel = viewModel,
-                                modifier = Modifier.padding(paddingValues)
+                                modifier = Modifier
                             )
                             2 -> {
                                 com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
-                                    modifier = Modifier.padding(paddingValues),
+                                    modifier = Modifier,
                                     onAchievementsClick = { showAchievements = true }
                                 )
                             }
                             3 -> HistoryScreen(
                                 onSessionClick = { sessionId -> selectedSessionId = sessionId },
                                 onStartSession = { selectedTab = 0 },
-                                modifier = Modifier.padding(paddingValues)
+                                modifier = Modifier
                             )
                             4 -> SettingsScreen(
-                                modifier = Modifier.padding(paddingValues)
+                                modifier = Modifier
                             )
                             5 -> WisdomScreen(
-                                modifier = Modifier.padding(paddingValues)
+                                modifier = Modifier
                             )
                         }
                     }
@@ -139,6 +146,7 @@ fun NavigationScreen(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 24.dp)
+                        .padding(bottom = paddingValues.calculateBottomPadding()) // Respect system nav bar
                 )
             }
         }
