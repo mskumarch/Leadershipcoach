@@ -717,15 +717,33 @@ fun FloatingPillNav(
     onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Box(
         modifier = modifier
-            .height(72.dp)
-            .width(380.dp),
-        shape = RoundedCornerShape(36.dp),
-        color = Color.White.copy(alpha = 0.9f),
-        shadowElevation = 8.dp,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5E7EB))
+            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .height(80.dp)
+            .fillMaxWidth()
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(40.dp),
+                spotColor = Color.Black.copy(alpha = 0.1f),
+                ambientColor = Color.Black.copy(alpha = 0.1f)
+            )
+            .clip(RoundedCornerShape(40.dp))
+            .background(Color.White.copy(alpha = 0.7f))
+            .border(
+                width = 1.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.8f),
+                        Color.White.copy(alpha = 0.2f)
+                    )
+                ),
+                shape = RoundedCornerShape(40.dp)
+            )
     ) {
+        // Blur effect (simulated with semi-transparent overlay since real blur is expensive/complex on all versions)
+        // For real glassmorphism, we rely on the alpha background and the content behind it.
+        
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -784,39 +802,55 @@ private fun NavIcon(
     isActive: Boolean,
     onClick: () -> Unit
 ) {
-    val scale by animateFloatAsState(targetValue = if (isActive) 1.08f else 1.0f, label = "scale")
-    val color = if (isActive) Color(0xFF3E7D68) else Color(0xFFA0B8AD)
+    val scale by animateFloatAsState(targetValue = if (isActive) 1.0f else 1.0f, label = "scale")
+    // Use SageGreen for active background, White for active icon
+    // Use DarkCharcoal for inactive icon
+    val iconColor = if (isActive) Color.White else DeepCharcoal.copy(alpha = 0.6f)
+    val labelColor = if (isActive) DeepCharcoal else DeepCharcoal.copy(alpha = 0.6f)
     
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .clickable(onClick = onClick)
-            .padding(8.dp)
+            .padding(4.dp)
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(48.dp) // Container size
+        ) {
             if (isActive) {
-                // Subtle circular glow behind icon
+                // Active Circle Background
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(48.dp)
                         .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(Color(0xFF3E7D68).copy(alpha = 0.15f), Color.Transparent)
-                            ),
+                            color = SageGreen, // Using the app's primary color
                             shape = CircleShape
                         )
+                        .shadow(4.dp, CircleShape, spotColor = SageGreen.copy(alpha = 0.4f))
                 )
             }
+            
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = color,
+                tint = iconColor,
                 modifier = Modifier
-                    .size(if (isActive) 27.dp else 24.dp)
+                    .size(24.dp)
                     .scale(scale)
             )
         }
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
+            color = labelColor
+        )
     }
 }
 
