@@ -78,76 +78,78 @@ fun NavigationScreen(
 
         Scaffold(
             containerColor = androidx.compose.ui.graphics.Color.Transparent,
-            // Removed standard bottom bar
         ) { paddingValues ->
-            // Main Content Area
-            // We pass paddingValues to children, but we DON'T apply bottom padding to this Box
-            // so that content can scroll behind the floating nav bar.
+            // WRAPPER BOX: Essential for layering the Menu over the Content
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = paddingValues.calculateTopPadding()) 
-                    // We intentionally ignore bottom padding here to allow behind-nav scrolling
+                    .padding(bottom = paddingValues.calculateBottomPadding()) // Handle system nav bar here for the whole container
             ) {
-                if (showPracticeMode) {
-                    PracticeModeScreen(
-                        onBackClick = { showPracticeMode = false },
-                        onScenarioClick = { /* TODO: Start Scenario */ }
-                    )
-                } else if (showAchievements) {
-                    AchievementsScreen(
-                        onBackClick = { showAchievements = false }
-                    )
-                } else if (selectedSessionId != null) {
-                    SessionDetailScreen(
-                        sessionId = selectedSessionId!!,
-                        onBackClick = { selectedSessionId = null }
-                    )
-                } else {
-                    Crossfade(targetState = selectedTab, label = "TabTransition") { tab ->
-                        when (tab) {
-                            0 -> ChatScreen(
-                                viewModel = viewModel,
-                                modifier = Modifier, // ChatScreen handles its own padding/insets
-                                hasRecordAudioPermission = hasRecordAudioPermission,
-                                onNavigateToPractice = { showPracticeMode = true }
-                            )
-                            1 -> TranscriptScreen(
-                                viewModel = viewModel,
-                                modifier = Modifier
-                            )
-                            2 -> {
-                                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
+                // 1. Main Content Area
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = paddingValues.calculateTopPadding()) // Push content below status bar
+                ) {
+                    if (showPracticeMode) {
+                        PracticeModeScreen(
+                            onBackClick = { showPracticeMode = false },
+                            onScenarioClick = { /* TODO: Start Scenario */ }
+                        )
+                    } else if (showAchievements) {
+                        AchievementsScreen(
+                            onBackClick = { showAchievements = false }
+                        )
+                    } else if (selectedSessionId != null) {
+                        SessionDetailScreen(
+                            sessionId = selectedSessionId!!,
+                            onBackClick = { selectedSessionId = null }
+                        )
+                    } else {
+                        Crossfade(targetState = selectedTab, label = "TabTransition") { tab ->
+                            when (tab) {
+                                0 -> ChatScreen(
+                                    viewModel = viewModel,
                                     modifier = Modifier,
-                                    onAchievementsClick = { showAchievements = true }
+                                    hasRecordAudioPermission = hasRecordAudioPermission,
+                                    onNavigateToPractice = { showPracticeMode = true }
+                                )
+                                1 -> TranscriptScreen(
+                                    viewModel = viewModel,
+                                    modifier = Modifier
+                                )
+                                2 -> {
+                                    com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.ProgressScreen(
+                                        modifier = Modifier,
+                                        onAchievementsClick = { showAchievements = true }
+                                    )
+                                }
+                                3 -> HistoryScreen(
+                                    onSessionClick = { sessionId -> selectedSessionId = sessionId },
+                                    onStartSession = { selectedTab = 0 },
+                                    modifier = Modifier
+                                )
+                                4 -> SettingsScreen(
+                                    modifier = Modifier
+                                )
+                                5 -> WisdomScreen(
+                                    modifier = Modifier
                                 )
                             }
-                            3 -> HistoryScreen(
-                                onSessionClick = { sessionId -> selectedSessionId = sessionId },
-                                onStartSession = { selectedTab = 0 },
-                                modifier = Modifier
-                            )
-                            4 -> SettingsScreen(
-                                modifier = Modifier
-                            )
-                            5 -> WisdomScreen(
-                                modifier = Modifier
-                            )
                         }
                     }
                 }
-            }
 
-            // Floating Pill Navigation (Bottom Center)
-            if (selectedSessionId == null && !showPracticeMode && !showAchievements) {
-                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingPillNav(
-                    currentTab = selectedTab,
-                    onTabSelected = { selectedTab = it },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 24.dp)
-                        .padding(bottom = paddingValues.calculateBottomPadding()) // Respect system nav bar
-                )
+                // 2. Floating Pill Navigation (Aligned to Bottom)
+                if (selectedSessionId == null && !showPracticeMode && !showAchievements) {
+                    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.FloatingPillNav(
+                        currentTab = selectedTab,
+                        onTabSelected = { selectedTab = it },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp)
+                    )
+                }
             }
         }
     }
