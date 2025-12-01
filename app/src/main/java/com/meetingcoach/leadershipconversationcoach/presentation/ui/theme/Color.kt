@@ -23,6 +23,12 @@ object AppPalette {
     val Sage25  = Color(0xFFC9DED6) // Bottom gradient
 
     // =============================
+    // Global Background (Apple-grade)
+    // =============================
+    val LightMintStart = Color(0xFFEEF6F4) // Top
+    val LightMintEnd = Color(0xFFD4E8DF)   // Bottom
+
+    // =============================
     // Lavender (From Mock)
     // =============================
     val Lavender500 = Color(0xFFC9B9F8)
