@@ -741,6 +741,23 @@ fun FloatingPillNav(
                 shape = RoundedCornerShape(40.dp)
             )
     ) {
+        // Glossy Shine Overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.4f),
+                            Color.White.copy(alpha = 0.1f),
+                            Color.Transparent
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(0f, 150f) // Short gradient for top shine
+                    )
+                )
+        )
+
         // Blur effect (simulated with semi-transparent overlay since real blur is expensive/complex on all versions)
         // For real glassmorphism, we rely on the alpha background and the content behind it.
         
