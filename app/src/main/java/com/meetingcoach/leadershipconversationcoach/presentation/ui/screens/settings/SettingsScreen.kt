@@ -1,29 +1,24 @@
 package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.SmartToy
-import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.GradientBackground
-import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.SettingsCard
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.*
 import com.meetingcoach.leadershipconversationcoach.presentation.viewmodels.SettingsViewModel
 
@@ -36,7 +31,6 @@ fun SettingsScreen(
     val fontSizeScale by viewModel.fontSizeScale.collectAsState()
     val coachingStyle by viewModel.coachingStyle.collectAsState()
     val hapticEnabled by viewModel.hapticEnabled.collectAsState()
-    val dailyNudgeTime by viewModel.dailyNudgeTime.collectAsState()
 
     com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(modifier = modifier) {
         Column(
@@ -62,232 +56,68 @@ fun SettingsScreen(
             )
 
             // AI Coaching Section
-            SectionHeader(
-                title = "AI Coaching",
-                icon = androidx.compose.material.icons.Icons.Rounded.SmartToy
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Modern Card with Dropdown
-            // Modern Card with Dropdown
-            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Rounded.Timer,
-                        contentDescription = null,
-                        tint = AppPalette.Sage600,
-                        modifier = Modifier.padding(end = 8.dp).size(24.dp)
-                    )
-                    Text(
-                        text = "Analysis Frequency",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = DeepCharcoal
-                    )
-                }
-                
-                Text(
-                    text = "How often the AI analyzes your conversation for coaching insights.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = NeutralGray,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                // Modern Dropdown
-                AnalysisIntervalDropdown(
-                    selectedInterval = analysisInterval,
-                    onIntervalSelected = { viewModel.setAnalysisInterval(it) }
+            SettingsSectionHeader("AI COACHING")
+            
+            SettingsGroup {
+                SettingsRow(
+                    label = "Analysis Frequency",
+                    value = when (analysisInterval) {
+                        30_000L -> "30s"
+                        60_000L -> "60s"
+                        120_000L -> "2m"
+                        240_000L -> "4m"
+                        else -> "60s"
+                    },
+                    onClick = { 
+                        val next = when(analysisInterval) {
+                            30_000L -> 60_000L
+                            60_000L -> 120_000L
+                            120_000L -> 240_000L
+                            else -> 30_000L
+                        }
+                        viewModel.setAnalysisInterval(next)
+                    }
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Appearance Section
-            SectionHeader(
-                title = "Appearance",
-                icon = androidx.compose.material.icons.Icons.Rounded.Palette
-            )
+            SettingsSectionHeader("APPEARANCE")
             
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Text Size",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = DeepCharcoal
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("A", style = MaterialTheme.typography.bodySmall, color = DeepCharcoal)
-                    Slider(
-                        value = fontSizeScale,
-                        onValueChange = { viewModel.setFontSizeScale(it) },
-                        valueRange = 0.8f..1.4f,
-                        steps = 5,
-                        modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
-                        colors = SliderDefaults.colors(
-                            thumbColor = AppPalette.Sage600,
-                            activeTrackColor = AppPalette.Sage500,
-                            inactiveTrackColor = AppPalette.Stone300
-                        )
-                    )
-                    Text("A", style = MaterialTheme.typography.headlineSmall, color = DeepCharcoal)
-                }
-                
-                Text(
-                    text = "Preview: The quick brown fox jumps over the lazy dog.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = NeutralGray,
-                    modifier = Modifier.padding(top = 8.dp)
+            SettingsGroup {
+                SettingsRow(
+                    label = "Text Size",
+                    value = "${(fontSizeScale * 100).toInt()}%",
+                    onClick = {
+                         val next = if (fontSizeScale >= 1.4f) 0.8f else fontSizeScale + 0.1f
+                         viewModel.setFontSizeScale(next)
+                    }
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Preferences Section
-            SectionHeader(
-                title = "Preferences",
-                icon = androidx.compose.material.icons.Icons.Rounded.Settings
-            )
+            SettingsSectionHeader("PREFERENCES")
             
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumCard(modifier = Modifier.fillMaxWidth()) {
-                // Haptic Feedback Toggle
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Haptic Feedback",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = DeepCharcoal
-                        )
-                        Text(
-                            text = "Vibrate on interactions",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = NeutralGray
-                        )
-                    }
-                    Switch(
-                        checked = hapticEnabled,
-                        onCheckedChange = { viewModel.setHapticEnabled(it) },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = AppPalette.Sage500,
-                            uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = AppPalette.Stone300
-                        )
-                    )
-                }
-                
-                Divider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    color = AppPalette.Stone300
+            SettingsGroup {
+                SettingsRowSwitch(
+                    label = "Haptic Feedback",
+                    checked = hapticEnabled,
+                    onCheckedChange = { viewModel.setHapticEnabled(it) }
                 )
-                
-                // Coaching Style
-                Text(
-                    text = "Coaching Style",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = DeepCharcoal,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                
-                val styles = listOf(
-                    "EMPATHETIC" to "🤗 Empathetic Friend", 
-                    "EXECUTIVE" to "👔 Executive Coach", 
-                    "SOCRATIC" to "🤔 Socratic Mentor"
-                )
-                
-                var styleExpanded by remember { mutableStateOf(false) }
-                val selectedStyle = styles.find { it.first == coachingStyle } ?: styles[0]
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 2.dp,
-                            shape = RoundedCornerShape(16.dp),
-                            spotColor = AppPalette.Sage500.copy(alpha = 0.1f)
-                        )
-                ) {
-                    OutlinedButton(
-                        onClick = { styleExpanded = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.White,
-                            contentColor = DeepCharcoal
-                        ),
-                        border = null
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = selectedStyle.second,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Expand",
-                                tint = AppPalette.Sage600
-                            )
-                        }
+                HorizontalDivider(color = AppPalette.Stone200, thickness = 0.5.dp, modifier = Modifier.padding(start = 16.dp))
+                SettingsRow(
+                    label = "Coaching Style",
+                    value = coachingStyle.lowercase().capitalize(),
+                    onClick = {
+                        val styles = listOf("EMPATHETIC", "EXECUTIVE", "SOCRATIC")
+                        val currentIndex = styles.indexOf(coachingStyle)
+                        val nextIndex = (currentIndex + 1) % styles.size
+                        viewModel.setCoachingStyle(styles[nextIndex])
                     }
-
-                    DropdownMenu(
-                        expanded = styleExpanded,
-                        onDismissRequest = { styleExpanded = false },
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .background(
-                                color = Color.White,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                    ) {
-                        styles.forEach { (key, label) ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = label,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = if (key == coachingStyle) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (key == coachingStyle) AppPalette.Sage600 else DeepCharcoal
-                                    )
-                                },
-                                onClick = {
-                                    viewModel.setCoachingStyle(key)
-                                    styleExpanded = false
-                                },
-                                modifier = Modifier.background(
-                                    if (key == coachingStyle) AppPalette.Sage100.copy(alpha = 0.5f) else Color.Transparent
-                                )
-                            )
-                        }
-                    }
-                }
+                )
             }
 
             // Info Card
@@ -301,127 +131,96 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SectionHeader(
-    title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 4.dp)
+fun SettingsSectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelMedium,
+        color = AppPalette.Stone500,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = 8.dp, start = 16.dp)
+    )
+}
+
+@Composable
+fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = AppPalette.Sage600,
-            modifier = Modifier.padding(end = 8.dp).size(24.dp)
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = AppPalette.Sage600
-        )
+        content()
     }
 }
 
 @Composable
-private fun AnalysisIntervalDropdown(
-    selectedInterval: Long,
-    onIntervalSelected: (Long) -> Unit
+fun SettingsRow(
+    label: String,
+    value: String? = null,
+    onClick: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    
-    val options = listOf(
-        30_000L to "⚡ 30 Seconds - Fast",
-        60_000L to "⚖️ 60 Seconds - Balanced",
-        120_000L to "🧘 120 Seconds - Relaxed",
-        240_000L to "🌙 240 Seconds - Calm"
-    )
-    
-    val selectedOption = options.find { it.first == selectedInterval } ?: options[1]
-
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 2.dp,
-                shape = RoundedCornerShape(16.dp),
-                spotColor = AppPalette.Sage500.copy(alpha = 0.1f)
-            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedButton(
-            onClick = { expanded = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.White,
-                contentColor = DeepCharcoal
-            ),
-            border = null
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = AppPalette.Stone900
+        )
+        
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (value != null) {
                 Text(
-                    text = selectedOption.second,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Expand",
-                    tint = AppPalette.Sage600
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AppPalette.Stone500,
+                    modifier = Modifier.padding(end = 8.dp)
                 )
             }
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = AppPalette.Stone300,
+                modifier = Modifier.size(20.dp)
+            )
         }
+    }
+}
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(16.dp)
-                )
-        ) {
-            options.forEach { (value, label) ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = if (value == selectedInterval) {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Normal
-                            },
-                            color = if (value == selectedInterval) {
-                                AppPalette.Sage600
-                            } else {
-                                DeepCharcoal
-                            }
-                        )
-                    },
-                    onClick = {
-                        onIntervalSelected(value)
-                        expanded = false
-                    },
-                    modifier = Modifier
-                        .background(
-                            if (value == selectedInterval) {
-                                AppPalette.Sage100.copy(alpha = 0.5f)
-                            } else {
-                                Color.Transparent
-                            }
-                        )
-                )
-            }
-        }
+@Composable
+fun SettingsRowSwitch(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = AppPalette.Stone900
+        )
+        
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = AppPalette.Sage500,
+                uncheckedThumbColor = Color.White,
+                uncheckedTrackColor = AppPalette.Stone300
+            )
+        )
     }
 }
 
@@ -450,7 +249,7 @@ private fun InfoCard() {
                     modifier = Modifier.padding(bottom = 8.dp)
                 ) {
                     Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Rounded.Lightbulb,
+                        imageVector = Icons.Rounded.Lightbulb,
                         contentDescription = null,
                         tint = AppPalette.Sage600,
                         modifier = Modifier.padding(end = 8.dp).size(24.dp)
