@@ -2,11 +2,13 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.his
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mic
@@ -66,87 +68,66 @@ fun HistoryScreen(
         modifier = modifier
     ) {
         if (uiState.isLoading) {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                item {
-                    Text(
-                        text = "History",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
-                items(5) {
-                    com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.SessionCardSkeleton()
-                }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = AppPalette.Sage600)
             }
         } else if (uiState.sessions.isEmpty()) {
             EmptyHistoryState(onStartSession)
         } else {
             LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
                 item {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(bottom = 24.dp)
                     ) {
                         Text(
                             text = "History",
-                            style = MaterialTheme.typography.headlineMedium,
+                            fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = AppPalette.Stone900,
+                            letterSpacing = (-1).sp
                         )
 
-                        // Search Bar
-                        OutlinedTextField(
+                        // Minimal Search Bar
+                        TextField(
                             value = uiState.searchQuery,
                             onValueChange = { viewModel.onSearchQueryChanged(it) },
-                            placeholder = { Text("Search sessions...") },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                            placeholder = { Text("Search", color = AppPalette.Stone500) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = AppPalette.Stone500) },
                             trailingIcon = if (uiState.searchQuery.isNotEmpty()) {
                                 {
                                     IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
-                                        Icon(Icons.Default.Close, contentDescription = "Clear")
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = AppPalette.Stone500)
                                     }
                                 }
                             } else null,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = AppPalette.Stone100,
+                                unfocusedContainerColor = AppPalette.Stone100,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                cursorColor = AppPalette.Sage600
                             ),
                             singleLine = true
                         )
-
-                        // Trend Chart (Only show if we have data and no active search)
-                        if (uiState.recentEmpathyScores.size >= 2 && uiState.searchQuery.isEmpty()) {
-                            com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.TrendChart(
-                                dataPoints = uiState.recentEmpathyScores,
-                                title = "Empathy Trend (Last 10 Sessions)",
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
                     }
                 }
 
                 groupedSessions.forEach { (dateHeader, sessions) ->
-                    stickyHeader {
+                    item {
                         Text(
-                            text = dateHeader,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                            text = dateHeader.uppercase(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = AppPalette.Stone500,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.Transparent) // Transparent to blend with screen background
-                                .padding(vertical = 8.dp)
+                            modifier = Modifier.padding(vertical = 12.dp)
                         )
                     }
 
@@ -177,7 +158,7 @@ fun HistoryScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .background(color, RoundedCornerShape(20.dp))
+                                        .background(color, RoundedCornerShape(12.dp))
                                         .padding(horizontal = 20.dp),
                                     contentAlignment = Alignment.CenterEnd
                                 ) {
@@ -189,22 +170,91 @@ fun HistoryScreen(
                                 }
                             },
                             dismissContent = {
-                                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.history.components.SessionCard(
+                                MinimalSessionRow(
                                     session = session,
                                     onClick = { onSessionClick(session.id) }
                                 )
                             },
                             directions = setOf(DismissDirection.EndToStart)
                         )
+                        
+                        HorizontalDivider(
+                            color = AppPalette.Stone200,
+                            thickness = 0.5.dp,
+                            modifier = Modifier.padding(start = 60.dp) // Indented divider
+                        )
                     }
                 }
                 
                 // Bottom padding for navigation bar
                 item {
-                    Spacer(modifier = Modifier.height(80.dp))
+                    Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MinimalSessionRow(
+    session: com.meetingcoach.leadershipconversationcoach.data.local.SessionEntity,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Time / Duration
+        Column(
+            modifier = Modifier.width(60.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            val instant = java.time.Instant.ofEpochMilli(session.startedAt)
+            val timeFormatter = java.time.format.DateTimeFormatter.ofPattern("h:mm a")
+            val timeStr = instant.atZone(java.time.ZoneId.systemDefault()).format(timeFormatter)
+            
+            Text(
+                text = timeStr,
+                style = MaterialTheme.typography.bodySmall,
+                color = AppPalette.Stone900,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = "${session.durationSeconds / 60}m",
+                style = MaterialTheme.typography.labelSmall,
+                color = AppPalette.Stone500
+            )
+        }
+        
+        // Title / Topic
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = session.title ?: "Untitled Session",
+                style = MaterialTheme.typography.bodyLarge,
+                color = AppPalette.Stone900,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+            Text(
+                text = session.mode,
+                style = MaterialTheme.typography.bodySmall,
+                color = AppPalette.Stone500
+            )
+        }
+        
+        // Chevron
+        Icon(
+            imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForwardIos,
+            contentDescription = null,
+            tint = AppPalette.Stone300,
+            modifier = Modifier.size(14.dp)
+        )
     }
 }
 
