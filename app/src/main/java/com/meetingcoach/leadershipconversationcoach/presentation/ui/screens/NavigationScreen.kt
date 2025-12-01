@@ -145,7 +145,7 @@ fun NavigationScreen(
                         onTabSelected = { selectedTab = it },
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 16.dp)
+                            .padding(bottom = 4.dp)
                     )
                 }
             }

@@ -51,114 +51,170 @@ fun ProgressScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(24.dp)
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Your Growth",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = AppPalette.Stone900,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "Track your leadership journey",
-                    fontSize = 16.sp,
-                    color = AppPalette.Stone500
-                )
-            }
-            // Achievements Button
-            IconButton(
-                onClick = onAchievementsClick,
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(Color.White, CircleShape)
-                    .shadow(4.dp, CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.EmojiEvents,
-                    contentDescription = "Achievements",
-                    tint = Color(0xFFFFD700) // Gold
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Time Range Selector (Glassmorphic Pill)
-        TimeRangeSelector(
-            selectedRange = selectedTimeRange,
-            onRangeSelected = { selectedTimeRange = it }
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            // Main Score Card (Hero)
-            HeroScoreCard(score = uiState.overallScore)
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Key Metrics Grid
+            // Header - Minimal
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                MetricCard(
-                    title = "Empathy",
-                    score = uiState.empathyScore,
-                    color = AppPalette.Sage500,
-                    modifier = Modifier.weight(1f)
+                Text(
+                    text = "Growth",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Stone900,
+                    letterSpacing = (-1).sp
                 )
-                MetricCard(
-                    title = "Clarity",
-                    score = uiState.clarityScore,
-                    color = AppPalette.Blue500,
-                    modifier = Modifier.weight(1f)
-                )
-                MetricCard(
-                    title = "Listening",
-                    score = uiState.listeningScore,
-                    color = AppPalette.Lavender500,
-                    modifier = Modifier.weight(1f)
-                )
+                
+                // Minimal Achievements Icon
+                IconButton(onClick = onAchievementsClick) {
+                    Icon(
+                        imageVector = Icons.Filled.EmojiEvents,
+                        contentDescription = "Achievements",
+                        tint = AppPalette.Sage600
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
-            // Master Coach Analytics Section
+            // 1. Overall Score - Large Thin Ring
+            Box(contentAlignment = Alignment.Center) {
+                // Background Ring
+                Canvas(modifier = Modifier.size(200.dp)) {
+                    drawCircle(
+                        color = AppPalette.Sage100,
+                        style = Stroke(width = 4.dp.toPx())
+                    )
+                }
+                // Progress Ring
+                val animatedScore by animateFloatAsState(
+                    targetValue = uiState.overallScore / 100f,
+                    animationSpec = tween(1500)
+                )
+                Canvas(modifier = Modifier.size(200.dp)) {
+                    drawArc(
+                        color = AppPalette.Sage600,
+                        startAngle = -90f,
+                        sweepAngle = 360 * animatedScore,
+                        useCenter = false,
+                        style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+                
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "${uiState.overallScore}",
+                        fontSize = 64.sp,
+                        fontWeight = FontWeight.Light,
+                        color = AppPalette.Stone900,
+                        letterSpacing = (-2).sp
+                    )
+                    Text(
+                        text = "OVERALL",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AppPalette.Sage600,
+                        letterSpacing = 2.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            // 2. Minimal Metrics (No Cards)
+            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                MinimalMetricRow("Empathy", uiState.empathyScore, AppPalette.Sage500)
+                MinimalMetricRow("Clarity", uiState.clarityScore, AppPalette.Blue500)
+                MinimalMetricRow("Listening", uiState.listeningScore, AppPalette.Lavender500)
+            }
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            // 3. Activity (Minimal Chart)
             Text(
-                text = "Deep Dive Analytics",
+                text = "Activity",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = AppPalette.Stone900,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.align(Alignment.Start)
             )
-
-            SpeakingTimeDistributionCard(userTalkRatio = uiState.averageTalkRatio)
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-
-
             Spacer(modifier = Modifier.height(24.dp))
+            
+            // Simple Bar Chart
+            Row(
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                // Mock data for visual - connect to real data later
+                val weeklyActivity = listOf(0.4f, 0.6f, 0.3f, 0.8f, 0.5f, 0.9f, 0.7f)
+                val days = listOf("M", "T", "W", "T", "F", "S", "S")
+                
+                weeklyActivity.forEachIndexed { index, value ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier
+                                .width(8.dp)
+                                .fillMaxHeight(value)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(if (value > 0.7f) AppPalette.Sage600 else AppPalette.Sage200)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = days[index],
+                            style = MaterialTheme.typography.labelSmall,
+                            color = AppPalette.Stone500
+                        )
+                    }
+                }
+            }
 
-            // Activity Chart
-            ActivityChartCard(timeRange = selectedTimeRange)
+            Spacer(modifier = Modifier.height(100.dp))
+        }
+    }
+}
+
+@Composable
+fun MinimalMetricRow(label: String, score: Int, color: Color) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.width(80.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = AppPalette.Stone700
+        )
+        
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(AppPalette.Stone100)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(score / 100f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(color)
+            )
         }
         
-        Spacer(modifier = Modifier.height(100.dp)) // Bottom padding
-        }
+        Text(
+            text = "$score",
+            modifier = Modifier.width(40.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = AppPalette.Stone900
+        )
     }
 }
 
