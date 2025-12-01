@@ -259,8 +259,8 @@ fun ChatScreen(
                                  brush = Brush.verticalGradient(
                                      colors = listOf(
                                          Color.Transparent,
-                                         AppPalette.Sage25.copy(alpha = 0.8f), // Match app background
-                                         AppPalette.Sage25 // Solid at bottom
+                                         AppPalette.LightMintEnd.copy(alpha = 0.8f), // Match new app background
+                                         AppPalette.LightMintEnd // Solid at bottom
                                      )
                                  )
                             )

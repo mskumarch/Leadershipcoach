@@ -68,14 +68,7 @@ fun NavigationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        AppPalette.Sage50,
-                        AppPalette.Sage25
-                    )
-                )
-            )
+            .background(brush = com.meetingcoach.leadershipconversationcoach.presentation.ui.components.PremiumStyles.AppBackgroundBrush)
     ) {
         // Background Image removed as per request
 

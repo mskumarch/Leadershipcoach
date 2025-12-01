@@ -23,6 +23,13 @@ object PremiumStyles {
         startY = 0f,
         endY = 600f // Adjust fade height as needed
     )
+
+    val AppBackgroundBrush = Brush.verticalGradient(
+        colors = listOf(
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.LightMintStart,
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette.LightMintEnd
+        )
+    )
 }
 
 @Composable
