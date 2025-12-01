@@ -138,117 +138,26 @@ fun WisdomList(
             }
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 100.dp)
             ) {
-                // 1. Daily Digest Carousel
-                item {
-                    Text(
-                        text = "Daily Digest",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = AppPalette.Sage900,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-                    
-                    val carouselItems = uiState.articles.take(3)
-                    androidx.compose.foundation.lazy.LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(carouselItems) { article ->
-                            WisdomCarouselCard(
-                                article = article,
-                                onReadClick = { onReadArticle(article) },
-                                onSummarizeClick = { onSelectArticle(article) }
-                            )
-                        }
+                // Hero Card (Tip of the Day - First Item)
+                if (uiState.articles.isNotEmpty()) {
+                    item {
+                        HeroWisdomCard(
+                            article = uiState.articles.first(),
+                            onReadClick = { onReadArticle(uiState.articles.first()) },
+                            onSummarizeClick = { onSelectArticle(uiState.articles.first()) },
+                            onShareClick = { onShareArticle(uiState.articles.first()) }
+                        )
                     }
                 }
 
-                // 2. Recent Insights List
-                item {
-                    Text(
-                        text = "Recent Insights",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = AppPalette.Sage900,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
-
-                items(uiState.articles.drop(3)) { article ->
+                // Feed List
+                items(uiState.articles.drop(1)) { article ->
                     WisdomFeedItem(
                         article = article,
                         onClick = { onSelectArticle(article) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun WisdomCarouselCard(
-    article: RssItem,
-    onReadClick: () -> Unit,
-    onSummarizeClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .width(280.dp)
-            .height(180.dp)
-            .clickable(onClick = onReadClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = AppPalette.Sage50),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp).fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Badge(containerColor = AppPalette.Sage200) {
-                    Text(
-                        text = article.source.uppercase(),
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        color = AppPalette.Sage600,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = article.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = AppPalette.Stone900,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Read Now",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = AppPalette.Sage600,
-                    fontWeight = FontWeight.Bold
-                )
-                
-                // One-Tap Summary Button
-                IconButton(
-                    onClick = onSummarizeClick,
-                    modifier = Modifier.size(32.dp).background(AppPalette.Lavender100, androidx.compose.foundation.shape.CircleShape)
-                ) {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Rounded.Lightbulb, // Use Lightbulb for "Insight/Summary"
-                        contentDescription = "Summarize",
-                        tint = AppPalette.Lavender500,
-                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
