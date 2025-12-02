@@ -94,7 +94,8 @@ class AnalyzeSessionUseCase @Inject constructor(
                 openQuestions = aiMetrics.openQuestions,
                 closedQuestions = aiMetrics.closedQuestions,
                 managerTalkPercentage = aiMetrics.managerTalkPercentage,
-                interruptionCount = aiMetrics.interruptionCount
+                interruptionCount = aiMetrics.interruptionCount,
+                dynamicsAnalysisJson = aiMetrics.dynamicsAnalysisJson
             )
             Result.Success(finalMetrics)
         } else {
