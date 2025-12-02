@@ -55,7 +55,9 @@ fun ChatScreen(
     viewModel: SessionViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     hasRecordAudioPermission: Boolean = false,
-    onNavigateToPractice: () -> Unit
+    onNavigateToPractice: () -> Unit,
+    onNavigateToHistory: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     val sessionState by viewModel.sessionState.collectAsState()
     val audioLevel by viewModel.audioLevel.collectAsState()
@@ -374,7 +376,10 @@ fun ChatScreen(
                 onTagSelected = { tag ->
                     viewModel.loadPrepContext(tag)
                     // TODO: Show Prep Dialog
-                }
+                },
+                onNavigateToPractice = onNavigateToPractice,
+                onNavigateToHistory = onNavigateToHistory,
+                onNavigateToSettings = onNavigateToSettings
             )
         }
 
@@ -443,6 +448,19 @@ fun ChatScreen(
                 onStartSession = {
                     viewModel.clearPrepContext()
                     showSessionModeModal = true
+                }
+            )
+        }
+
+        // Reflection Dialog
+        if (sessionState.isReflectionPending) {
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.session.ReflectionDialog(
+                onDismiss = { 
+                    // If dismissed without submitting, just submit empty reflection
+                    viewModel.submitReflection("Neutral", "") 
+                },
+                onSubmit = { feeling, notes ->
+                    viewModel.submitReflection(feeling, notes)
                 }
             )
         }

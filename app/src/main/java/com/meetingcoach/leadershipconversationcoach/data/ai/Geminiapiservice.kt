@@ -272,14 +272,17 @@ class GeminiApiService(
     /**
      * Deep analysis of the session using AUDIO (for Speaker ID and Tone)
      */
+    /**
+     * Deep analysis of the session using AUDIO (for Speaker ID and Tone)
+     */
     suspend fun analyzeAudioSession(
         audioFile: File,
         sessionMode: String
     ): SessionAnalysisResult? = withContext(Dispatchers.IO) {
-        try {
+        retryWithBackoff {
             if (!audioFile.exists()) {
                 Log.e(TAG, "Audio file not found: ${audioFile.absolutePath}")
-                return@withContext null
+                return@retryWithBackoff null
             }
 
             val audioBytes = audioFile.readBytes()
@@ -292,9 +295,6 @@ class GeminiApiService(
 
             val response = generativeModel.generateContent(prompt)
             parseSessionAnalysis(response.text)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error analyzing audio session: ${e.message}", e)
-            null
         }
     }
 
@@ -305,12 +305,46 @@ class GeminiApiService(
         fullTranscript: String,
         sessionMode: String
     ): SessionAnalysisResult? = withContext(Dispatchers.IO) {
-        try {
+        retryWithBackoff {
             val prompt = buildSessionAnalysisPrompt(fullTranscript, sessionMode)
             val response = generativeModel.generateContent(prompt)
             parseSessionAnalysis(response.text)
+        }
+    }
+
+    private suspend fun <T> retryWithBackoff(
+        times: Int = 3,
+        initialDelay: Long = 1000, // 1 second
+        maxDelay: Long = 10000,    // 10 seconds
+        factor: Double = 2.0,
+        block: suspend () -> T?
+    ): T? {
+        var currentDelay = initialDelay
+        repeat(times - 1) {
+            try {
+                return block()
+            } catch (e: Exception) {
+                // Check for 503 or ServerException
+                val isServerOverloaded = e.message?.contains("503") == true || 
+                                         e.message?.contains("overloaded") == true ||
+                                         e.javaClass.simpleName.contains("ServerException")
+
+                if (isServerOverloaded) {
+                    Log.w(TAG, "Gemini overloaded. Retrying in ${currentDelay}ms...")
+                    kotlinx.coroutines.delay(currentDelay)
+                    currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
+                } else {
+                    // If it's not a temporary server error, rethrow or return null
+                    Log.e(TAG, "Non-retriable error: ${e.message}", e)
+                    return null
+                }
+            }
+        }
+        // Last attempt
+        return try {
+            block()
         } catch (e: Exception) {
-            Log.e(TAG, "Error analyzing session: ${e.message}", e)
+            Log.e(TAG, "Final attempt failed: ${e.message}", e)
             null
         }
     }
@@ -466,7 +500,7 @@ class GeminiApiService(
                       {"title": "Strategy Title", "description": "Actionable advice for next time (NOT 'Coach')"}
                     ],
                     "stakeholder_map": [
-                      {"speaker": "Speaker Name", "role": "Ally/Neutral/Detractor", "reason": "Why?"}
+                      {"speaker": "Speaker Name", "role": "Ally/Neutral/Detractor", "influence_score": [0-100], "reason": "Why?"}
                     ],
                     "objection_battle_cards": [
                       {"objection": "It's too expensive", "rebuttal": "Focus on ROI and long-term value."}

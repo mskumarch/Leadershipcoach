@@ -109,6 +109,14 @@ class AudioRecorder @Inject constructor(@ApplicationContext private val context:
         }
     }
 
+    fun getMaxAmplitude(): Int {
+        return try {
+            mediaRecorder?.maxAmplitude ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
     fun release() {
         if (isRecording) {
             stopRecording()

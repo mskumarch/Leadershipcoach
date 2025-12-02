@@ -192,8 +192,22 @@ class LocalSpeechToTextService @Inject constructor(
     private fun startRecognition() {
         if (isCurrentlyListening) return
 
+        // Lazy initialization: Try to create if null (e.g. if init failed or ran on background thread)
+        if (speechRecognizer == null) {
+            if (SpeechRecognizer.isRecognitionAvailable(context)) {
+                try {
+                    speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
+                    Log.d(TAG, "SpeechRecognizer lazy initialized successfully")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to lazy initialize SpeechRecognizer", e)
+                }
+            } else {
+                Log.e(TAG, "Speech recognition still not available")
+            }
+        }
+
         val recognizer = speechRecognizer ?: run {
-            onErrorCallback?.invoke("Speech recognizer not initialized")
+            onErrorCallback?.invoke("Speech recognizer not initialized (Not available on device)")
             return
         }
 

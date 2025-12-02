@@ -194,4 +194,8 @@ class SessionManager @Inject constructor(
     fun release() {
         sttService.release()
     }
+
+    fun getMaxAmplitude(): Int {
+        return audioRecorder.getMaxAmplitude()
+    }
 }

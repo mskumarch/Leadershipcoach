@@ -204,9 +204,26 @@ fun ProgressScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
-            // 3. Activity (Minimal Chart)
+            // 5. Growth Timeline
+            if (uiState.milestones.isNotEmpty()) {
+                GrowthTimeline(
+                    milestones = uiState.milestones,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                 // Mock data for now if empty, to show the UI
+                 GrowthTimeline(
+                    milestones = listOf(
+                        Milestone("Today", "Consistency King", "Completed 3 sessions this week.", true),
+                        Milestone("Nov 15", "Empathy Master", "Achieved > 90% empathy score.", true),
+                        Milestone("Nov 01", "First Step", "Completed your first coaching session.", true),
+                        Milestone("Oct 28", "Joined", "Started your leadership journey.", true)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Text(
                 text = "Activity",
                 fontSize = 20.sp,

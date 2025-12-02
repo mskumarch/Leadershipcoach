@@ -23,6 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.clickable
 import com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 import kotlinx.coroutines.launch
@@ -164,7 +168,14 @@ fun DynamicsAnalysisTab(sessionDetails: SessionWithDetails) {
                 }
             }
             
-            // 4. Next Meeting Strategy
+            // 4. Objection Battle Cards
+            if (analysis.battleCards.isNotEmpty()) {
+                item {
+                    BattleCardsSection(analysis.battleCards)
+                }
+            }
+
+            // 5. Next Meeting Strategy
             if (analysis.strategies.isNotEmpty()) {
                 item {
                     NextMeetingStrategyCard(analysis.strategies)
@@ -187,7 +198,8 @@ data class DynamicsAnalysis(
     val powerDynamicsScore: Int,
     val subtextSignals: List<SubtextSignal>,
     val strategies: List<Strategy>,
-    val stakeholders: List<StakeholderMapItem> = emptyList()
+    val stakeholders: List<StakeholderMapItem> = emptyList(),
+    val battleCards: List<BattleCardItem> = emptyList()
 )
 
 data class SubtextSignal(
@@ -204,7 +216,13 @@ data class Strategy(
 data class StakeholderMapItem(
     val speaker: String,
     val role: String,
+    val influenceScore: Int,
     val reason: String
+)
+
+data class BattleCardItem(
+    val objection: String,
+    val rebuttal: String
 )
 
 private fun parseDynamicsAnalysis(jsonString: String?): DynamicsAnalysis? {
@@ -246,12 +264,25 @@ private fun parseDynamicsAnalysis(jsonString: String?): DynamicsAnalysis? {
                 stakeholders.add(StakeholderMapItem(
                     speaker = obj.optString("speaker"),
                     role = obj.optString("role"),
+                    influenceScore = obj.optInt("influence_score", 50),
                     reason = obj.optString("reason")
                 ))
             }
         }
+
+        val battleCards = mutableListOf<BattleCardItem>()
+        val battleCardsArray = json.optJSONArray("objection_battle_cards")
+        if (battleCardsArray != null) {
+            for (i in 0 until battleCardsArray.length()) {
+                val obj = battleCardsArray.getJSONObject(i)
+                battleCards.add(BattleCardItem(
+                    objection = obj.optString("objection"),
+                    rebuttal = obj.optString("rebuttal")
+                ))
+            }
+        }
         
-        return DynamicsAnalysis(score, signals, strategies, stakeholders)
+        return DynamicsAnalysis(score, signals, strategies, stakeholders, battleCards)
     } catch (e: Exception) {
         return null
     }
@@ -335,6 +366,16 @@ fun PowerDynamicsScoreCard(score: Int) {
     }
 }
 
+
+
+// ... (Parsing logic update inside parseDynamicsAnalysis)
+// stakeholders.add(StakeholderMapItem(
+//     speaker = obj.optString("speaker"),
+//     role = obj.optString("role"),
+//     influenceScore = obj.optInt("influence_score", 50),
+//     reason = obj.optString("reason")
+// ))
+
 @Composable
 fun AlignmentMapCard(stakeholders: List<StakeholderMapItem>) {
     Card(
@@ -344,64 +385,130 @@ fun AlignmentMapCard(stakeholders: List<StakeholderMapItem>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Stakeholder Map",
+                text = "Stakeholder Landscape",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
+            Text(
+                text = "Influence vs. Alignment",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // 2D Scatter Plot
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .padding(horizontal = 8.dp)
+            ) {
+                StakeholderScatterPlot(stakeholders)
+            }
+            
             Spacer(modifier = Modifier.height(16.dp))
             
+            // Legend / List below
             stakeholders.forEach { item ->
-                val color = when (item.role.lowercase()) {
-                    "ally" -> AppPalette.Sage400
-                    "detractor" -> AppPalette.Red500
-                    else -> Color.Gray
-                }
-                
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 6.dp)
-                            .size(8.dp)
-                            .background(color, CircleShape)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = item.speaker,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Surface(
-                                color = color.copy(alpha = 0.2f),
-                                shape = RoundedCornerShape(4.dp)
-                            ) {
-                                Text(
-                                    text = item.role.uppercase(),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = color,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = item.reason,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = AppPalette.Sage200
-                        )
-                    }
-                }
+                StakeholderLegendItem(item)
             }
         }
+    }
+}
+
+@Composable
+fun StakeholderScatterPlot(stakeholders: List<StakeholderMapItem>) {
+    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+        val width = size.width
+        val height = size.height
+        val padding = 40.dp.toPx()
+        
+        // Draw Axes
+        drawLine(
+            color = Color.Gray.copy(alpha = 0.5f),
+            start = androidx.compose.ui.geometry.Offset(padding, height - padding),
+            end = androidx.compose.ui.geometry.Offset(width - padding, height - padding),
+            strokeWidth = 2f
+        ) // X-Axis (Alignment)
+        
+        drawLine(
+            color = Color.Gray.copy(alpha = 0.5f),
+            start = androidx.compose.ui.geometry.Offset(padding, height - padding),
+            end = androidx.compose.ui.geometry.Offset(padding, padding),
+            strokeWidth = 2f
+        ) // Y-Axis (Influence)
+        
+        // Labels
+        // drawContext.canvas.nativeCanvas.drawText... (Too complex for simple canvas, using Text composables outside is better, but simple lines work for now)
+        
+        stakeholders.forEach { item ->
+            // Map Role to X (0..100)
+            val alignmentX = when(item.role.lowercase()) {
+                "detractor" -> 20f // Left
+                "ally" -> 80f      // Right
+                else -> 50f        // Center (Neutral)
+            }
+            
+            // Map Influence to Y (0..100)
+            val influenceY = item.influenceScore.toFloat()
+            
+            val x = padding + (alignmentX / 100f) * (width - 2 * padding)
+            val y = (height - padding) - (influenceY / 100f) * (height - 2 * padding)
+            
+            val color = when(item.role.lowercase()) {
+                "ally" -> AppPalette.Sage400
+                "detractor" -> AppPalette.Red500
+                else -> Color.Gray
+            }
+            
+            drawCircle(
+                color = color,
+                radius = 20f,
+                center = androidx.compose.ui.geometry.Offset(x, y)
+            )
+            
+            // Draw initial inside circle
+            // (Simplified: just a circle for now)
+        }
+    }
+    
+    // Overlay Text Labels (Since Canvas text is hard in Compose without native access)
+    // We can do this by overlaying a Box with absolute offsets, but for simplicity in this iteration, we rely on the Legend below.
+}
+
+@Composable
+fun StakeholderLegendItem(item: StakeholderMapItem) {
+    val color = when (item.role.lowercase()) {
+        "ally" -> AppPalette.Sage400
+        "detractor" -> AppPalette.Red500
+        else -> Color.Gray
+    }
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .background(color, CircleShape)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = item.speaker,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "(${item.role}, Influence: ${item.influenceScore}%)",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
+        )
     }
 }
 
@@ -470,6 +577,98 @@ fun SubtextCard(quote: String, type: String, analysis: String) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = AppPalette.Sage200
             )
+        }
+    }
+}
+
+@Composable
+fun BattleCardsSection(battleCards: List<BattleCardItem>) {
+    Column {
+        Text(
+            text = "Objection Battle Cards",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        
+        // Horizontal scroll for cards
+        androidx.compose.foundation.lazy.LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp)
+        ) {
+            items(battleCards) { card ->
+                BattleCard(card)
+            }
+        }
+    }
+}
+
+@Composable
+fun BattleCard(card: BattleCardItem) {
+    var isFlipped by remember { mutableStateOf(false) }
+    
+    Card(
+        modifier = Modifier
+            .width(280.dp)
+            .height(320.dp)
+            .clickable { isFlipped = !isFlipped },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isFlipped) AppPalette.Sage400 else Color(0xFF2D3748)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (!isFlipped) {
+                // Front: The Objection
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "OBJECTION",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = AppPalette.Red500,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "\"${card.objection}\"",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "Tap to flip ↻",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                // Back: The Rebuttal
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "WINNING STRATEGY",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = card.rebuttal,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }

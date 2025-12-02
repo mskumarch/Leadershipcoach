@@ -36,6 +36,8 @@ import kotlin.math.sin
  * Dynamics Mode Recording Screen
  * "The Radar" - Visualizes alignment, resistance, and power dynamics.
  */
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.recording.LiveWaveform
+
 @Composable
 fun DynamicsRecordingScreen(
     viewModel: SessionViewModel,
@@ -63,6 +65,14 @@ fun DynamicsRecordingScreen(
             modifier = Modifier.align(Alignment.Center),
             contentAlignment = Alignment.Center
         ) {
+            // Live Waveform Background
+            val amplitude by viewModel.audioAmplitude.collectAsState()
+            LiveWaveform(
+                amplitude = amplitude,
+                modifier = Modifier.width(300.dp).height(100.dp).align(Alignment.Center),
+                color = AppPalette.Sage400
+            )
+
             RadarView(isActive = sessionState.isRecording)
             
             // Central Status
