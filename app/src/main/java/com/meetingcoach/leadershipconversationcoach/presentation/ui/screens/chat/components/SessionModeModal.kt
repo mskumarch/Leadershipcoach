@@ -77,7 +77,8 @@ fun SessionModeModal(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Session mode cards
-            SessionMode.values().forEach { mode ->
+            val availableModes = listOf(SessionMode.ONE_ON_ONE, SessionMode.DYNAMICS)
+            availableModes.forEach { mode ->
                 SessionModeCard(
                     mode = mode,
                     onClick = {

@@ -87,11 +87,20 @@ class AnalyzeDynamicsUseCase @Inject constructor(
             else -> null
         }
 
+        // Generate Intervention (Real-time Alert)
+        val intervention = when {
+            tension > 80 -> "🛑 HIGH TENSION: De-escalate immediately. Say: 'Let's pause. I want to make sure I understand your concern.'"
+            alignment < 30 -> "⚠️ LOSING THE ROOM: Pivot. Ask: 'How does this land with you?'"
+            signals.count { it.type == SignalType.PASSIVE_RESISTANCE } >= 2 -> "🛡️ RESISTANCE DETECTED: Call it out gently. 'I sense some hesitation.'"
+            else -> null
+        }
+
         return DynamicsAnalysis(
             alignmentScore = alignment,
             tensionLevel = tension,
             detectedSignals = signals,
-            strategicAdvice = advice
+            strategicAdvice = advice,
+            intervention = intervention
         )
     }
 }

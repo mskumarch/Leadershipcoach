@@ -215,7 +215,8 @@ class CoachingEngine(
                 questionCount = analysis.openQuestions + analysis.closedQuestions,
                 talkRatio = 100 - analysis.managerTalkPercentage, // Flip to show "other" percentage
                 interruptionCount = analysis.interruptionCount,
-                dynamicsAnalysisJson = analysis.dynamicsAnalysisJson
+                dynamicsAnalysisJson = analysis.dynamicsAnalysisJson,
+                actionItems = analysis.actionItems
             )
         } else {
             null
@@ -245,7 +246,8 @@ class CoachingEngine(
                 summary = analysis.summary,
                 paceAnalysis = analysis.paceAnalysis,
                 wordingAnalysis = analysis.wordingAnalysis,
-                improvements = analysis.improvements
+                improvements = analysis.improvements,
+                actionItems = analysis.actionItems
                 // We preserve other calculated metrics if passed, but here we return just the AI ones
                 // The ViewModel will merge them
             )

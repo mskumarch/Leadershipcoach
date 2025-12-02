@@ -46,5 +46,6 @@ data class SessionMetricsEntity(
     val wordingAnalysis: String? = null,
     val improvements: String? = null,
     val aiTranscriptJson: String? = null,
-    val dynamicsAnalysisJson: String? = null
+    val dynamicsAnalysisJson: String? = null,
+    val actionItemsJson: String? = null
 )

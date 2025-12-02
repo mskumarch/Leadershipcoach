@@ -81,6 +81,7 @@ data class SessionMetrics(
     val closedQuestions: List<String> = emptyList(),
     val managerTalkPercentage: Int = 0,
     val dynamicsAnalysisJson: String? = null,
+    val actionItems: List<String> = emptyList(),
     val lastUpdated: Long = System.currentTimeMillis()
 ) {
 

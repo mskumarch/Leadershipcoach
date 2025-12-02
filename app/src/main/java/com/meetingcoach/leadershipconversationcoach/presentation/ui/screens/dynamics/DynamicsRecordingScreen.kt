@@ -3,6 +3,7 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.dyn
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -159,17 +162,40 @@ fun DynamicsRecordingScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 48.dp)
         ) {
-            Button(
-                onClick = onStopSession,
-                colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Red500),
-                modifier = Modifier
-                    .height(56.dp)
-                    .width(200.dp),
-                shape = RoundedCornerShape(28.dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Stop, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("End Session", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                // Pause/Resume Button
+                IconButton(
+                    onClick = {
+                        if (sessionState.isPaused) viewModel.resumeSession() else viewModel.pauseSession()
+                    },
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = if (sessionState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                        contentDescription = if (sessionState.isPaused) "Resume" else "Pause",
+                        tint = Color.White
+                    )
+                }
+
+                // Stop Button
+                Button(
+                    onClick = onStopSession,
+                    colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Red500),
+                    modifier = Modifier
+                        .height(56.dp)
+                        .width(160.dp),
+                    shape = RoundedCornerShape(28.dp)
+                ) {
+                    Icon(Icons.Default.Stop, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("End Session", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
         
@@ -298,6 +324,50 @@ fun DynamicsRecordingScreen(
                         text = advice,
                         color = Color.White,
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+
+        // Intervention Alert (Critical)
+        dynamicsAnalysis?.intervention?.let { intervention ->
+            val infiniteTransition = rememberInfiniteTransition(label = "Pulse")
+            val alpha by infiniteTransition.animateFloat(
+                initialValue = 0.8f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(500, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "Alpha"
+            )
+
+            Card(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 24.dp)
+                    .fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = AppPalette.Red500.copy(alpha = alpha)),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Stop,
+                        contentDescription = "Alert",
+                        tint = Color.White,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = intervention,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                 }
             }

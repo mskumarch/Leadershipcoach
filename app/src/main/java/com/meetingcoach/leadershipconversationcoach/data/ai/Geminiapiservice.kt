@@ -428,6 +428,46 @@ class GeminiApiService(
     }
 
     private fun buildAudioAnalysisPrompt(sessionMode: String): String {
+        if (sessionMode == "DYNAMICS") {
+            return """
+                You are an expert in organizational power dynamics and influence.
+                Analyze the AUDIO of this 'Dynamics Mode' session.
+                
+                Tasks:
+                1. SPEAKER ID: Identify different speakers.
+                2. TONE ANALYSIS: Listen for hesitation, confidence, sarcasm, or tension.
+                3. TRANSCRIPT: Generate a high-quality transcript.
+                4. DYNAMICS ANALYSIS:
+                   - Power Dynamics Score: 0-100 (Who holds the power?)
+                   - Subtext Signals: Decode hidden meanings (e.g., "Let's take this offline" = "I disagree but won't say it here").
+                   - Strategies: 3 specific strategies for the NEXT meeting to improve influence.
+                
+                Format your response EXACTLY as valid JSON:
+                {
+                  "score_1": [0-100], // Empathy
+                  "score_2": [0-100], // Clarity
+                  "score_3": [0-100], // Listening
+                  "summary": "Detailed analysis of power dynamics...",
+                  "pace_analysis": "Analysis...",
+                  "wording_analysis": "Analysis...",
+                  "improvements": ["Strategy 1", "Strategy 2", "Strategy 3"],
+                  "transcript": [
+                    {"speaker": "Speaker 1", "text": "..."},
+                    {"speaker": "Speaker 2", "text": "..."}
+                  ],
+                  "dynamics_analysis": {
+                    "power_dynamics_score": [0-100],
+                    "subtext_signals": [
+                      {"quote": "Quote from audio", "type": "Signal Type", "analysis": "What it really means"}
+                    ],
+                    "strategies": [
+                      {"title": "Strategy Title", "description": "Actionable advice for next time (NOT 'Coach')"}
+                    ]
+                  }
+                }
+            """.trimIndent()
+        }
+        
         return """
             You are an expert leadership coach analyzing the AUDIO of a '$sessionMode' session.
             
@@ -506,6 +546,17 @@ class GeminiApiService(
                 SUMMARY should focus on: Emotional shifts, resistance points, and resolution.
             """.trimIndent()
             
+            "DYNAMICS" -> """
+                Analyze the power dynamics and influence:
+                1. Power Balance: Who controlled the narrative? (Score 0-100)
+                2. Strategic Alignment: Was there buy-in? (Score 0-100)
+                3. Hidden Agendas: Were there unsaid issues? (Score 0-100)
+                
+                SUMMARY should focus on: Influence, leverage points, and hidden friction.
+                
+                IMPORTANT: For 'strategies', provide specific influence tactics (e.g., "Build a coalition", "Pre-sell ideas"), NOT generic coaching tips.
+            """.trimIndent()
+
             else -> """
                 Analyze the coaching/1:1 session:
                 1. Empathy: Understanding feelings. (Score 0-100)
@@ -535,6 +586,7 @@ class GeminiApiService(
               "wording_analysis": "Analysis...",
               "improvements": ["Point 1", "Point 2", "Point 3"],
               "key_takeaways": ["Takeaway 1", "Takeaway 2"],
+              "action_items": ["Action 1", "Action 2"],
               "dynamics_analysis": {
                 "power_dynamics_score": 85,
                 "subtext_signals": [],
@@ -598,10 +650,16 @@ class GeminiApiService(
             // Dynamics Analysis
             val dynamicsJson = json.optJSONObject("dynamics_analysis")?.toString()
 
+            // Action Items
+            val actionItemsArray = json.optJSONArray("action_items")
+            val actionItems = if (actionItemsArray != null) {
+                (0 until actionItemsArray.length()).map { actionItemsArray.getString(it) }
+            } else emptyList()
+
             return SessionAnalysisResult(
                 score1, score2, score3, finalSummary, pace, wording, improvements, transcriptJson,
                 commitments, openQuestions, closedQuestions, managerTalkPercentage, interruptionCount,
-                dynamicsJson
+                dynamicsJson, actionItems
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing session analysis JSON: ${e.message}", e)
@@ -619,7 +677,7 @@ class GeminiApiService(
         val wording = Regex("WORDING:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No wording analysis."
         val improvements = Regex("IMPROVEMENTS:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No improvements listed."
         
-        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, null, emptyList(), 0, 0, 50, 0, null)
+        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, null, emptyList(), 0, 0, 50, 0, null, emptyList())
     }
 
     private fun parseCoachingResponse(response: String?): CoachingResponse? {
@@ -732,5 +790,6 @@ data class SessionAnalysisResult(
     val closedQuestions: Int = 0,
     val managerTalkPercentage: Int = 50,
     val interruptionCount: Int = 0,
-    val dynamicsAnalysisJson: String? = null
+    val dynamicsAnalysisJson: String? = null,
+    val actionItems: List<String> = emptyList()
 )
