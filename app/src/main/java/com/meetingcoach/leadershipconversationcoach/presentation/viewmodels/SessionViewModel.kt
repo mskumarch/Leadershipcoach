@@ -535,13 +535,19 @@ class SessionViewModel @Inject constructor(
     // TIMER
     // ============================================================
 
+    // Audio Amplitude State
+    private val _audioAmplitude = MutableStateFlow(0)
+    val audioAmplitude: StateFlow<Int> = _audioAmplitude.asStateFlow()
+
+    // ... (existing code)
+
     private fun startTimer() {
         timerJob = viewModelScope.launch {
             var pausedDuration = 0L
             var lastPauseTime = 0L
             
             while (true) {
-                delay(1000)
+                delay(100) // Update more frequently for amplitude
                 
                 val currentState = _sessionState.value
                 
@@ -558,12 +564,17 @@ class SessionViewModel @Inject constructor(
                 }
                 
                 if (currentState.isRecording) {
+                    // Update Duration (every second roughly)
                     val elapsed = System.currentTimeMillis() - (currentState.startTime ?: 0) - pausedDuration
                     val minutes = (elapsed / 60000).toInt()
                     val seconds = ((elapsed % 60000) / 1000).toInt()
                     val duration = String.format("%02d:%02d", minutes, seconds)
-
+                    
                     _sessionState.update { it.copy(duration = duration) }
+
+                    // Update Amplitude
+                    val amp = sessionManager.getMaxAmplitude()
+                    _audioAmplitude.value = amp
                 }
             }
         }
