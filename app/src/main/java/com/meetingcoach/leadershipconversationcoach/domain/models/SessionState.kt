@@ -30,6 +30,5 @@ data class SessionState(
     // UI state
     val partialTranscript: String = "",
     val isProcessing: Boolean = false,
-    val isReflectionPending: Boolean = false, // New
     val error: String? = null
 )

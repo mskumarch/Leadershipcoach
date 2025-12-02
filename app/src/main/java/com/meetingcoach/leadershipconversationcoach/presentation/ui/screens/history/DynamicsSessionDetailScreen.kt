@@ -65,19 +65,19 @@ fun DynamicsSessionDetailScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF1E293B), // Slate 800
+                        containerColor = Color.Transparent, // Transparent to show background
                         titleContentColor = Color.White,
                         navigationIconContentColor = Color.White
                     )
                 )
                 
                 Surface(
-                    shadowElevation = 4.dp,
-                    color = Color(0xFF1E293B) // Slate 800
+                    shadowElevation = 0.dp, // Remove shadow for cleaner look
+                    color = Color.Transparent
                 ) {
                     TabRow(
                         selectedTabIndex = pagerState.currentPage,
-                        containerColor = Color(0xFF1E293B),
+                        containerColor = Color.Transparent,
                         contentColor = AppPalette.Sage400,
                         indicator = { tabPositions ->
                             TabRowDefaults.SecondaryIndicator(
@@ -107,29 +107,24 @@ fun DynamicsSessionDetailScreen(
                     }
                 }
             }
-        }
+        },
+        containerColor = Color.Transparent // Allow background to show through
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFF1E293B), // Slate 800
-                            Color(0xFF0F172A)  // Slate 900
-                        )
-                    )
-                )
-                .padding(padding)
-        ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                when (page) {
-                    0 -> DynamicsAnalysisTab(sessionDetails)
-                    1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
-                    2 -> CoachingTab(sessionDetails.messages)
+        com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> DynamicsAnalysisTab(sessionDetails)
+                        1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
+                        2 -> CoachingTab(sessionDetails.messages)
+                    }
                 }
             }
         }

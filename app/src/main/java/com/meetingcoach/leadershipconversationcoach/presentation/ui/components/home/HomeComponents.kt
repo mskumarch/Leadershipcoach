@@ -47,76 +47,63 @@ fun HomeIdleState(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Top Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-                    .align(Alignment.TopCenter),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "Good Morning,",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AppPalette.Stone500
-                    )
-                    Text(
-                        text = "Leadership Coach",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = AppPalette.Stone900
-                    )
-                }
-                
-                // Profile Icon
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(AppPalette.Stone100, RoundedCornerShape(12.dp))
-                        .border(1.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("👤", fontSize = 20.sp)
-                }
-            }
-
-            // Main Content Scrollable
+            // Simple Header
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 100.dp, bottom = 80.dp) // Space for header and bottom nav
-                    .verticalScroll(rememberScrollState()),
+                    .fillMaxWidth()
+                    .padding(top = 60.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Leadership Coach",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Stone900
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Ready for your next session?",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = AppPalette.Stone500
+                )
+            }
+
+            // Main Content - Centered Orb
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StartSessionOrb(
+                    onClick = {
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        onStartSession()
+                    }
+                )
+            }
+            
+            // Footer Content
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 100.dp), // Space for bottom nav
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // 1. Performance Pulse Widget
-                PerformancePulseWidget()
-
-                // 2. The Orb (Start Session)
-                Box(contentAlignment = Alignment.Center) {
-                    com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StartSessionOrb(
-                        onClick = {
-                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                            onStartSession()
-                        }
-                    )
-                }
-                
-                // 3. Smart Prep Card (Prominent)
+                // Smart Prep Chips (if available)
                 if (recentTags.isNotEmpty()) {
-                    SmartPrepCard(recentTags, onTagSelected)
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Spacer(modifier = Modifier.width(24.dp))
+                        recentTags.forEach { tag ->
+                            SmartPrepChip(tag) { onTagSelected(tag) }
+                        }
+                        Spacer(modifier = Modifier.width(24.dp))
+                    }
                 }
 
-                // 4. Quick Actions
-                QuickActionsRow(
-                    onPracticeClick = onNavigateToPractice,
-                    onHistoryClick = onNavigateToHistory,
-                    onSettingsClick = onNavigateToSettings
-                )
-                
-                // 5. Daily Tip (Footer)
+                // Daily Tip
                 DailyTipTeaser(
                     tip = dailyTip,
                     onClick = { showDailyStory = true }
