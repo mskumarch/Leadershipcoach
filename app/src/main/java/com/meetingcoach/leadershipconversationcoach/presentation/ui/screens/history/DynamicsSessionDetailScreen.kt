@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -149,10 +150,12 @@ fun DynamicsAnalysisTab(sessionDetails: SessionWithDetails) {
                 PowerDynamicsScoreCard(score = analysis.powerDynamicsScore)
             }
 
-            // 2. Alignment Map (Timeline) - Still a placeholder for now as we don't have timeline data yet
-            // item {
-            //    AlignmentMapCard()
-            // }
+            // 2. Alignment Map (Stakeholder Analysis)
+            if (analysis.stakeholders.isNotEmpty()) {
+                item {
+                    AlignmentMapCard(analysis.stakeholders)
+                }
+            }
 
             // 3. Subtext Decoder (The "Meat")
             if (analysis.subtextSignals.isNotEmpty()) {
@@ -183,7 +186,8 @@ fun DynamicsAnalysisTab(sessionDetails: SessionWithDetails) {
 data class DynamicsAnalysis(
     val powerDynamicsScore: Int,
     val subtextSignals: List<SubtextSignal>,
-    val strategies: List<Strategy>
+    val strategies: List<Strategy>,
+    val stakeholders: List<StakeholderMapItem> = emptyList()
 )
 
 data class SubtextSignal(
@@ -195,6 +199,12 @@ data class SubtextSignal(
 data class Strategy(
     val title: String,
     val description: String
+)
+
+data class StakeholderMapItem(
+    val speaker: String,
+    val role: String,
+    val reason: String
 )
 
 private fun parseDynamicsAnalysis(jsonString: String?): DynamicsAnalysis? {
@@ -227,8 +237,21 @@ private fun parseDynamicsAnalysis(jsonString: String?): DynamicsAnalysis? {
                 ))
             }
         }
+
+        val stakeholders = mutableListOf<StakeholderMapItem>()
+        val stakeholdersArray = json.optJSONArray("stakeholder_map")
+        if (stakeholdersArray != null) {
+            for (i in 0 until stakeholdersArray.length()) {
+                val obj = stakeholdersArray.getJSONObject(i)
+                stakeholders.add(StakeholderMapItem(
+                    speaker = obj.optString("speaker"),
+                    role = obj.optString("role"),
+                    reason = obj.optString("reason")
+                ))
+            }
+        }
         
-        return DynamicsAnalysis(score, signals, strategies)
+        return DynamicsAnalysis(score, signals, strategies, stakeholders)
     } catch (e: Exception) {
         return null
     }
@@ -313,7 +336,7 @@ fun PowerDynamicsScoreCard(score: Int) {
 }
 
 @Composable
-fun AlignmentMapCard() {
+fun AlignmentMapCard(stakeholders: List<StakeholderMapItem>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f)),
@@ -321,26 +344,62 @@ fun AlignmentMapCard() {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Alignment Map",
+                text = "Stakeholder Map",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Visualization of alignment over time (Mock)",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-            // Placeholder for Chart
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("📈 Chart Placeholder", color = Color.White.copy(alpha = 0.5f))
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            stakeholders.forEach { item ->
+                val color = when (item.role.lowercase()) {
+                    "ally" -> AppPalette.Sage400
+                    "detractor" -> AppPalette.Red500
+                    else -> Color.Gray
+                }
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 6.dp)
+                            .size(8.dp)
+                            .background(color, CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = item.speaker,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Surface(
+                                color = color.copy(alpha = 0.2f),
+                                shape = RoundedCornerShape(4.dp)
+                            ) {
+                                Text(
+                                    text = item.role.uppercase(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = color,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = item.reason,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = AppPalette.Sage200
+                        )
+                    }
+                }
             }
         }
     }

@@ -151,3 +151,80 @@ fun StakeholderHeatmap(stakeholders: List<StakeholderStatus>) {
         }
     }
 }
+@Composable
+fun TrendLineGraph(
+    dataPoints: List<Float>,
+    modifier: Modifier = Modifier,
+    lineColor: Color = AppPalette.Sage600
+) {
+    if (dataPoints.isEmpty()) return
+
+    Canvas(modifier = modifier.padding(8.dp)) {
+        val width = size.width
+        val height = size.height
+        val spacing = width / (dataPoints.size - 1).coerceAtLeast(1)
+        
+        // Draw Grid Lines (Horizontal)
+        for (i in 0..4) {
+            val y = height * (i / 4f)
+            drawLine(
+                color = AppPalette.Stone200,
+                start = Offset(0f, y),
+                end = Offset(width, y),
+                strokeWidth = 1.dp.toPx()
+            )
+        }
+
+        // Draw Trend Line
+        val path = Path()
+        dataPoints.forEachIndexed { index, value ->
+            val x = index * spacing
+            val y = height - (value * height) // Invert Y because canvas 0 is top
+            
+            if (index == 0) {
+                path.moveTo(x, y)
+            } else {
+                // Bezier curve for smoothness
+                val prevX = (index - 1) * spacing
+                val prevY = height - (dataPoints[index - 1] * height)
+                val controlX1 = prevX + spacing / 2
+                val controlY1 = prevY
+                val controlX2 = x - spacing / 2
+                val controlY2 = y
+                path.cubicTo(controlX1, controlY1, controlX2, controlY2, x, y)
+            }
+            
+            // Draw Point
+            drawCircle(
+                color = lineColor,
+                radius = 4.dp.toPx(),
+                center = Offset(x, y)
+            )
+        }
+
+        drawPath(
+            path = path,
+            color = lineColor,
+            style = Stroke(width = 3.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        )
+        
+        // Draw Gradient below line
+        val fillPath = Path()
+        fillPath.addPath(path)
+        fillPath.lineTo(width, height)
+        fillPath.lineTo(0f, height)
+        fillPath.close()
+        
+        drawPath(
+            path = fillPath,
+            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                colors = listOf(
+                    lineColor.copy(alpha = 0.3f),
+                    Color.Transparent
+                ),
+                startY = 0f,
+                endY = height
+            )
+        )
+    }
+}
