@@ -3,6 +3,7 @@ package com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.dyn
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -159,17 +162,40 @@ fun DynamicsRecordingScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 48.dp)
         ) {
-            Button(
-                onClick = onStopSession,
-                colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Red500),
-                modifier = Modifier
-                    .height(56.dp)
-                    .width(200.dp),
-                shape = RoundedCornerShape(28.dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Stop, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("End Session", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                // Pause/Resume Button
+                IconButton(
+                    onClick = {
+                        if (sessionState.isPaused) viewModel.resumeSession() else viewModel.pauseSession()
+                    },
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = if (sessionState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                        contentDescription = if (sessionState.isPaused) "Resume" else "Pause",
+                        tint = Color.White
+                    )
+                }
+
+                // Stop Button
+                Button(
+                    onClick = onStopSession,
+                    colors = ButtonDefaults.buttonColors(containerColor = AppPalette.Red500),
+                    modifier = Modifier
+                        .height(56.dp)
+                        .width(160.dp),
+                    shape = RoundedCornerShape(28.dp)
+                ) {
+                    Icon(Icons.Default.Stop, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("End Session", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
         

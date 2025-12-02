@@ -428,6 +428,46 @@ class GeminiApiService(
     }
 
     private fun buildAudioAnalysisPrompt(sessionMode: String): String {
+        if (sessionMode == "DYNAMICS") {
+            return """
+                You are an expert in organizational power dynamics and influence.
+                Analyze the AUDIO of this 'Dynamics Mode' session.
+                
+                Tasks:
+                1. SPEAKER ID: Identify different speakers.
+                2. TONE ANALYSIS: Listen for hesitation, confidence, sarcasm, or tension.
+                3. TRANSCRIPT: Generate a high-quality transcript.
+                4. DYNAMICS ANALYSIS:
+                   - Power Dynamics Score: 0-100 (Who holds the power?)
+                   - Subtext Signals: Decode hidden meanings (e.g., "Let's take this offline" = "I disagree but won't say it here").
+                   - Strategies: 3 specific strategies for the NEXT meeting to improve influence.
+                
+                Format your response EXACTLY as valid JSON:
+                {
+                  "score_1": [0-100], // Empathy
+                  "score_2": [0-100], // Clarity
+                  "score_3": [0-100], // Listening
+                  "summary": "Detailed analysis of power dynamics...",
+                  "pace_analysis": "Analysis...",
+                  "wording_analysis": "Analysis...",
+                  "improvements": ["Strategy 1", "Strategy 2", "Strategy 3"],
+                  "transcript": [
+                    {"speaker": "Speaker 1", "text": "..."},
+                    {"speaker": "Speaker 2", "text": "..."}
+                  ],
+                  "dynamics_analysis": {
+                    "power_dynamics_score": [0-100],
+                    "subtext_signals": [
+                      {"quote": "Quote from audio", "type": "Signal Type", "analysis": "What it really means"}
+                    ],
+                    "strategies": [
+                      {"title": "Strategy Title", "description": "Actionable advice for next time (NOT 'Coach')"}
+                    ]
+                  }
+                }
+            """.trimIndent()
+        }
+        
         return """
             You are an expert leadership coach analyzing the AUDIO of a '$sessionMode' session.
             
@@ -506,6 +546,17 @@ class GeminiApiService(
                 SUMMARY should focus on: Emotional shifts, resistance points, and resolution.
             """.trimIndent()
             
+            "DYNAMICS" -> """
+                Analyze the power dynamics and influence:
+                1. Power Balance: Who controlled the narrative? (Score 0-100)
+                2. Strategic Alignment: Was there buy-in? (Score 0-100)
+                3. Hidden Agendas: Were there unsaid issues? (Score 0-100)
+                
+                SUMMARY should focus on: Influence, leverage points, and hidden friction.
+                
+                IMPORTANT: For 'strategies', provide specific influence tactics (e.g., "Build a coalition", "Pre-sell ideas"), NOT generic coaching tips.
+            """.trimIndent()
+
             else -> """
                 Analyze the coaching/1:1 session:
                 1. Empathy: Understanding feelings. (Score 0-100)
