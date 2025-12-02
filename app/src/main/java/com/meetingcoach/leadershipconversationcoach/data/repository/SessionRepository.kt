@@ -178,4 +178,61 @@ class SessionRepository @Inject constructor(
     suspend fun removePendingAnalysis(pending: com.meetingcoach.leadershipconversationcoach.data.local.PendingAnalysisEntity) = withContext(Dispatchers.IO) {
         sessionDao.deletePendingAnalysis(pending)
     }
+
+    suspend fun getRecentTags(): Result<List<String>> = withContext(Dispatchers.IO) {
+        try {
+            val sessions = sessionDao.getSessionsWithTags()
+            val allTags = mutableSetOf<String>()
+            
+            sessions.forEach { session ->
+                if (!session.tags.isNullOrBlank()) {
+                    try {
+                        val jsonArray = org.json.JSONArray(session.tags)
+                        for (i in 0 until jsonArray.length()) {
+                            allTags.add(jsonArray.getString(i))
+                        }
+                    } catch (e: Exception) {
+                        // Ignore parsing errors
+                    }
+                }
+            }
+            Result.success(allTags.toList().sorted())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getLastSessionContextByTag(tag: String): Result<SessionWithDetails?> = withContext(Dispatchers.IO) {
+        try {
+            val sessions = sessionDao.getSessionsWithTags()
+            // Find first session that contains the tag
+            val matchingSession = sessions.firstOrNull { session ->
+                try {
+                    val tags = session.tags
+                    if (tags.isNullOrBlank()) false
+                    else {
+                        val jsonArray = org.json.JSONArray(tags)
+                        var found = false
+                        for (i in 0 until jsonArray.length()) {
+                            if (jsonArray.getString(i).equals(tag, ignoreCase = true)) {
+                                found = true
+                                break
+                            }
+                        }
+                        found
+                    }
+                } catch (e: Exception) {
+                    false
+                }
+            }
+
+            if (matchingSession != null) {
+                getSessionWithDetails(matchingSession.id)
+            } else {
+                Result.success(null)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

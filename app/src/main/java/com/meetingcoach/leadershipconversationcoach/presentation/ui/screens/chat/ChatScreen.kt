@@ -365,9 +365,16 @@ fun ChatScreen(
         } else {
             // IDLE STATE
             val dailyTip by viewModel.dailyTip.collectAsState()
+            val recentTags by viewModel.recentTags.collectAsState()
+            
             HomeIdleState(
                 dailyTip = dailyTip,
-                onStartSession = { showSessionModeModal = true }
+                recentTags = recentTags,
+                onStartSession = { showSessionModeModal = true },
+                onTagSelected = { tag ->
+                    viewModel.loadPrepContext(tag)
+                    // TODO: Show Prep Dialog
+                }
             )
         }
 
@@ -423,6 +430,19 @@ fun ChatScreen(
                     TextButton(onClick = { showSaveDialog = false }) {
                         Text("Skip")
                     }
+                }
+            )
+        }
+
+        // Prep Context Dialog
+        val prepContext by viewModel.prepContext.collectAsState()
+        if (prepContext != null) {
+            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.home.PrepContextDialog(
+                sessionWithDetails = prepContext!!,
+                onDismiss = { viewModel.clearPrepContext() },
+                onStartSession = {
+                    viewModel.clearPrepContext()
+                    showSessionModeModal = true
                 }
             )
         }

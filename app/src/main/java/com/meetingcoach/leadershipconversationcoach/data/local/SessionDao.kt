@@ -63,6 +63,9 @@ interface SessionDao {
     @Query("UPDATE sessions SET tags = :tags WHERE id = :sessionId")
     suspend fun updateSessionTags(sessionId: Long, tags: String)
 
+    @Query("SELECT * FROM sessions WHERE tags IS NOT NULL AND tags != '[]' ORDER BY createdAt DESC LIMIT 50")
+    suspend fun getSessionsWithTags(): List<SessionEntity>
+
     // Pending Analysis
     @Insert
     suspend fun insertPendingAnalysis(pending: PendingAnalysisEntity)

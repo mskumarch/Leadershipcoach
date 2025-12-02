@@ -10,13 +10,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.StakeholderStatus
+import org.json.JSONObject
+
 data class ProgressUiState(
     val overallScore: Int = 0,
     val empathyScore: Int = 0,
     val clarityScore: Int = 0,
     val listeningScore: Int = 0,
-    val weeklyActivity: List<Int> = List(7) { 0 }, // Mon-Sun
+    val influenceScore: Int = 0, // New
+    val paceScore: Int = 0,      // New
+    val weeklyActivity: List<Int> = List(7) { 0 },
     val averageTalkRatio: Int = 0,
+    val stakeholders: List<StakeholderStatus> = emptyList(), // New
     val isLoading: Boolean = false
 )
 
@@ -47,12 +53,51 @@ class ProgressViewModel @Inject constructor(
                     val avgEmpathy = metrics.map { it.empathyScore }.average().toInt()
                     val avgClarity = metrics.map { it.clarityScore }.average().toInt()
                     val avgListening = metrics.map { it.listeningScore }.average().toInt()
+                    
+                    // Calculate Influence & Pace (Mock logic for now as these aren't direct columns yet)
+                    // In real app, we'd parse them from JSON or add columns
+                    val avgInfluence = (avgClarity + avgListening) / 2 + 5 // Derived metric
+                    val avgPace = 75 // Placeholder or parse from paceAnalysis string
 
                     val overall = (avgEmpathy + avgClarity + avgListening) / 3
                     val avgTalkRatio = metrics.map { it.talkRatioUser }.average().toInt()
 
+                    // Calculate Stakeholders from Dynamics JSON
+                    val stakeholderMap = mutableMapOf<String, MutableList<Int>>() // Name -> Scores
+                    val stakeholderRoles = mutableMapOf<String, String>() // Name -> Role
+
+                    metrics.forEach { metric ->
+                        if (!metric.dynamicsAnalysisJson.isNullOrBlank()) {
+                            try {
+                                val json = JSONObject(metric.dynamicsAnalysisJson)
+                                val map = json.optJSONArray("stakeholder_map")
+                                if (map != null) {
+                                    for (i in 0 until map.length()) {
+                                        val s = map.getJSONObject(i)
+                                        val name = s.optString("speaker")
+                                        val role = s.optString("role")
+                                        // We don't have a per-person score in JSON yet, so use session empathy as proxy
+                                        if (name.isNotBlank()) {
+                                            stakeholderMap.getOrPut(name) { mutableListOf() }.add(metric.empathyScore)
+                                            stakeholderRoles[name] = role // Last role wins
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // Ignore parsing errors
+                            }
+                        }
+                    }
+
+                    val stakeholders = stakeholderMap.map { (name, scores) ->
+                        StakeholderStatus(
+                            name = name,
+                            score = scores.average().toInt(),
+                            role = stakeholderRoles[name] ?: "Neutral"
+                        )
+                    }.sortedByDescending { it.score }.take(5) // Top 5
+
                     // Calculate Weekly Activity
-                    // This is a simplified implementation. In a real app, use Calendar/LocalDate.
                     val activity = MutableList(7) { 0 }
                     val now = System.currentTimeMillis()
                     val oneDay = 24 * 60 * 60 * 1000L
@@ -61,10 +106,6 @@ class ProgressViewModel @Inject constructor(
                         val age = now - session.startedAt
                         val daysAgo = (age / oneDay).toInt()
                         if (daysAgo < 7) {
-                            // Map daysAgo to index (0 = Today, 6 = 6 days ago)
-                            // But chart expects Mon-Sun or similar. 
-                            // Let's just map to "Days Ago" for now, reversed.
-                            // Actually, let's just count sessions per day for the last 7 days.
                             activity[6 - daysAgo]++ 
                         }
                     }
@@ -74,8 +115,11 @@ class ProgressViewModel @Inject constructor(
                         empathyScore = avgEmpathy,
                         clarityScore = avgClarity,
                         listeningScore = avgListening,
+                        influenceScore = avgInfluence,
+                        paceScore = avgPace,
                         weeklyActivity = activity,
                         averageTalkRatio = avgTalkRatio,
+                        stakeholders = stakeholders,
                         isLoading = false
                     )
                 } else {

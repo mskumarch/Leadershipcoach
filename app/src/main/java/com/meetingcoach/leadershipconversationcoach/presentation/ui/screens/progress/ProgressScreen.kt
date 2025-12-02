@@ -125,10 +125,56 @@ fun ProgressScreen(
             Spacer(modifier = Modifier.height(64.dp))
 
             // 2. Minimal Metrics (No Cards)
-            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                MinimalMetricRow("Empathy", uiState.empathyScore, AppPalette.Sage500)
-                MinimalMetricRow("Clarity", uiState.clarityScore, AppPalette.Blue500)
-                MinimalMetricRow("Listening", uiState.listeningScore, AppPalette.Lavender500)
+            // 2. Leadership Fingerprint (Radar Chart)
+            Text(
+                text = "Leadership Style",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = AppPalette.Stone900,
+                modifier = Modifier.align(Alignment.Start)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            LeadershipRadarChart(
+                scores = mapOf(
+                    "Empathy" to uiState.empathyScore,
+                    "Clarity" to uiState.clarityScore,
+                    "Listening" to uiState.listeningScore,
+                    "Influence" to uiState.influenceScore,
+                    "Pace" to uiState.paceScore
+                )
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // 3. Stakeholder Heatmap (Dynamics)
+            if (uiState.stakeholders.isNotEmpty()) {
+                Text(
+                    text = "Stakeholder Alignment",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Stone900,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                StakeholderHeatmap(
+                    stakeholders = uiState.stakeholders
+                )
+            } else {
+                Text(
+                    text = "Stakeholder Alignment",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Stone900,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "No stakeholder data yet. Record a Dynamics session to see alignment.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AppPalette.Stone500
+                )
             }
 
             Spacer(modifier = Modifier.height(64.dp))
