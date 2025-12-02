@@ -76,6 +76,7 @@ class SessionViewModel @Inject constructor(
     
     // Session Data
     private var lastSavedSessionId: Long? = null
+    private var tempAudioFile: java.io.File? = null
 
     init {
         viewModelScope.launch {
@@ -301,23 +302,37 @@ class SessionViewModel @Inject constructor(
         val currentState = _sessionState.value
         if (!currentState.isRecording) return
 
-        _sessionState.update { it.copy(isRecording = false) }
+        _sessionState.update { it.copy(isRecording = false, isReflectionPending = true) }
         timerJob?.cancel()
 
-        // Stop SessionManager
-        val audioFile = sessionManager.stopSession()
+        // Stop SessionManager & Store File
+        tempAudioFile = sessionManager.stopSession()
         
         // Stop Foreground Service
         val serviceIntent = android.content.Intent(context, com.meetingcoach.leadershipconversationcoach.services.SessionService::class.java)
         serviceIntent.action = com.meetingcoach.leadershipconversationcoach.services.SessionService.ACTION_STOP_SESSION
         context.startService(serviceIntent)
+    }
+
+    fun submitReflection(feeling: String, notes: String) {
+        val currentState = _sessionState.value
+        
+        // Add reflection as a context message
+        if (notes.isNotBlank()) {
+            addMessage(ChatMessage(
+                type = MessageType.CONTEXT,
+                content = "User Reflection: $feeling - $notes",
+                priority = Priority.INFO
+            ))
+        }
 
         // Analyze Session
         viewModelScope.launch {
             updateMetrics() // Calculate basic metrics first
             val metrics = currentState.metrics ?: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
             
-            val result = analyzeSessionUseCase(audioFile, currentState.messages, metrics)
+            // Use stored audio file
+            val result = analyzeSessionUseCase(tempAudioFile, currentState.messages, metrics)
             
             val finalMetrics = when (result) {
                 is com.meetingcoach.leadershipconversationcoach.utils.Result.Success -> {
@@ -335,10 +350,12 @@ class SessionViewModel @Inject constructor(
             saveSessionToDb(currentState, finalMetrics)
             
             // Reset Session State
+            tempAudioFile = null
             _sessionState.update { 
                 SessionState(
                     mode = it.mode,
                     isRecording = false,
+                    isReflectionPending = false,
                     messages = emptyList(),
                     metrics = com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
                 ) 
