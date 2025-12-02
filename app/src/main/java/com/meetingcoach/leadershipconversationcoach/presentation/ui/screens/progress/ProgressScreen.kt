@@ -177,6 +177,33 @@ fun ProgressScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // 4. Trend Line Graph (History)
+            Text(
+                text = "Performance Trend",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = AppPalette.Stone900,
+                modifier = Modifier.align(Alignment.Start)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (uiState.trendData.isNotEmpty()) {
+                TrendLineGraph(
+                    dataPoints = uiState.trendData,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                )
+            } else {
+                Text(
+                    text = "Not enough data to show trends yet.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AppPalette.Stone500
+                )
+            }
+
             Spacer(modifier = Modifier.height(64.dp))
 
             // 3. Activity (Minimal Chart)

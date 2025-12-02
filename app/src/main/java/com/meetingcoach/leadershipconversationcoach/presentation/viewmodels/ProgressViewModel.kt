@@ -22,7 +22,8 @@ data class ProgressUiState(
     val paceScore: Int = 0,      // New
     val weeklyActivity: List<Int> = List(7) { 0 },
     val averageTalkRatio: Int = 0,
-    val stakeholders: List<StakeholderStatus> = emptyList(), // New
+    val stakeholders: List<StakeholderStatus> = emptyList(),
+    val trendData: List<Float> = emptyList(), // New
     val isLoading: Boolean = false
 )
 
@@ -55,16 +56,22 @@ class ProgressViewModel @Inject constructor(
                     val avgListening = metrics.map { it.listeningScore }.average().toInt()
                     
                     // Calculate Influence & Pace (Mock logic for now as these aren't direct columns yet)
-                    // In real app, we'd parse them from JSON or add columns
-                    val avgInfluence = (avgClarity + avgListening) / 2 + 5 // Derived metric
-                    val avgPace = 75 // Placeholder or parse from paceAnalysis string
+                    val avgInfluence = (avgClarity + avgListening) / 2 + 5 
+                    val avgPace = 75 
 
                     val overall = (avgEmpathy + avgClarity + avgListening) / 3
                     val avgTalkRatio = metrics.map { it.talkRatioUser }.average().toInt()
 
+                    // Calculate Trend Data (Last 10 sessions overall score)
+                    // We need to join metrics with sessions to get date order, but metrics are usually inserted in order
+                    // Simplification: Take last 10 metrics
+                    val trendData = metrics.takeLast(10).map { 
+                        ((it.empathyScore + it.clarityScore + it.listeningScore) / 3).toFloat() / 100f 
+                    }
+
                     // Calculate Stakeholders from Dynamics JSON
-                    val stakeholderMap = mutableMapOf<String, MutableList<Int>>() // Name -> Scores
-                    val stakeholderRoles = mutableMapOf<String, String>() // Name -> Role
+                    val stakeholderMap = mutableMapOf<String, MutableList<Int>>() 
+                    val stakeholderRoles = mutableMapOf<String, String>() 
 
                     metrics.forEach { metric ->
                         if (!metric.dynamicsAnalysisJson.isNullOrBlank()) {
@@ -76,10 +83,9 @@ class ProgressViewModel @Inject constructor(
                                         val s = map.getJSONObject(i)
                                         val name = s.optString("speaker")
                                         val role = s.optString("role")
-                                        // We don't have a per-person score in JSON yet, so use session empathy as proxy
                                         if (name.isNotBlank()) {
                                             stakeholderMap.getOrPut(name) { mutableListOf() }.add(metric.empathyScore)
-                                            stakeholderRoles[name] = role // Last role wins
+                                            stakeholderRoles[name] = role 
                                         }
                                     }
                                 }
@@ -95,7 +101,7 @@ class ProgressViewModel @Inject constructor(
                             score = scores.average().toInt(),
                             role = stakeholderRoles[name] ?: "Neutral"
                         )
-                    }.sortedByDescending { it.score }.take(5) // Top 5
+                    }.sortedByDescending { it.score }.take(5) 
 
                     // Calculate Weekly Activity
                     val activity = MutableList(7) { 0 }
@@ -120,6 +126,7 @@ class ProgressViewModel @Inject constructor(
                         weeklyActivity = activity,
                         averageTalkRatio = avgTalkRatio,
                         stakeholders = stakeholders,
+                        trendData = trendData,
                         isLoading = false
                     )
                 } else {
