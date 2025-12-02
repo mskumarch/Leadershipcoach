@@ -124,111 +124,29 @@ fun ChatScreen(
             // RECORDING STATE - THE COCKPIT
             // ============================================================
             Box(modifier = Modifier.fillMaxSize()) {
-                Column(
+                // ============================================================
+                // RECORDING STATE - LIVE TRANSCRIPT STUDIO
+                // ============================================================
+                // Use the new Pixel-inspired Live Transcript Mode
+                val amplitude by viewModel.audioAmplitude.collectAsState()
+                
+                com.meetingcoach.leadershipconversationcoach.presentation.ui.components.recording.LiveTranscriptMode(
+                    messages = sessionState.messages,
+                    partialTranscript = sessionState.partialTranscript,
+                    amplitude = amplitude,
                     modifier = Modifier.fillMaxSize()
-                ) {
-                        // 1. Metrics HUD (Glassmorphic Top Bar) - Ghost Mode Logic
-                        // Calculate alpha based on health: If talk ratio is balanced (30-70), fade out to 0.3f
-                        val isHealthy = sessionState.metrics.talkRatio in 30..70
-                        val hudAlpha by animateFloatAsState(
-                            targetValue = if (isHealthy) 0.3f else 1.0f,
-                            animationSpec = tween(durationMillis = 1000)
-                        )
+                )
 
-                        Box(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .alpha(hudAlpha)
-                        ) {
-                            MetricsHUD(
-                                isRecording = !sessionState.isPaused,
-                                duration = sessionState.duration,
-                                talkRatio = sessionState.metrics.talkRatio,
-                                qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100),
-                                sentiment = "Engaged" // Connect to VM later
-                            )
-                        }
-
-                        // 2. Main Feed (LazyColumn)
-                        androidx.compose.foundation.lazy.LazyColumn(
-                            state = listState,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            contentPadding = PaddingValues(bottom = 120.dp, top = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(sessionState.messages) { message: com.meetingcoach.leadershipconversationcoach.domain.models.ChatMessage ->
-                                when (message.type) {
-                                    // LIVE TRANSCRIPT
-                                    MessageType.TRANSCRIPT -> {
-                                        StreamingTranscriptBubble(
-                                            text = message.content,
-                                            isFinal = true, // Assuming stored messages are final chunks
-                                            speaker = message.speaker?.name ?: "UNKNOWN"
-                                        )
-                                    }
-                                    
-                                    // Coaching cards
-                                    MessageType.URGENT_NUDGE -> {
-                                        CoachingBanner(
-                                            type = BannerType.CRITICAL_NUDGE,
-                                            message = message.content,
-                                            copyableText = null,
-                                            onDismiss = { viewModel.removeMessage(message.id) },
-                                            onGotIt = { viewModel.removeMessage(message.id) }
-                                        )
-                                    }
-                                    MessageType.IMPORTANT_PROMPT, MessageType.HELPFUL_TIP, MessageType.CONTEXT -> {
-                                        CoachingBanner(
-                                            type = BannerType.HELPFUL_SUGGESTION,
-                                            message = message.content,
-                                            copyableText = null,
-                                            onDismiss = { viewModel.removeMessage(message.id) },
-                                            onGotIt = { viewModel.removeMessage(message.id) }
-                                        )
-                                    }
-
-                                    // User question bubble
-                                    MessageType.USER_QUESTION -> {
-                                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                                            UserMessageBubble(message = message.content)
-                                        }
-                                    }
-
-                                    // AI response bubble
-                                    MessageType.AI_RESPONSE -> {
-                                        if (message.content == "Thinking...") {
-                                            GlassmorphicAICard {
-                                                TypingIndicator()
-                                            }
-                                        } else {
-                                            GlassmorphicAICard {
-                                                Text(
-                                                    text = message.content,
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
-                                            }
-                                        }
-                                    }
-                                    else -> {}
-                                }
-                            }
-                            
-                            // Live Partial Transcript
-                            if (sessionState.partialTranscript.isNotEmpty()) {
-                                item {
-                                    StreamingTranscriptBubble(
-                                        text = sessionState.partialTranscript,
-                                        isFinal = false,
-                                        speaker = "You"
-                                    )
-                                }
-                            }
-                        }
-                    }
+                // Overlay Metrics HUD (Optional: keep it for coaching context, but maybe minimal)
+                Box(modifier = Modifier.padding(16.dp)) {
+                     MetricsHUD(
+                        isRecording = !sessionState.isPaused,
+                        duration = sessionState.duration,
+                        talkRatio = sessionState.metrics.talkRatio,
+                        qualityScore = (sessionState.metrics.openQuestionCount * 10).coerceAtMost(100),
+                        sentiment = "Engaged"
+                    )
+                }
 
                     // 3. Floating Controls (Bottom)
                     Column(

@@ -99,20 +99,39 @@ class SessionViewModel @Inject constructor(
                     }
                 } else {
                     // Final result
-                    val message = ChatMessage(
-                        type = MessageType.TRANSCRIPT,
-                        content = chunk.text,
-                        speaker = chunk.speaker,
-                        metadata = com.meetingcoach.leadershipconversationcoach.domain.models.MessageMetadata(
-                            emotion = chunk.emotion,
-                            confidence = chunk.confidence
+                    // Final result
+                    // Check if the last message was a transcript from the same speaker
+                    val lastMessage = _sessionState.value.messages.lastOrNull()
+                    val isSameSpeaker = lastMessage?.type == MessageType.TRANSCRIPT && 
+                                        lastMessage.speaker?.name == chunk.speaker?.name
+
+                    if (isSameSpeaker && lastMessage != null) {
+                        // Append to existing message
+                        val updatedContent = lastMessage.content + " " + chunk.text
+                        val updatedMessage = lastMessage.copy(content = updatedContent)
+                        
+                        _sessionState.update { state ->
+                            val updatedList = state.messages.toMutableList().apply {
+                                set(lastIndex, updatedMessage)
+                            }
+                            state.copy(messages = updatedList, partialTranscript = "")
+                        }
+                    } else {
+                        // Create new message block
+                        val message = ChatMessage(
+                            type = MessageType.TRANSCRIPT,
+                            content = chunk.text,
+                            speaker = chunk.speaker,
+                            metadata = com.meetingcoach.leadershipconversationcoach.domain.models.MessageMetadata(
+                                emotion = chunk.emotion,
+                                confidence = chunk.confidence
+                            )
                         )
-                    )
-                    addMessage(message)
-                    updateMetrics()
+                        addMessage(message)
+                        _sessionState.update { it.copy(partialTranscript = "") }
+                    }
                     
-                    // Clear partial transcript
-                    _sessionState.update { it.copy(partialTranscript = "") }
+                    updateMetrics()
 
                     // Trigger Dynamics Analysis on final result
                     if (_sessionState.value.mode == SessionMode.DYNAMICS) {
