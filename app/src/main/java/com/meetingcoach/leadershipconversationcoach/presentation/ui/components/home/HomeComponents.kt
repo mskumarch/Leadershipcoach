@@ -38,6 +38,7 @@ fun HomeIdleState(
     onTagSelected: (String) -> Unit = {}
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    var showDailyStory by remember { mutableStateOf(false) }
     
     com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground {
         Box(
@@ -111,10 +112,14 @@ fun HomeIdleState(
                 // 5. Daily Tip (Footer)
                 DailyTipTeaser(
                     tip = dailyTip,
-                    onClick = { /* TODO: Navigate to Wisdom Tab */ }
+                    onClick = { showDailyStory = true }
                 )
             }
         }
+    }
+    
+    if (showDailyStory) {
+        DailyNudgeStory(onDismiss = { showDailyStory = false })
     }
 }
 
