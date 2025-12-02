@@ -36,7 +36,8 @@ class SessionViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val analyzeSessionUseCase: AnalyzeSessionUseCase,
     private val analyzeDynamicsUseCase: com.meetingcoach.leadershipconversationcoach.domain.usecase.AnalyzeDynamicsUseCase,
-    private val stakeholderRepository: com.meetingcoach.leadershipconversationcoach.data.repository.StakeholderRepository
+    private val stakeholderRepository: com.meetingcoach.leadershipconversationcoach.data.repository.StakeholderRepository,
+    private val geminiApiService: com.meetingcoach.leadershipconversationcoach.data.ai.GeminiApiService
 ) : ViewModel() {
 
     companion object {
@@ -57,6 +58,10 @@ class SessionViewModel @Inject constructor(
 
     private val _selectedStakeholder = MutableStateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder?>(null)
     val selectedStakeholder: StateFlow<com.meetingcoach.leadershipconversationcoach.domain.models.Stakeholder?> = _selectedStakeholder.asStateFlow()
+
+    // Daily Tip State
+    private val _dailyTip = MutableStateFlow<String>("Loading daily wisdom...")
+    val dailyTip: StateFlow<String> = _dailyTip.asStateFlow()
 
     // Audio level from SessionManager
     val audioLevel: StateFlow<Float> = sessionManager.audioLevel
@@ -133,6 +138,27 @@ class SessionViewModel @Inject constructor(
         }
 
         loadStakeholders()
+        fetchDailyTip()
+    }
+
+    fun fetchDailyTip() {
+        viewModelScope.launch {
+            _dailyTip.value = "Thinking of a new tip..."
+            val tip = geminiApiService.generateDailyTip()
+            if (tip != null) {
+                _dailyTip.value = tip
+            } else {
+                // Fallback tips if AI fails or offline
+                val fallbackTips = listOf(
+                    "Listen more than you speak.",
+                    "Ask 'What do you think?' before giving answers.",
+                    "Clear expectations prevent future conflicts.",
+                    "Feedback is a gift, even when it's wrapped poorly.",
+                    "Trust is earned in drops and lost in buckets."
+                )
+                _dailyTip.value = fallbackTips.random()
+            }
+        }
     }
 
     private fun loadStakeholders() {

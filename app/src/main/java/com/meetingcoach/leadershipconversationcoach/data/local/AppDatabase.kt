@@ -14,7 +14,7 @@ import androidx.room.RoomDatabase
         PendingAnalysisEntity::class,
         StakeholderEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @androidx.room.TypeConverters(StakeholderConverters::class)

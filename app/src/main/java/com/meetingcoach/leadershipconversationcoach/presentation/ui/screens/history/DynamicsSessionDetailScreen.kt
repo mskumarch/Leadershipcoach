@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -132,36 +133,109 @@ fun DynamicsSessionDetailScreen(
 
 @Composable
 fun DynamicsAnalysisTab(sessionDetails: SessionWithDetails) {
+    val analysis = remember(sessionDetails.metrics?.dynamicsAnalysisJson) {
+        parseDynamicsAnalysis(sessionDetails.metrics?.dynamicsAnalysisJson)
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // 1. Power Dynamics Score (Summary)
-        item {
-            PowerDynamicsScoreCard(score = 85) // Mock score for now
-        }
+        if (analysis != null) {
+            // 1. Power Dynamics Score (Summary)
+            item {
+                PowerDynamicsScoreCard(score = analysis.powerDynamicsScore)
+            }
 
-        // 2. Alignment Map (Timeline)
-        item {
-            AlignmentMapCard()
-        }
+            // 2. Alignment Map (Timeline) - Still a placeholder for now as we don't have timeline data yet
+            // item {
+            //    AlignmentMapCard()
+            // }
 
-        // 3. Subtext Decoder (The "Meat")
-        item {
-            SubtextDecoderSection()
-        }
-        
-        // 4. Next Meeting Strategy
-        item {
-            NextMeetingStrategyCard()
+            // 3. Subtext Decoder (The "Meat")
+            if (analysis.subtextSignals.isNotEmpty()) {
+                item {
+                    SubtextDecoderSection(analysis.subtextSignals)
+                }
+            }
+            
+            // 4. Next Meeting Strategy
+            if (analysis.strategies.isNotEmpty()) {
+                item {
+                    NextMeetingStrategyCard(analysis.strategies)
+                }
+            }
+        } else {
+            item {
+                Text(
+                    text = "No dynamics analysis available for this session.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }
 
+data class DynamicsAnalysis(
+    val powerDynamicsScore: Int,
+    val subtextSignals: List<SubtextSignal>,
+    val strategies: List<Strategy>
+)
+
+data class SubtextSignal(
+    val quote: String,
+    val type: String,
+    val analysis: String
+)
+
+data class Strategy(
+    val title: String,
+    val description: String
+)
+
+private fun parseDynamicsAnalysis(jsonString: String?): DynamicsAnalysis? {
+    if (jsonString.isNullOrBlank()) return null
+    try {
+        val json = org.json.JSONObject(jsonString)
+        val score = json.optInt("power_dynamics_score", 50)
+        
+        val signals = mutableListOf<SubtextSignal>()
+        val signalsArray = json.optJSONArray("subtext_signals")
+        if (signalsArray != null) {
+            for (i in 0 until signalsArray.length()) {
+                val obj = signalsArray.getJSONObject(i)
+                signals.add(SubtextSignal(
+                    quote = obj.optString("quote"),
+                    type = obj.optString("type"),
+                    analysis = obj.optString("analysis")
+                ))
+            }
+        }
+        
+        val strategies = mutableListOf<Strategy>()
+        val strategiesArray = json.optJSONArray("strategies")
+        if (strategiesArray != null) {
+            for (i in 0 until strategiesArray.length()) {
+                val obj = strategiesArray.getJSONObject(i)
+                strategies.add(Strategy(
+                    title = obj.optString("title"),
+                    description = obj.optString("description")
+                ))
+            }
+        }
+        
+        return DynamicsAnalysis(score, signals, strategies)
+    } catch (e: Exception) {
+        return null
+    }
+}
+
 @Composable
-fun NextMeetingStrategyCard() {
+fun NextMeetingStrategyCard(strategies: List<Strategy>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2D3748)), // Darker Slate
@@ -176,9 +250,9 @@ fun NextMeetingStrategyCard() {
             )
             Spacer(modifier = Modifier.height(12.dp))
             
-            StrategyItem("Build Rapport", "Start with a personal check-in to lower their defenses.")
-            StrategyItem("Push for Specifics", "Don't accept 'we'll see'. Ask 'When exactly?'")
-            StrategyItem("Leverage Allies", "Mention support from the Engineering team to validate your point.")
+            strategies.forEach { strategy ->
+                StrategyItem(strategy.title, strategy.description)
+            }
         }
     }
 }
@@ -273,7 +347,7 @@ fun AlignmentMapCard() {
 }
 
 @Composable
-fun SubtextDecoderSection() {
+fun SubtextDecoderSection(signals: List<SubtextSignal>) {
     Column {
         Text(
             text = "Subtext Decoder",
@@ -283,15 +357,8 @@ fun SubtextDecoderSection() {
             modifier = Modifier.padding(bottom = 12.dp)
         )
         
-        // Mock Signals
-        val signals = listOf(
-            Triple("Let's take this offline", "Deflection", "They avoided the decision."),
-            Triple("I'll try to see if...", "Vague Commitment", "Low accountability detected."),
-            Triple("I completely agree", "Strong Alignment", "You have their buy-in.")
-        )
-        
-        signals.forEach { (quote, type, analysis) ->
-            SubtextCard(quote, type, analysis)
+        signals.forEach { signal ->
+            SubtextCard(signal.quote, signal.type, signal.analysis)
             Spacer(modifier = Modifier.height(12.dp))
         }
     }

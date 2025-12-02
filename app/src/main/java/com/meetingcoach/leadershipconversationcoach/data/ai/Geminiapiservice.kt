@@ -251,6 +251,25 @@ class GeminiApiService(
     }
 
     /**
+     * Generate a daily leadership tip
+     */
+    suspend fun generateDailyTip(): String? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = """
+                Generate a single, short, actionable leadership tip for today.
+                It should be inspiring and practical.
+                Max 20 words.
+                Do not use quotes or prefixes like "Tip:". Just the sentence.
+            """.trimIndent()
+            val response = generativeModel.generateContent(prompt)
+            response.text?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error generating daily tip: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Deep analysis of the session using AUDIO (for Speaker ID and Tone)
      */
     suspend fun analyzeAudioSession(
@@ -451,7 +470,16 @@ class GeminiApiService(
               "transcript": [
                 {"speaker": "Speaker 1", "text": "..."},
                 {"speaker": "Speaker 2", "text": "..."}
-              ]
+              ],
+              "dynamics_analysis": {
+                "power_dynamics_score": 85,
+                "subtext_signals": [
+                  {"quote": "Let's take this offline", "type": "Deflection", "analysis": "Avoidance..."}
+                ],
+                "strategies": [
+                  {"title": "Build Rapport", "description": "Start with..."}
+                ]
+              }
             }
         """.trimIndent()
     }
@@ -506,7 +534,12 @@ class GeminiApiService(
               "pace_analysis": "Analysis...",
               "wording_analysis": "Analysis...",
               "improvements": ["Point 1", "Point 2", "Point 3"],
-              "key_takeaways": ["Takeaway 1", "Takeaway 2"]
+              "key_takeaways": ["Takeaway 1", "Takeaway 2"],
+              "dynamics_analysis": {
+                "power_dynamics_score": 85,
+                "subtext_signals": [],
+                "strategies": []
+              }
             }
         """.trimIndent()
     }
@@ -561,10 +594,14 @@ class GeminiApiService(
             val closedQuestions = json.optInt("closed_questions", 0)
             val managerTalkPercentage = json.optInt("manager_talk_percentage", 50)
             val interruptionCount = json.optInt("interruption_count", 0)
+            
+            // Dynamics Analysis
+            val dynamicsJson = json.optJSONObject("dynamics_analysis")?.toString()
 
             return SessionAnalysisResult(
                 score1, score2, score3, finalSummary, pace, wording, improvements, transcriptJson,
-                commitments, openQuestions, closedQuestions, managerTalkPercentage, interruptionCount
+                commitments, openQuestions, closedQuestions, managerTalkPercentage, interruptionCount,
+                dynamicsJson
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing session analysis JSON: ${e.message}", e)
@@ -582,7 +619,7 @@ class GeminiApiService(
         val wording = Regex("WORDING:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No wording analysis."
         val improvements = Regex("IMPROVEMENTS:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No improvements listed."
         
-        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, null)
+        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, null, emptyList(), 0, 0, 50, 0, null)
     }
 
     private fun parseCoachingResponse(response: String?): CoachingResponse? {
@@ -694,5 +731,6 @@ data class SessionAnalysisResult(
     val openQuestions: Int = 0,
     val closedQuestions: Int = 0,
     val managerTalkPercentage: Int = 50,
-    val interruptionCount: Int = 0
+    val interruptionCount: Int = 0,
+    val dynamicsAnalysisJson: String? = null
 )

@@ -214,7 +214,8 @@ class CoachingEngine(
                 openQuestionCount = analysis.openQuestions,
                 questionCount = analysis.openQuestions + analysis.closedQuestions,
                 talkRatio = 100 - analysis.managerTalkPercentage, // Flip to show "other" percentage
-                interruptionCount = analysis.interruptionCount
+                interruptionCount = analysis.interruptionCount,
+                dynamicsAnalysisJson = analysis.dynamicsAnalysisJson
             )
         } else {
             null
