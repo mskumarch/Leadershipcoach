@@ -118,6 +118,16 @@ private fun TranscriptBlock(
     val isUser = speaker.equals("You", ignoreCase = true) || speaker.equals("User", ignoreCase = true)
     val speakerColor = if (isUser) AppPalette.Sage400 else Color(0xFFA5B4FC) // Sage for User, Indigo for Others
 
+    // Pulsing effect for non-final text
+    val alpha by animateFloatAsState(
+        targetValue = if (isFinal) 1f else 0.7f,
+        animationSpec = if (isFinal) tween(0) else infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "textAlpha"
+    )
+
     Column(modifier = Modifier.fillMaxWidth()) {
         // Speaker Label
         Text(
@@ -136,7 +146,7 @@ private fun TranscriptBlock(
                 fontSize = 24.sp,
                 lineHeight = 32.sp
             ),
-            color = if (isFinal) Color.White else Color.White.copy(alpha = 0.6f),
+            color = Color.White.copy(alpha = alpha),
             fontWeight = if (isFinal) FontWeight.Normal else FontWeight.Light
         )
     }
