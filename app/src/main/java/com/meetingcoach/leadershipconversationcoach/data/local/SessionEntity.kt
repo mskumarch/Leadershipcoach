@@ -44,5 +44,6 @@ data class SessionMetricsEntity(
     val summary: String? = null,
     val paceAnalysis: String? = null,
     val wordingAnalysis: String? = null,
-    val improvements: String? = null
+    val improvements: String? = null,
+    val aiTranscriptJson: String? = null
 )

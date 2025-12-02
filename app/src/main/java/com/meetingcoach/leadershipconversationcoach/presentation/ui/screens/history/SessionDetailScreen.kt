@@ -139,7 +139,7 @@ fun SessionDetailScreen(
                     ) { page ->
                         when (page) {
                             0 -> InsightsTab(sessionDetails, averageMetrics)
-                            1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary)
+                            1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary, sessionDetails.metrics?.aiTranscriptJson)
                             2 -> CoachingTab(sessionDetails.messages)
                         }
                     }
@@ -520,7 +520,16 @@ fun InsightCard(title: String, content: String?, isHighlight: Boolean = false) {
 }
 
 @Composable
-fun TranscriptTab(messages: List<SessionMessageEntity>, summary: String?) {
+fun TranscriptTab(messages: List<SessionMessageEntity>, summary: String?, aiTranscriptJson: String? = null) {
+    // Parse AI transcript if available (fallback)
+    val aiItems = remember(aiTranscriptJson) { 
+        if (!aiTranscriptJson.isNullOrBlank()) {
+            parseAiTranscript(aiTranscriptJson)
+        } else {
+            emptyList()
+        }
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -582,13 +591,53 @@ fun TranscriptTab(messages: List<SessionMessageEntity>, summary: String?) {
         }
         
         if (transcriptMessages.isEmpty()) {
-            item { Text("No transcript available.") }
+            if (aiItems.isNotEmpty()) {
+                // Fallback to AI Transcript (from Audio Analysis)
+                item {
+                    Text(
+                        text = "⚠️ Live transcript unavailable. Showing AI-generated transcript from audio.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                items(aiItems) { message ->
+                    TranscriptItem(message)
+                }
+            } else {
+                item { Text("No transcript available.") }
+            }
         } else {
             items(transcriptMessages) { message ->
                 TranscriptItem(message)
             }
         }
     }
+}
+
+private fun parseAiTranscript(json: String): List<SessionMessageEntity> {
+    val list = mutableListOf<SessionMessageEntity>()
+    try {
+        val jsonArray = org.json.JSONArray(json)
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+            val speaker = obj.optString("speaker", "Speaker")
+            val text = obj.optString("text", "")
+            
+            if (text.isNotBlank()) {
+                list.add(SessionMessageEntity(
+                    sessionId = 0,
+                    messageType = "TRANSCRIPT",
+                    content = text,
+                    speaker = speaker,
+                    createdAt = System.currentTimeMillis()
+                ))
+            }
+        }
+    } catch (e: Exception) {
+        // Log error or ignore
+    }
+    return list
 }
 
 @Composable
