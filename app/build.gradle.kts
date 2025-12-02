@@ -144,6 +144,10 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
+    // MediaPipe & TensorFlow Lite (for on-device audio processing)
+    implementation("com.google.mediapipe:tasks-audio:0.10.14")
+    implementation("com.google.android.gms:play-services-tflite-java:16.1.0")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
