@@ -133,6 +133,12 @@ fun SessionDetailScreen(
                         CircularProgressIndicator()
                     }
                 } else {
+                    // Tags Section
+                    TagsSection(
+                        tagsJson = sessionDetails.session.tags,
+                        onAddTag = { tag -> viewModel.addTag(sessionDetails.session.id, tag) }
+                    )
+                    
                     HorizontalPager(
                         state = pagerState,
                         modifier = Modifier.fillMaxSize()

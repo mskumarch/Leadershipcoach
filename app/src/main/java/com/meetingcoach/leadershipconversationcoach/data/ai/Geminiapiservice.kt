@@ -441,6 +441,8 @@ class GeminiApiService(
                    - Power Dynamics Score: 0-100 (Who holds the power?)
                    - Subtext Signals: Decode hidden meanings (e.g., "Let's take this offline" = "I disagree but won't say it here").
                    - Strategies: 3 specific strategies for the NEXT meeting to improve influence.
+                   - Stakeholder Mapping: Identify speakers as "Ally", "Neutral", or "Detractor".
+                   - Objections: Identify key objections raised and provide a "Battle Card" rebuttal for each.
                 
                 Format your response EXACTLY as valid JSON:
                 {
@@ -462,6 +464,12 @@ class GeminiApiService(
                     ],
                     "strategies": [
                       {"title": "Strategy Title", "description": "Actionable advice for next time (NOT 'Coach')"}
+                    ],
+                    "stakeholder_map": [
+                      {"speaker": "Speaker Name", "role": "Ally/Neutral/Detractor", "reason": "Why?"}
+                    ],
+                    "objection_battle_cards": [
+                      {"objection": "It's too expensive", "rebuttal": "Focus on ROI and long-term value."}
                     ]
                   }
                 }

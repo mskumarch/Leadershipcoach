@@ -151,6 +151,16 @@ class SessionRepository @Inject constructor(
         }
     }
 
+    suspend fun updateSessionTags(sessionId: Long, tags: List<String>): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val tagsJson = org.json.JSONArray(tags).toString()
+            sessionDao.updateSessionTags(sessionId, tagsJson)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun queuePendingAnalysis(sessionId: Long, audioFilePath: String, mode: String) = withContext(Dispatchers.IO) {
         sessionDao.insertPendingAnalysis(
             com.meetingcoach.leadershipconversationcoach.data.local.PendingAnalysisEntity(
