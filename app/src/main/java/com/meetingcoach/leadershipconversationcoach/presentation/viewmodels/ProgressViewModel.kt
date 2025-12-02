@@ -13,6 +13,8 @@ import javax.inject.Inject
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.StakeholderStatus
 import org.json.JSONObject
 
+import com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.progress.Milestone
+
 data class ProgressUiState(
     val overallScore: Int = 0,
     val empathyScore: Int = 0,
@@ -24,6 +26,7 @@ data class ProgressUiState(
     val averageTalkRatio: Int = 0,
     val stakeholders: List<StakeholderStatus> = emptyList(),
     val trendData: List<Float> = emptyList(), // New
+    val milestones: List<Milestone> = emptyList(), // New
     val isLoading: Boolean = false
 )
 
@@ -116,6 +119,14 @@ class ProgressViewModel @Inject constructor(
                         }
                     }
 
+                    // Mock Milestones (Dynamic logic would go here)
+                    val milestones = listOf(
+                        Milestone("Today", "Consistency King", "Completed 3 sessions this week.", true),
+                        Milestone("Nov 15", "Empathy Master", "Achieved > 90% empathy score.", true),
+                        Milestone("Nov 01", "First Step", "Completed your first coaching session.", true),
+                        Milestone("Oct 28", "Joined", "Started your leadership journey.", true)
+                    )
+
                     _uiState.value = ProgressUiState(
                         overallScore = overall,
                         empathyScore = avgEmpathy,
@@ -127,6 +138,7 @@ class ProgressViewModel @Inject constructor(
                         averageTalkRatio = avgTalkRatio,
                         stakeholders = stakeholders,
                         trendData = trendData,
+                        milestones = milestones,
                         isLoading = false
                     )
                 } else {
