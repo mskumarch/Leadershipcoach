@@ -35,11 +35,19 @@ class SessionRepository @Inject constructor(
         metrics: SessionMetrics
     ): Result<Long> = withContext(Dispatchers.IO) {
         try {
+            val sessionTitle = if (title.isNullOrBlank()) {
+                val formatter = java.time.format.DateTimeFormatter.ofPattern("MMM dd, HH:mm")
+                    .withZone(java.time.ZoneId.systemDefault())
+                "Session ${formatter.format(startedAt)}"
+            } else {
+                title
+            }
+
             val sessionEntity = SessionEntity(
                 startedAt = startedAt.toEpochMilli(),
                 endedAt = endedAt.toEpochMilli(),
                 mode = mode.name,
-                title = title,
+                title = sessionTitle,
                 durationSeconds = durationSeconds
             )
 
