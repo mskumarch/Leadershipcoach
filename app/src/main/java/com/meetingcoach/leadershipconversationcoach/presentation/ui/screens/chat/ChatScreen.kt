@@ -101,6 +101,13 @@ fun ChatScreen(
         }
     }
 
+    // Refresh Daily Tip when entering Home Screen
+    LaunchedEffect(Unit) {
+        if (!sessionState.isRecording) {
+            viewModel.fetchDailyTip()
+        }
+    }
+
     com.meetingcoach.leadershipconversationcoach.presentation.ui.components.StandardBackground(modifier = modifier) {
         // Snackbar for Guardian nudges
         androidx.compose.material3.SnackbarHost(
@@ -357,7 +364,9 @@ fun ChatScreen(
             }
         } else {
             // IDLE STATE
+            val dailyTip by viewModel.dailyTip.collectAsState()
             HomeIdleState(
+                dailyTip = dailyTip,
                 onStartSession = { showSessionModeModal = true }
             )
         }

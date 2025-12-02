@@ -251,6 +251,25 @@ class GeminiApiService(
     }
 
     /**
+     * Generate a daily leadership tip
+     */
+    suspend fun generateDailyTip(): String? = withContext(Dispatchers.IO) {
+        try {
+            val prompt = """
+                Generate a single, short, actionable leadership tip for today.
+                It should be inspiring and practical.
+                Max 20 words.
+                Do not use quotes or prefixes like "Tip:". Just the sentence.
+            """.trimIndent()
+            val response = generativeModel.generateContent(prompt)
+            response.text?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error generating daily tip: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Deep analysis of the session using AUDIO (for Speaker ID and Tone)
      */
     suspend fun analyzeAudioSession(

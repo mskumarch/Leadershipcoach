@@ -16,7 +16,11 @@ class RssRepository @Inject constructor() {
         "Harvard Business Review" to "http://feeds.hbr.org/harvardbusiness",
         "First Round Review" to "https://review.firstround.com/rss",
         "Leadership Freak" to "https://leadershipfreak.blog/feed",
-        "McKinsey Insights" to "https://www.mckinsey.com/featured-insights/rss.xml"
+        "McKinsey Insights" to "https://www.mckinsey.com/featured-insights/rss.xml",
+        "Forbes Leadership" to "https://www.forbes.com/leadership/feed/",
+        "Fast Company" to "https://www.fastcompany.com/rss",
+        "Inc.com" to "https://www.inc.com/rss",
+        "Psychology Today" to "https://www.psychologytoday.com/us/feed"
     )
 
     suspend fun fetchAllFeeds(): List<RssItem> = withContext(Dispatchers.IO) {
