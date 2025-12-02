@@ -37,6 +37,7 @@ class SessionManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioRecorder: AudioRecorder,
     private val sttService: LocalSpeechToTextService,
+    private val mediaPipeService: com.meetingcoach.leadershipconversationcoach.data.speech.MediaPipeSpeechService,
     private val coachingEngine: CoachingEngine,
     private val coachingOrchestrator: CoachingOrchestrator
 ) {
@@ -74,6 +75,14 @@ class SessionManager @Inject constructor(
 
         // 1. Start Audio Recording
         recordedFile = audioRecorder.startRecording()
+
+        // 1.5 Start MediaPipe Service (Voice Activity Detection)
+        mediaPipeService.initialize()
+        mediaPipeService.startProcessing { result ->
+            // Use MediaPipe result to detect speech vs silence
+            // This can be used to improve "Listening..." state accuracy
+            // For now, we just log it or use it to trigger UI updates if needed
+        }
 
         // 2. Start Speech Recognition
         sttService.startListening(
@@ -182,6 +191,8 @@ class SessionManager @Inject constructor(
         val file = audioRecorder.stopRecording()
         sttService.stopListening()
         sttService.release() // Important: Release resources
+        mediaPipeService.stopProcessing()
+        mediaPipeService.release()
         coachingEngine.stopSession()
         coachingOrchestrator.stopSession()
 
