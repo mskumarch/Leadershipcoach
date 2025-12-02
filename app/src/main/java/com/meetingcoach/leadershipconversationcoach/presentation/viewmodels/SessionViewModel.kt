@@ -177,7 +177,11 @@ class SessionViewModel @Inject constructor(
         }
     }
 
+    // Context Tag Logic
+    private var pendingContextTag: String? = null
+
     fun loadPrepContext(tag: String) {
+        pendingContextTag = tag
         viewModelScope.launch {
             val result = sessionRepository.getLastSessionContextByTag(tag)
             if (result.isSuccess) {
@@ -270,6 +274,16 @@ class SessionViewModel @Inject constructor(
             )
         }
 
+        // Inject Context if available
+        pendingContextTag?.let { tag ->
+            addMessage(ChatMessage(
+                type = MessageType.CONTEXT,
+                content = "Session Context: Focused on '$tag'. AI will provide relevant advice.",
+                priority = Priority.INFO
+            ))
+            pendingContextTag = null // Clear after use
+        }
+
         startTimer()
         sessionManager.startSession(mode)
         
@@ -302,37 +316,24 @@ class SessionViewModel @Inject constructor(
         val currentState = _sessionState.value
         if (!currentState.isRecording) return
 
-        _sessionState.update { it.copy(isRecording = false, isReflectionPending = true) }
+        _sessionState.update { it.copy(isRecording = false) }
         timerJob?.cancel()
 
-        // Stop SessionManager & Store File
-        tempAudioFile = sessionManager.stopSession()
+        // Stop SessionManager & Get File
+        val audioFile = sessionManager.stopSession()
         
         // Stop Foreground Service
         val serviceIntent = android.content.Intent(context, com.meetingcoach.leadershipconversationcoach.services.SessionService::class.java)
         serviceIntent.action = com.meetingcoach.leadershipconversationcoach.services.SessionService.ACTION_STOP_SESSION
         context.startService(serviceIntent)
-    }
 
-    fun submitReflection(feeling: String, notes: String) {
-        val currentState = _sessionState.value
-        
-        // Add reflection as a context message
-        if (notes.isNotBlank()) {
-            addMessage(ChatMessage(
-                type = MessageType.CONTEXT,
-                content = "User Reflection: $feeling - $notes",
-                priority = Priority.INFO
-            ))
-        }
-
-        // Analyze Session
+        // Analyze & Save
         viewModelScope.launch {
             updateMetrics() // Calculate basic metrics first
             val metrics = currentState.metrics ?: com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
             
-            // Use stored audio file
-            val result = analyzeSessionUseCase(tempAudioFile, currentState.messages, metrics)
+            // Analyze Session
+            val result = analyzeSessionUseCase(audioFile, currentState.messages, metrics)
             
             val finalMetrics = when (result) {
                 is com.meetingcoach.leadershipconversationcoach.utils.Result.Success -> {
@@ -350,12 +351,10 @@ class SessionViewModel @Inject constructor(
             saveSessionToDb(currentState, finalMetrics)
             
             // Reset Session State
-            tempAudioFile = null
             _sessionState.update { 
                 SessionState(
                     mode = it.mode,
                     isRecording = false,
-                    isReflectionPending = false,
                     messages = emptyList(),
                     metrics = com.meetingcoach.leadershipconversationcoach.domain.models.SessionMetrics()
                 ) 

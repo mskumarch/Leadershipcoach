@@ -452,18 +452,7 @@ fun ChatScreen(
             )
         }
 
-        // Reflection Dialog
-        if (sessionState.isReflectionPending) {
-            com.meetingcoach.leadershipconversationcoach.presentation.ui.components.session.ReflectionDialog(
-                onDismiss = { 
-                    // If dismissed without submitting, just submit empty reflection
-                    viewModel.submitReflection("Neutral", "") 
-                },
-                onSubmit = { feeling, notes ->
-                    viewModel.submitReflection(feeling, notes)
-                }
-            )
-        }
+
     }
 }
 

@@ -119,13 +119,42 @@ class ProgressViewModel @Inject constructor(
                         }
                     }
 
-                    // Mock Milestones (Dynamic logic would go here)
-                    val milestones = listOf(
-                        Milestone("Today", "Consistency King", "Completed 3 sessions this week.", true),
-                        Milestone("Nov 15", "Empathy Master", "Achieved > 90% empathy score.", true),
-                        Milestone("Nov 01", "First Step", "Completed your first coaching session.", true),
-                        Milestone("Oct 28", "Joined", "Started your leadership journey.", true)
-                    )
+                    // Calculate Real Milestones
+                    val realMilestones = mutableListOf<Milestone>()
+                    
+                    // 1. First Session
+                    val firstSession = sessions.minByOrNull { it.startedAt }
+                    if (firstSession != null) {
+                        val date = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault()).format(java.util.Date(firstSession.startedAt))
+                        realMilestones.add(Milestone(date, "First Step", "Completed your first coaching session.", true))
+                    }
+
+                    // 2. High Score (Empathy > 90)
+                    val highScoreSession = metrics.find { it.empathyScore >= 90 }
+                    if (highScoreSession != null) {
+                        // Find session date
+                        val session = sessions.find { it.id == highScoreSession.sessionId }
+                        if (session != null) {
+                            val date = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault()).format(java.util.Date(session.startedAt))
+                            realMilestones.add(Milestone(date, "Empathy Master", "Achieved > 90% empathy score.", true))
+                        }
+                    }
+
+                    // 3. Consistency (Total Sessions)
+                    if (sessions.size >= 5) {
+                        val latest = sessions.maxByOrNull { it.startedAt }
+                        if (latest != null) {
+                             val date = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault()).format(java.util.Date(latest.startedAt))
+                             realMilestones.add(Milestone(date, "Consistency King", "Completed 5+ sessions.", true))
+                        }
+                    }
+                    
+                    // 4. Joined (Static or based on first app open, using first session for now)
+                    // (Optional, maybe skip if redundant with First Step)
+
+                    // Sort by date descending (mock logic for sorting strings is hard, so we just reverse insertion order or use actual timestamps if we changed Milestone model)
+                    // For now, let's just reverse them so newest is top
+                    val sortedMilestones = realMilestones.reversed()
 
                     _uiState.value = ProgressUiState(
                         overallScore = overall,
@@ -138,7 +167,7 @@ class ProgressViewModel @Inject constructor(
                         averageTalkRatio = avgTalkRatio,
                         stakeholders = stakeholders,
                         trendData = trendData,
-                        milestones = milestones,
+                        milestones = sortedMilestones,
                         isLoading = false
                     )
                 } else {
