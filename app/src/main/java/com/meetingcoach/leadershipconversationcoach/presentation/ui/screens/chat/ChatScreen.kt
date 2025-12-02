@@ -120,19 +120,13 @@ fun ChatScreen(
         )
         
         if (sessionState.isRecording) {
-            if (sessionState.mode == com.meetingcoach.leadershipconversationcoach.domain.models.SessionMode.DYNAMICS) {
-                com.meetingcoach.leadershipconversationcoach.presentation.ui.screens.dynamics.DynamicsRecordingScreen(
-                    viewModel = viewModel,
-                    onStopSession = { viewModel.stopSession() }
-                )
-            } else {
-                // ============================================================
-                // RECORDING STATE - THE COCKPIT
-                // ============================================================
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
+            // ============================================================
+            // RECORDING STATE - THE COCKPIT
+            // ============================================================
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                         // 1. Metrics HUD (Glassmorphic Top Bar) - Ghost Mode Logic
                         // Calculate alpha based on health: If talk ratio is balanced (30-70), fade out to 0.3f
                         val isHealthy = sessionState.metrics.talkRatio in 30..70
@@ -363,7 +357,6 @@ fun ChatScreen(
                         )
                     }
                 }
-            }
         } else {
             // IDLE STATE
             val dailyTip by viewModel.dailyTip.collectAsState()
