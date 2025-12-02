@@ -35,7 +35,10 @@ fun HomeIdleState(
     dailyTip: String,
     recentTags: List<String> = emptyList(),
     onStartSession: () -> Unit,
-    onTagSelected: (String) -> Unit = {}
+    onTagSelected: (String) -> Unit = {},
+    onNavigateToPractice: () -> Unit = {},
+    onNavigateToHistory: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     var showDailyStory by remember { mutableStateOf(false) }
@@ -107,7 +110,11 @@ fun HomeIdleState(
                 }
 
                 // 4. Quick Actions
-                QuickActionsRow()
+                QuickActionsRow(
+                    onPracticeClick = onNavigateToPractice,
+                    onHistoryClick = onNavigateToHistory,
+                    onSettingsClick = onNavigateToSettings
+                )
                 
                 // 5. Daily Tip (Footer)
                 DailyTipTeaser(
@@ -232,27 +239,32 @@ fun SmartPrepCard(recentTags: List<String>, onTagSelected: (String) -> Unit) {
 }
 
 @Composable
-fun QuickActionsRow() {
+fun QuickActionsRow(
+    onPracticeClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onSettingsClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        QuickActionButton(icon = "🎯", label = "Practice")
-        QuickActionButton(icon = "📊", label = "History") // Placeholder action
-        QuickActionButton(icon = "⚙️", label = "Settings")
+        QuickActionButton(icon = "🎯", label = "Practice", onClick = onPracticeClick)
+        QuickActionButton(icon = "📊", label = "History", onClick = onHistoryClick)
+        QuickActionButton(icon = "⚙️", label = "Settings", onClick = onSettingsClick)
     }
 }
 
 @Composable
-fun QuickActionButton(icon: String, label: String) {
+fun QuickActionButton(icon: String, label: String, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
                 .size(60.dp)
                 .background(Color.White, CircleShape)
-                .shadow(4.dp, CircleShape),
+                .shadow(4.dp, CircleShape)
+                .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
             Text(text = icon, fontSize = 24.sp)

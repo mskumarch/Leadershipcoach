@@ -110,7 +110,9 @@ fun NavigationScreen(
                                     viewModel = viewModel,
                                     modifier = Modifier,
                                     hasRecordAudioPermission = hasRecordAudioPermission,
-                                    onNavigateToPractice = { showPracticeMode = true }
+                                    onNavigateToPractice = { showPracticeMode = true },
+                                    onNavigateToHistory = { selectedTab = 3 },
+                                    onNavigateToSettings = { selectedTab = 4 }
                                 )
                                 1 -> TranscriptScreen(
                                     viewModel = viewModel,
