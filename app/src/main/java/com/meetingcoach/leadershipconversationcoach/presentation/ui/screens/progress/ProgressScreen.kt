@@ -140,30 +140,42 @@ fun ProgressScreen(
                     "Empathy" to uiState.empathyScore,
                     "Clarity" to uiState.clarityScore,
                     "Listening" to uiState.listeningScore,
-                    "Influence" to 65, // Placeholder until we have real data
-                    "Pace" to 80      // Placeholder
+                    "Influence" to uiState.influenceScore,
+                    "Pace" to uiState.paceScore
                 )
             )
 
             Spacer(modifier = Modifier.height(48.dp))
 
             // 3. Stakeholder Heatmap (Dynamics)
-            Text(
-                text = "Stakeholder Alignment",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = AppPalette.Stone900,
-                modifier = Modifier.align(Alignment.Start)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            StakeholderHeatmap(
-                stakeholders = listOf(
-                    StakeholderStatus("Sarah", 85, "Ally"),
-                    StakeholderStatus("John", 45, "Detractor"),
-                    StakeholderStatus("Mike", 60, "Neutral")
+            if (uiState.stakeholders.isNotEmpty()) {
+                Text(
+                    text = "Stakeholder Alignment",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Stone900,
+                    modifier = Modifier.align(Alignment.Start)
                 )
-            )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                StakeholderHeatmap(
+                    stakeholders = uiState.stakeholders
+                )
+            } else {
+                Text(
+                    text = "Stakeholder Alignment",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppPalette.Stone900,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "No stakeholder data yet. Record a Dynamics session to see alignment.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AppPalette.Stone500
+                )
+            }
 
             Spacer(modifier = Modifier.height(64.dp))
 
