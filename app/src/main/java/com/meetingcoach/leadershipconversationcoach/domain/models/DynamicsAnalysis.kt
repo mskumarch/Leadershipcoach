@@ -7,7 +7,8 @@ data class DynamicsAnalysis(
     val alignmentScore: Int, // 0-100 (0=Hostile, 100=Aligned)
     val tensionLevel: Int,   // 0-100 (0=Calm, 100=Conflict)
     val detectedSignals: List<DynamicsSignal> = emptyList(),
-    val strategicAdvice: String? = null
+    val strategicAdvice: String? = null,
+    val intervention: String? = null
 )
 
 /**

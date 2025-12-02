@@ -126,6 +126,23 @@ class SessionViewModel @Inject constructor(
                                 priority = Priority.URGENT
                             ))
                         }
+
+                        // Handle Intervention (Real-time Alert)
+                        analysis.intervention?.let { intervention ->
+                            // Trigger Haptics
+                            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as android.os.Vibrator
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                vibrator.vibrate(android.os.VibrationEffect.createOneShot(500, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+                            } else {
+                                vibrator.vibrate(500)
+                            }
+                            
+                            addMessage(ChatMessage(
+                                type = MessageType.URGENT_NUDGE,
+                                content = intervention,
+                                priority = Priority.URGENT
+                            ))
+                        }
                     }
                 }
             }

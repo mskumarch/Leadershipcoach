@@ -74,7 +74,8 @@ class SessionRepository @Inject constructor(
                 wordingAnalysis = metrics.wordingAnalysis,
                 improvements = metrics.improvements,
                 aiTranscriptJson = metrics.aiTranscriptJson,
-                dynamicsAnalysisJson = metrics.dynamicsAnalysisJson
+                dynamicsAnalysisJson = metrics.dynamicsAnalysisJson,
+                actionItemsJson = org.json.JSONArray(metrics.actionItems).toString()
             )
 
             sessionDao.insertMetrics(metricsEntity)

@@ -586,6 +586,7 @@ class GeminiApiService(
               "wording_analysis": "Analysis...",
               "improvements": ["Point 1", "Point 2", "Point 3"],
               "key_takeaways": ["Takeaway 1", "Takeaway 2"],
+              "action_items": ["Action 1", "Action 2"],
               "dynamics_analysis": {
                 "power_dynamics_score": 85,
                 "subtext_signals": [],
@@ -649,10 +650,16 @@ class GeminiApiService(
             // Dynamics Analysis
             val dynamicsJson = json.optJSONObject("dynamics_analysis")?.toString()
 
+            // Action Items
+            val actionItemsArray = json.optJSONArray("action_items")
+            val actionItems = if (actionItemsArray != null) {
+                (0 until actionItemsArray.length()).map { actionItemsArray.getString(it) }
+            } else emptyList()
+
             return SessionAnalysisResult(
                 score1, score2, score3, finalSummary, pace, wording, improvements, transcriptJson,
                 commitments, openQuestions, closedQuestions, managerTalkPercentage, interruptionCount,
-                dynamicsJson
+                dynamicsJson, actionItems
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing session analysis JSON: ${e.message}", e)
@@ -670,7 +677,7 @@ class GeminiApiService(
         val wording = Regex("WORDING:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No wording analysis."
         val improvements = Regex("IMPROVEMENTS:\\s*(.+)").find(response)?.groupValues?.get(1)?.trim() ?: "No improvements listed."
         
-        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, null, emptyList(), 0, 0, 50, 0, null)
+        return SessionAnalysisResult(score1, score2, score3, summary, pace, wording, improvements, null, emptyList(), 0, 0, 50, 0, null, emptyList())
     }
 
     private fun parseCoachingResponse(response: String?): CoachingResponse? {
@@ -783,5 +790,6 @@ data class SessionAnalysisResult(
     val closedQuestions: Int = 0,
     val managerTalkPercentage: Int = 50,
     val interruptionCount: Int = 0,
-    val dynamicsAnalysisJson: String? = null
+    val dynamicsAnalysisJson: String? = null,
+    val actionItems: List<String> = emptyList()
 )
