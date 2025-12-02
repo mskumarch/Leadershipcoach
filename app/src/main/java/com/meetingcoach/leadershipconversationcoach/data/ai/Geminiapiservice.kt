@@ -500,7 +500,7 @@ class GeminiApiService(
                       {"title": "Strategy Title", "description": "Actionable advice for next time (NOT 'Coach')"}
                     ],
                     "stakeholder_map": [
-                      {"speaker": "Speaker Name", "role": "Ally/Neutral/Detractor", "reason": "Why?"}
+                      {"speaker": "Speaker Name", "role": "Ally/Neutral/Detractor", "influence_score": [0-100], "reason": "Why?"}
                     ],
                     "objection_battle_cards": [
                       {"objection": "It's too expensive", "rebuttal": "Focus on ROI and long-term value."}
