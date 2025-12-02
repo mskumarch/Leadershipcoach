@@ -13,14 +13,14 @@ import javax.inject.Singleton
 class RssRepository @Inject constructor() {
 
     private val feeds = mapOf(
-        "Harvard Business Review" to "http://feeds.hbr.org/harvardbusiness",
-        "First Round Review" to "https://review.firstround.com/rss",
+        "Harvard Business Review" to "https://feeds.hbr.org/harvardbusiness",
+        "First Round Review" to "https://review.firstround.com/feed.xml",
         "Leadership Freak" to "https://leadershipfreak.blog/feed",
-        "McKinsey Insights" to "https://www.mckinsey.com/featured-insights/rss.xml",
+        "McKinsey Insights" to "https://www.mckinsey.com/insights/rss",
         "Forbes Leadership" to "https://www.forbes.com/leadership/feed/",
         "Fast Company" to "https://www.fastcompany.com/rss",
         "Inc.com" to "https://www.inc.com/rss",
-        "Psychology Today" to "https://www.psychologytoday.com/us/feed"
+        "Psychology Today" to "https://www.psychologytoday.com/us/feed/topics/leadership"
     )
 
     suspend fun fetchAllFeeds(): List<RssItem> = withContext(Dispatchers.IO) {

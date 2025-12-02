@@ -979,9 +979,23 @@ fun StreamingTranscriptBubble(
     speaker: String,
     modifier: Modifier = Modifier
 ) {
-    val isUser = speaker == "USER" // Simplified check
+    val isUser = speaker == "USER" || speaker == "You"
     val align = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
-    val bgColor = if (isUser) Color.Transparent else Color.Transparent // Minimalist
+    
+    // Pulse animation for partial text
+    val alpha = if (isFinal) 1f else {
+        val infiniteTransition = rememberInfiniteTransition(label = "textPulse")
+        val a by infiniteTransition.animateFloat(
+            initialValue = 0.6f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(800, easing = EaseInOut),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "alpha"
+        )
+        a
+    }
     
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -1000,7 +1014,7 @@ fun StreamingTranscriptBubble(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (isFinal) TextPrimary else TextDisabled,
+                color = if (isFinal) TextPrimary else TextPrimary.copy(alpha = alpha),
                 fontWeight = if (isFinal) FontWeight.Normal else FontWeight.Light,
                 modifier = Modifier.widthIn(max = 300.dp)
             )
