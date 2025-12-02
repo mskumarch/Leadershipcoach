@@ -133,20 +133,24 @@ fun SessionDetailScreen(
                         CircularProgressIndicator()
                     }
                 } else {
-                    // Tags Section
-                    TagsSection(
-                        tagsJson = sessionDetails.session.tags,
-                        onAddTag = { tag -> viewModel.addTag(sessionDetails.session.id, tag) }
-                    )
-                    
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier.fillMaxSize()
-                    ) { page ->
-                        when (page) {
-                            0 -> InsightsTab(sessionDetails, averageMetrics)
-                            1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary, sessionDetails.metrics?.aiTranscriptJson)
-                            2 -> CoachingTab(sessionDetails.messages)
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Tags Section
+                        TagsSection(
+                            tagsJson = sessionDetails.session.tags,
+                            onAddTag = { tag -> viewModel.addTag(sessionDetails.session.id, tag) }
+                        )
+                        
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        ) { page ->
+                            when (page) {
+                                0 -> InsightsTab(sessionDetails, averageMetrics)
+                                1 -> TranscriptTab(sessionDetails.messages, sessionDetails.metrics?.summary, sessionDetails.metrics?.aiTranscriptJson)
+                                2 -> CoachingTab(sessionDetails.messages)
+                            }
                         }
                     }
                 }
