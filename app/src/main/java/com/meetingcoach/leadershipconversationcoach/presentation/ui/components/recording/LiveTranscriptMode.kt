@@ -68,22 +68,40 @@ fun LiveTranscriptMode(
             // Filter only transcript messages for this view
             val transcriptMessages = messages.filter { it.type == MessageType.TRANSCRIPT }
             
-            items(transcriptMessages) { message ->
-                TranscriptBlock(
-                    text = message.content,
-                    speaker = message.speaker?.name ?: "Speaker",
-                    isFinal = true
-                )
-            }
-
-            // Live Partial Segment
-            if (partialTranscript.isNotEmpty()) {
+            if (transcriptMessages.isEmpty() && partialTranscript.isEmpty()) {
                 item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Listening...",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.White.copy(alpha = 0.3f),
+                            fontWeight = FontWeight.Light
+                        )
+                    }
+                }
+            } else {
+                items(transcriptMessages) { message ->
                     TranscriptBlock(
-                        text = partialTranscript,
-                        speaker = "You", // Assume user is speaking for partials usually
-                        isFinal = false
+                        text = message.content,
+                        speaker = message.speaker?.name ?: "Speaker",
+                        isFinal = true
                     )
+                }
+
+                // Live Partial Segment
+                if (partialTranscript.isNotEmpty()) {
+                    item {
+                        TranscriptBlock(
+                            text = partialTranscript,
+                            speaker = "You", // Assume user is speaking for partials usually
+                            isFinal = false
+                        )
+                    }
                 }
             }
         }
