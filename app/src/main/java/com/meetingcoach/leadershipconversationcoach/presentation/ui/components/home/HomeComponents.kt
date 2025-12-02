@@ -32,7 +32,9 @@ import com.meetingcoach.leadershipconversationcoach.presentation.ui.components.G
 @Composable
 fun HomeIdleState(
     dailyTip: String,
-    onStartSession: () -> Unit
+    recentTags: List<String> = emptyList(),
+    onStartSession: () -> Unit,
+    onTagSelected: (String) -> Unit = {}
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     
@@ -89,6 +91,12 @@ fun HomeIdleState(
                 DailyTipTeaser(
                     tip = dailyTip,
                     onClick = { /* TODO: Navigate to Wisdom Tab */ }
+                )
+                
+                // Smart Prep Section
+                SmartPrepSection(
+                    recentTags = recentTags,
+                    onTagSelected = onTagSelected
                 )
             }
             

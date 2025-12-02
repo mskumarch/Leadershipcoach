@@ -155,7 +155,38 @@ class SessionViewModel @Inject constructor(
         }
 
         loadStakeholders()
+        loadStakeholders()
         fetchDailyTip()
+        loadRecentTags()
+    }
+
+    // Smart Prep State
+    private val _recentTags = MutableStateFlow<List<String>>(emptyList())
+    val recentTags: StateFlow<List<String>> = _recentTags.asStateFlow()
+
+    private val _prepContext = MutableStateFlow<com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails?>(null)
+    val prepContext: StateFlow<com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails?> = _prepContext.asStateFlow()
+
+    private fun loadRecentTags() {
+        viewModelScope.launch {
+            val result = sessionRepository.getRecentTags()
+            if (result.isSuccess) {
+                _recentTags.value = result.getOrDefault(emptyList())
+            }
+        }
+    }
+
+    fun loadPrepContext(tag: String) {
+        viewModelScope.launch {
+            val result = sessionRepository.getLastSessionContextByTag(tag)
+            if (result.isSuccess) {
+                _prepContext.value = result.getOrNull()
+            }
+        }
+    }
+
+    fun clearPrepContext() {
+        _prepContext.value = null
     }
 
     fun fetchDailyTip() {
