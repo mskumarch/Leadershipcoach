@@ -23,6 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.clickable
 import com.meetingcoach.leadershipconversationcoach.data.repository.SessionWithDetails
 import com.meetingcoach.leadershipconversationcoach.presentation.ui.theme.AppPalette
 import kotlinx.coroutines.launch
@@ -164,7 +168,14 @@ fun DynamicsAnalysisTab(sessionDetails: SessionWithDetails) {
                 }
             }
             
-            // 4. Next Meeting Strategy
+            // 4. Objection Battle Cards
+            if (analysis.battleCards.isNotEmpty()) {
+                item {
+                    BattleCardsSection(analysis.battleCards)
+                }
+            }
+
+            // 5. Next Meeting Strategy
             if (analysis.strategies.isNotEmpty()) {
                 item {
                     NextMeetingStrategyCard(analysis.strategies)
@@ -187,7 +198,8 @@ data class DynamicsAnalysis(
     val powerDynamicsScore: Int,
     val subtextSignals: List<SubtextSignal>,
     val strategies: List<Strategy>,
-    val stakeholders: List<StakeholderMapItem> = emptyList()
+    val stakeholders: List<StakeholderMapItem> = emptyList(),
+    val battleCards: List<BattleCardItem> = emptyList()
 )
 
 data class SubtextSignal(
@@ -205,6 +217,11 @@ data class StakeholderMapItem(
     val speaker: String,
     val role: String,
     val reason: String
+)
+
+data class BattleCardItem(
+    val objection: String,
+    val rebuttal: String
 )
 
 private fun parseDynamicsAnalysis(jsonString: String?): DynamicsAnalysis? {
@@ -250,8 +267,20 @@ private fun parseDynamicsAnalysis(jsonString: String?): DynamicsAnalysis? {
                 ))
             }
         }
+
+        val battleCards = mutableListOf<BattleCardItem>()
+        val battleCardsArray = json.optJSONArray("objection_battle_cards")
+        if (battleCardsArray != null) {
+            for (i in 0 until battleCardsArray.length()) {
+                val obj = battleCardsArray.getJSONObject(i)
+                battleCards.add(BattleCardItem(
+                    objection = obj.optString("objection"),
+                    rebuttal = obj.optString("rebuttal")
+                ))
+            }
+        }
         
-        return DynamicsAnalysis(score, signals, strategies, stakeholders)
+        return DynamicsAnalysis(score, signals, strategies, stakeholders, battleCards)
     } catch (e: Exception) {
         return null
     }
@@ -470,6 +499,98 @@ fun SubtextCard(quote: String, type: String, analysis: String) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = AppPalette.Sage200
             )
+        }
+    }
+}
+
+@Composable
+fun BattleCardsSection(battleCards: List<BattleCardItem>) {
+    Column {
+        Text(
+            text = "Objection Battle Cards",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        
+        // Horizontal scroll for cards
+        androidx.compose.foundation.lazy.LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp)
+        ) {
+            items(battleCards) { card ->
+                BattleCard(card)
+            }
+        }
+    }
+}
+
+@Composable
+fun BattleCard(card: BattleCardItem) {
+    var isFlipped by remember { mutableStateOf(false) }
+    
+    Card(
+        modifier = Modifier
+            .width(280.dp)
+            .height(320.dp)
+            .clickable { isFlipped = !isFlipped },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isFlipped) AppPalette.Sage400 else Color(0xFF2D3748)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (!isFlipped) {
+                // Front: The Objection
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "OBJECTION",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = AppPalette.Red500,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "\"${card.objection}\"",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "Tap to flip ↻",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                // Back: The Rebuttal
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "WINNING STRATEGY",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = card.rebuttal,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
