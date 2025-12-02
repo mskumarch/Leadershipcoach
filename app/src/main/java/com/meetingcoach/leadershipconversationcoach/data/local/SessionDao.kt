@@ -60,6 +60,9 @@ interface SessionDao {
     @Query("UPDATE sessions SET title = :title WHERE id = :sessionId")
     suspend fun updateSessionTitle(sessionId: Long, title: String)
 
+    @Query("UPDATE sessions SET tags = :tags WHERE id = :sessionId")
+    suspend fun updateSessionTags(sessionId: Long, tags: String)
+
     // Pending Analysis
     @Insert
     suspend fun insertPendingAnalysis(pending: PendingAnalysisEntity)

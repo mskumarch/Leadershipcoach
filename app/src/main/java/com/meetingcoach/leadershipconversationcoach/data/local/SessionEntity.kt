@@ -13,6 +13,7 @@ data class SessionEntity(
     val mode: String,
     val title: String? = null,
     val durationSeconds: Int,
+    val tags: String? = null, // JSON list of tags
     val createdAt: Long = System.currentTimeMillis()
 )
 

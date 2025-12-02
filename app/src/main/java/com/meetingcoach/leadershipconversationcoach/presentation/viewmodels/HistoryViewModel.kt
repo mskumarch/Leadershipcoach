@@ -136,4 +136,26 @@ class HistoryViewModel @Inject constructor(
     fun clearFollowUpDraft() {
         _uiState.update { it.copy(generatedFollowUp = null) }
     }
+
+    fun addTag(sessionId: Long, tag: String) {
+        viewModelScope.launch {
+            val session = _uiState.value.selectedSession?.session ?: return@launch
+            if (session.id != sessionId) return@launch
+
+            val currentTags = try {
+                val jsonArray = org.json.JSONArray(session.tags ?: "[]")
+                (0 until jsonArray.length()).map { jsonArray.getString(it) }.toMutableList()
+            } catch (e: Exception) {
+                mutableListOf()
+            }
+
+            if (!currentTags.contains(tag)) {
+                currentTags.add(tag)
+                sessionRepository.updateSessionTags(sessionId, currentTags)
+                
+                // Reload details to reflect changes
+                loadSessionDetails(sessionId)
+            }
+        }
+    }
 }
