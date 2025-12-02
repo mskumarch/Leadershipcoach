@@ -42,19 +42,40 @@ class GeminiApiService(
         private const val TAG = "GeminiApiService"
     }
 
+    init {
+        if (apiKey.isBlank()) {
+            Log.e(TAG, "API Key is missing! Please check local.properties")
+        }
+    }
+
+    // Configure safety settings to be less restrictive for coaching context
+    private val safetySettings = listOf(
+        com.google.ai.client.generativeai.type.SafetySetting(
+            com.google.ai.client.generativeai.type.HarmCategory.HARASSMENT,
+            com.google.ai.client.generativeai.type.BlockThreshold.ONLY_HIGH
+        ),
+        com.google.ai.client.generativeai.type.SafetySetting(
+            com.google.ai.client.generativeai.type.HarmCategory.HATE_SPEECH,
+            com.google.ai.client.generativeai.type.BlockThreshold.ONLY_HIGH
+        ),
+        com.google.ai.client.generativeai.type.SafetySetting(
+            com.google.ai.client.generativeai.type.HarmCategory.SEXUALLY_EXPLICIT,
+            com.google.ai.client.generativeai.type.BlockThreshold.ONLY_HIGH
+        ),
+        com.google.ai.client.generativeai.type.SafetySetting(
+            com.google.ai.client.generativeai.type.HarmCategory.DANGEROUS_CONTENT,
+            com.google.ai.client.generativeai.type.BlockThreshold.ONLY_HIGH
+        )
+    )
+
     // Gemini Flash model - using 'latest' alias for automatic updates
     private val generativeModel: GenerativeModel by lazy {
         Log.d(TAG, "Initializing Gemini Model: gemini-flash-latest")
         GenerativeModel(
             modelName = "gemini-flash-latest",
-            apiKey = apiKey
+            apiKey = apiKey,
+            safetySettings = safetySettings
         )
-    }
-
-    init {
-        if (apiKey.isBlank()) {
-            Log.e(TAG, "API Key is missing! Please check local.properties")
-        }
     }
 
     /**
@@ -324,15 +345,26 @@ class GeminiApiService(
             try {
                 return block()
             } catch (e: Exception) {
-                // Check for 503 or ServerException
+                // Check for 503 or ServerException or Overloaded
                 val isServerOverloaded = e.message?.contains("503") == true || 
                                          e.message?.contains("overloaded") == true ||
                                          e.javaClass.simpleName.contains("ServerException")
+
+                // Check for SerializationException (often due to empty/blocked response)
+                val isSerializationError = e.javaClass.simpleName.contains("SerializationException") ||
+                                           e.message?.contains("Field 'parts' is required") == true
 
                 if (isServerOverloaded) {
                     Log.w(TAG, "Gemini overloaded. Retrying in ${currentDelay}ms...")
                     kotlinx.coroutines.delay(currentDelay)
                     currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
+                } else if (isSerializationError) {
+                     Log.w(TAG, "Gemini serialization error (likely safety block or empty). Retrying...")
+                     // Retry immediately or with short delay for safety blocks? 
+                     // Usually safety blocks are deterministic, but sometimes transient.
+                     // We'll treat it as a retryable error for now, maybe the next generation will be safer.
+                     kotlinx.coroutines.delay(currentDelay)
+                     currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
                 } else {
                     // If it's not a temporary server error, rethrow or return null
                     Log.e(TAG, "Non-retriable error: ${e.message}", e)
