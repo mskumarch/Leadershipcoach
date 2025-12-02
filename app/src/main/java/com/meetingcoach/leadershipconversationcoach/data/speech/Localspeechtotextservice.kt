@@ -217,6 +217,8 @@ class LocalSpeechToTextService @Inject constructor(
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US") // TODO: Make configurable
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true) // Enable partial results
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true) // Force offline if available (Pixel-like speed)
+            putExtra("android.speech.extra.DICTATION_MODE", true) // Optimize for long dictation
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
         }
@@ -355,10 +357,10 @@ class LocalSpeechToTextService @Inject constructor(
                     return // Skip this partial result
                 }
 
-                // Also skip if we just had a final result
-                if (currentTime - lastFinalResultTime < 1000L) {
-                    return
-                }
+                // Removed the 1-second block after final results to ensure continuous live feedback
+                // if (currentTime - lastFinalResultTime < 1000L) {
+                //    return
+                // }
 
                 lastPartialResultTime = currentTime
 
